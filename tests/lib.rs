@@ -1,6 +1,6 @@
 extern crate indextree;
+use indextree::Arena;
 
-use indextree::*;
 use std::cell::Cell;
 
 #[test]

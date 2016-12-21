@@ -91,9 +91,11 @@ impl<T> GetPairMut<T> for Vec<T> {
         if a == b {
             panic!(same_index_error_message)
         }
-        unsafe {
-            let self2 = mem::transmute_copy::<&mut Vec<T>, &mut Vec<T>>(&self);
-            (&mut self[a], &mut self2[b])
+        let (xs, ys) = self.split_at_mut(std::cmp::max(a, b));
+        if a < b {
+            (&mut xs[a], &mut ys[0])
+        } else {
+            (&mut ys[0], &mut xs[b])
         }
     }
 }

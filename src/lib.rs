@@ -433,7 +433,7 @@ impl<'a, T> Iterator for Traverse<'a, T> {
                     NodeEdge::Start(node) => {
                         match self.arena[node].first_child {
                             Some(first_child) => Some(NodeEdge::Start(first_child)),
-                            None => Some(NodeEdge::End(node.clone())),
+                            None => Some(NodeEdge::End(node)),
                         }
                     }
                     NodeEdge::End(node) => {
@@ -481,7 +481,7 @@ impl<'a, T> Iterator for ReverseTraverse<'a, T> {
                     NodeEdge::End(node) => {
                         match self.arena[node].last_child {
                             Some(last_child) => Some(NodeEdge::End(last_child)),
-                            None => Some(NodeEdge::Start(node.clone())),
+                            None => Some(NodeEdge::Start(node)),
                         }
                     }
                     NodeEdge::Start(node) => {

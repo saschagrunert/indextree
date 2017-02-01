@@ -1,6 +1,6 @@
 [package]
 name = "indextree"
-version = "1.0.0"
+version = "1.0.1"
 license = "MIT"
 readme = "README.md"
 keywords = ["tree", "arena", "index", "indextree", "trie"]
@@ -9,3 +9,9 @@ repository = "https://github.com/saschagrunert/indextree"
 homepage = "https://github.com/saschagrunert/indextree"
 documentation = "https://docs.rs/indextree"
 description = "Arena based tree structure by using indices instead of reference counted pointers"
+categories = ["data-structures"]
+license-file = "LICENSE"
+
+[badges]
+travis-ci = { repository = "saschagrunert/indextree", branch = "master" }
+appveyor = { repository = "saschagrunert/indextree", branch = "master", service = "github" }

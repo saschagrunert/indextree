@@ -79,6 +79,21 @@ impl<T> Arena<T> {
         });
         NodeId { index: next_index }
     }
+    
+    // Count nodes in arena.
+    pub fn count(&self) -> usize {
+        self.nodes.len()
+    }
+    
+    // Returns true if arena has no nodes, false otherwise
+    pub fn is_empty(&self) -> bool {
+        if self.count() == 0 {
+            true
+        }
+        else {
+            false
+        }
+    }
 }
 
 trait GetPairMut<T> {

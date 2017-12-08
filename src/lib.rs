@@ -16,7 +16,7 @@
 //! let a = arena.new_node(1);
 //! let b = arena.new_node(2);
 //!
-//! // Append a to b
+//! // Append b to a
 //! a.append(b, arena);
 //! assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 //! ```
@@ -78,6 +78,21 @@ impl<T> Arena<T> {
             data: data,
         });
         NodeId { index: next_index }
+    }
+    
+    // Count nodes in arena.
+    pub fn count(&self) -> usize {
+        self.nodes.len()
+    }
+    
+    // Returns true if arena has no nodes, false otherwise
+    pub fn is_empty(&self) -> bool {
+        if self.count() == 0 {
+            true
+        }
+        else {
+            false
+        }
     }
 }
 

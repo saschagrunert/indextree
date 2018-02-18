@@ -23,7 +23,7 @@
 use std::{mem, fmt};
 use std::ops::{Index, IndexMut};
 
-#[derive(PartialEq, Eq, Copy, Clone, Debug)]
+#[derive(PartialEq, Eq, Copy, Clone, Debug, Hash)]
 /// A node identifier within a particular `Arena`
 pub struct NodeId {
     index: usize,

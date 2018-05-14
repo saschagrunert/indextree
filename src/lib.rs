@@ -87,12 +87,7 @@ impl<T> Arena<T> {
     
     // Returns true if arena has no nodes, false otherwise
     pub fn is_empty(&self) -> bool {
-        if self.count() == 0 {
-            true
-        }
-        else {
-            false
-        }
+        self.count() == 0
     }
 }
 

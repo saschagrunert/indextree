@@ -23,13 +23,21 @@
 use std::{mem, fmt};
 use std::ops::{Index, IndexMut};
 
+#[cfg(feature = "deser")]
+extern crate serde;
+#[cfg(feature = "deser")]
+#[macro_use]
+extern crate serde_derive;
+
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Hash)]
+#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// A node identifier within a particular `Arena`
 pub struct NodeId {
     index: usize,
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// A node within a particular `Arena`
 pub struct Node<T> {
     // Keep these private (with read-only accessors) so that we can keep them consistent.
@@ -55,6 +63,7 @@ impl<T> fmt::Display for Node<T> {
 }
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// An `Arena` structure containing certain Nodes
 pub struct Arena<T> {
     nodes: Vec<Node<T>>,

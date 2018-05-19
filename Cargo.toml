@@ -14,3 +14,10 @@ categories = ["data-structures"]
 [badges]
 travis-ci = { repository = "saschagrunert/indextree", branch = "master" }
 appveyor = { repository = "saschagrunert/indextree", branch = "master", service = "github" }
+
+[features]
+deser = [ "serde", "serde_derive" ]
+
+[dependencies]
+serde = { version = "^1", optional = true }
+serde_derive = { version = "^1", optional = true }

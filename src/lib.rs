@@ -36,7 +36,7 @@ pub struct NodeId {
     index: usize,
 }
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// A node within a particular `Arena`
 pub struct Node<T> {
@@ -62,7 +62,7 @@ impl<T> fmt::Display for Node<T> {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(PartialEq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// An `Arena` structure containing certain Nodes
 pub struct Arena<T> {

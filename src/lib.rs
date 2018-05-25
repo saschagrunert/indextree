@@ -161,6 +161,11 @@ impl<T> Node<T> {
 }
 
 impl NodeId {
+    /// Create a `NodeId` used for attempting to get `Node`s references from an `Arena`.
+    pub fn new(index: usize) -> Self {
+        Self { index }
+    }
+
     /// Return an iterator of references to this node and its ancestors.
     ///
     /// Call `.next().unwrap()` once on the iterator to skip the node itself.

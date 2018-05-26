@@ -20,28 +20,30 @@ fn arenatree_success_create() {
             () => {{
                 new_counter += 1;
                 arena.new_node((new_counter, DropTracker(&drop_counter)))
-            }}
+            }};
         };
 
-        let a = new!();  // 1
-        a.append(new!(), arena);  // 2
-        a.append(new!(), arena);  // 3
-        a.prepend(new!(), arena);  // 4
-        let b = new!();  // 5
+        let a = new!(); // 1
+        a.append(new!(), arena); // 2
+        a.append(new!(), arena); // 3
+        a.prepend(new!(), arena); // 4
+        let b = new!(); // 5
         b.append(a, arena);
-        a.insert_before(new!(), arena);  // 6
-        a.insert_before(new!(), arena);  // 7
-        a.insert_after(new!(), arena);  // 8
-        a.insert_after(new!(), arena);  // 9
-        let c = new!();  // 10
+        a.insert_before(new!(), arena); // 6
+        a.insert_before(new!(), arena); // 7
+        a.insert_after(new!(), arena); // 8
+        a.insert_after(new!(), arena); // 9
+        let c = new!(); // 10
         b.append(c, arena);
 
         assert_eq!(drop_counter.get(), 0);
         arena[c].previous_sibling().unwrap().detach(arena);
         assert_eq!(drop_counter.get(), 0);
 
-        assert_eq!(b.descendants(arena).map(|node| arena[node].data.0).collect::<Vec<_>>(),
-                   [5, 6, 7, 1, 4, 2, 3, 9, 10]);
+        assert_eq!(
+            b.descendants(arena).map(|node| arena[node].data.0).collect::<Vec<_>>(),
+            [5, 6, 7, 1, 4, 2, 3, 9, 10]
+        );
     }
 
     assert_eq!(drop_counter.get(), 10);

@@ -20,8 +20,8 @@
 //! a.append(b, arena);
 //! assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 //! ```
-use std::{mem, fmt};
 use std::ops::{Index, IndexMut};
+use std::{fmt, mem};
 
 #[cfg(feature = "deser")]
 extern crate serde;
@@ -88,12 +88,12 @@ impl<T> Arena<T> {
         });
         NodeId { index: next_index }
     }
-    
+
     // Count nodes in arena.
     pub fn count(&self) -> usize {
         self.nodes.len()
     }
-    
+
     // Returns true if arena has no nodes, false otherwise
     pub fn is_empty(&self) -> bool {
         self.count() == 0
@@ -242,7 +242,11 @@ impl NodeId {
     pub fn detach<T>(self, arena: &mut Arena<T>) {
         let (parent, previous_sibling, next_sibling) = {
             let node = &mut arena[self];
-            (node.parent.take(), node.previous_sibling.take(), node.next_sibling.take())
+            (
+                node.parent.take(),
+                node.previous_sibling.take(),
+                node.next_sibling.take(),
+            )
         };
 
         if let Some(next_sibling) = next_sibling {
@@ -263,9 +267,10 @@ impl NodeId {
         new_child.detach(arena);
         let last_child_opt;
         {
-            let (self_borrow, new_child_borrow) = arena.nodes.get_pair_mut(self.index,
-                                                                           new_child.index,
-                                                                           "Can not append a node to itself");
+            let (self_borrow, new_child_borrow) =
+                arena
+                    .nodes
+                    .get_pair_mut(self.index, new_child.index, "Can not append a node to itself");
             new_child_borrow.parent = Some(self);
             last_child_opt = mem::replace(&mut self_borrow.last_child, Some(new_child));
             if let Some(last_child) = last_child_opt {
@@ -286,9 +291,10 @@ impl NodeId {
         new_child.detach(arena);
         let first_child_opt;
         {
-            let (self_borrow, new_child_borrow) = arena.nodes.get_pair_mut(self.index,
-                                                                           new_child.index,
-                                                                           "Can not prepend a node to itself");
+            let (self_borrow, new_child_borrow) =
+                arena
+                    .nodes
+                    .get_pair_mut(self.index, new_child.index, "Can not prepend a node to itself");
             new_child_borrow.parent = Some(self);
             first_child_opt = mem::replace(&mut self_borrow.first_child, Some(new_child));
             if let Some(first_child) = first_child_opt {
@@ -310,9 +316,10 @@ impl NodeId {
         let next_sibling_opt;
         let parent_opt;
         {
-            let (self_borrow, new_sibling_borrow) = arena.nodes.get_pair_mut(self.index,
-                                                                             new_sibling.index,
-                                                                             "Can not insert a node after itself");
+            let (self_borrow, new_sibling_borrow) =
+                arena
+                    .nodes
+                    .get_pair_mut(self.index, new_sibling.index, "Can not insert a node after itself");
             parent_opt = self_borrow.parent;
             new_sibling_borrow.parent = parent_opt;
             new_sibling_borrow.previous_sibling = Some(self);
@@ -336,9 +343,10 @@ impl NodeId {
         let previous_sibling_opt;
         let parent_opt;
         {
-            let (self_borrow, new_sibling_borrow) = arena.nodes.get_pair_mut(self.index,
-                                                                             new_sibling.index,
-                                                                             "Can not insert a node before itself");
+            let (self_borrow, new_sibling_borrow) =
+                arena
+                    .nodes
+                    .get_pair_mut(self.index, new_sibling.index, "Can not insert a node before itself");
             parent_opt = self_borrow.parent;
             new_sibling_borrow.parent = parent_opt;
             new_sibling_borrow.next_sibling = Some(self);
@@ -358,7 +366,7 @@ impl NodeId {
 }
 
 macro_rules! impl_node_iterator {
-    ($name: ident, $next: expr) => {
+    ($name:ident, $next:expr) => {
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
@@ -368,11 +376,11 @@ macro_rules! impl_node_iterator {
                         self.node = $next(&self.arena[node]);
                         Some(node)
                     }
-                    None => None
+                    None => None,
                 }
             }
         }
-    }
+    };
 }
 
 /// An iterator of references to the ancestors a given node.
@@ -439,7 +447,6 @@ pub enum NodeEdge<T> {
     End(T),
 }
 
-
 /// An iterator of references to a given node and its descendants, in tree order.
 pub struct Traverse<'a, T: 'a> {
     arena: &'a Arena<T>,
@@ -454,12 +461,10 @@ impl<'a, T> Iterator for Traverse<'a, T> {
         match self.next.take() {
             Some(item) => {
                 self.next = match item {
-                    NodeEdge::Start(node) => {
-                        match self.arena[node].first_child {
-                            Some(first_child) => Some(NodeEdge::Start(first_child)),
-                            None => Some(NodeEdge::End(node)),
-                        }
-                    }
+                    NodeEdge::Start(node) => match self.arena[node].first_child {
+                        Some(first_child) => Some(NodeEdge::Start(first_child)),
+                        None => Some(NodeEdge::End(node)),
+                    },
                     NodeEdge::End(node) => {
                         if node == self.root {
                             None
@@ -502,12 +507,10 @@ impl<'a, T> Iterator for ReverseTraverse<'a, T> {
         match self.next.take() {
             Some(item) => {
                 self.next = match item {
-                    NodeEdge::End(node) => {
-                        match self.arena[node].last_child {
-                            Some(last_child) => Some(NodeEdge::End(last_child)),
-                            None => Some(NodeEdge::Start(node)),
-                        }
-                    }
+                    NodeEdge::End(node) => match self.arena[node].last_child {
+                        Some(last_child) => Some(NodeEdge::End(last_child)),
+                        None => Some(NodeEdge::Start(node)),
+                    },
                     NodeEdge::Start(node) => {
                         if node == self.root {
                             None

@@ -68,3 +68,37 @@ fn arenatree_success_detach() {
     b.detach(arena);
     assert_eq!(b.ancestors(arena).into_iter().count(), 1);
 }
+
+#[test]
+fn arenatree_get() {
+    let arena = &mut Arena::new();
+    let id = arena.new_node(1);
+    assert_eq!(arena.get(id).unwrap().data, 1);
+}
+
+#[test]
+fn arenatree_get_mut() {
+    let arena = &mut Arena::new();
+    let id = arena.new_node(1);
+    assert_eq!(arena.get_mut(id).unwrap().data, 1);
+}
+
+#[test]
+fn arenatree_iter() {
+    let arena = &mut Arena::new();
+    let a = arena.new_node(1);
+    let b = arena.new_node(2);
+    let c = arena.new_node(3);
+    let d = arena.new_node(4);
+    a.append(b, arena);
+    b.append(c, arena);
+    a.append(d, arena);
+
+    let node_refs = arena.iter().collect::<Vec<_>>();
+    assert_eq!(node_refs, vec![
+        &arena[a],
+        &arena[b],
+        &arena[c],
+        &arena[d],
+    ]);
+}

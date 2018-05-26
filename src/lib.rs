@@ -98,6 +98,21 @@ impl<T> Arena<T> {
     pub fn is_empty(&self) -> bool {
         self.count() == 0
     }
+
+    /// Get a reference to the node with the given id if in the arena, None otherwise.
+    pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
+        self.nodes.get(id.index)
+    }
+
+    /// Get a mutable reference to the node with the given id if in the arena, None otherwise.
+    pub fn get_mut(&mut self, id: NodeId) -> Option<&mut Node<T>> {
+        self.nodes.get_mut(id.index)
+    }
+
+    /// Iterate over all nodes in the arena in storage-order.
+    pub fn iter(&self) -> std::slice::Iter<Node<T>> {
+        self.nodes.iter()
+    }
 }
 
 trait GetPairMut<T> {

@@ -20,14 +20,16 @@
 //! a.append(b, arena);
 //! assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 //! ```
-use std::ops::{Index, IndexMut};
-use std::{fmt, mem};
-
 #[cfg(feature = "deser")]
 extern crate serde;
 #[cfg(feature = "deser")]
 #[macro_use]
 extern crate serde_derive;
+extern crate rayon;
+
+use rayon::prelude::*;
+use std::ops::{Index, IndexMut};
+use std::{fmt, mem};
 
 #[derive(PartialEq, Eq, Copy, Clone, Debug, Hash)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
@@ -65,11 +67,14 @@ impl<T> fmt::Display for Node<T> {
 #[derive(PartialEq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// An `Arena` structure containing certain Nodes
-pub struct Arena<T> {
+pub struct Arena<T: Sync> {
     nodes: Vec<Node<T>>,
 }
 
-impl<T> Arena<T> {
+impl<T> Arena<T>
+where
+    T: Sync,
+{
     /// Create a new empty `Arena`
     pub fn new() -> Arena<T> {
         Arena { nodes: Vec::new() }
@@ -113,6 +118,11 @@ impl<T> Arena<T> {
     pub fn iter(&self) -> std::slice::Iter<Node<T>> {
         self.nodes.iter()
     }
+
+    /// Return an parallel iterator over the whole arena.
+    pub fn par_iter(&self) -> rayon::slice::Iter<Node<T>> {
+        self.nodes.par_iter()
+    }
 }
 
 trait GetPairMut<T> {
@@ -134,7 +144,7 @@ impl<T> GetPairMut<T> for Vec<T> {
     }
 }
 
-impl<T> Index<NodeId> for Arena<T> {
+impl<T: Sync> Index<NodeId> for Arena<T> {
     type Output = Node<T>;
 
     fn index(&self, node: NodeId) -> &Node<T> {
@@ -142,13 +152,13 @@ impl<T> Index<NodeId> for Arena<T> {
     }
 }
 
-impl<T> IndexMut<NodeId> for Arena<T> {
+impl<T: Sync> IndexMut<NodeId> for Arena<T> {
     fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {
         &mut self.nodes[node.index]
     }
 }
 
-impl<T> Node<T> {
+impl<T: Sync> Node<T> {
     /// Return the ID of the parent node, unless this node is the root of the tree.
     pub fn parent(&self) -> Option<NodeId> {
         self.parent
@@ -184,7 +194,7 @@ impl NodeId {
     /// Return an iterator of references to this node and its ancestors.
     ///
     /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn ancestors<T>(self, arena: &Arena<T>) -> Ancestors<T> {
+    pub fn ancestors<T: Sync>(self, arena: &Arena<T>) -> Ancestors<T> {
         Ancestors {
             arena: arena,
             node: Some(self),
@@ -194,7 +204,7 @@ impl NodeId {
     /// Return an iterator of references to this node and the siblings before it.
     ///
     /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
+    pub fn preceding_siblings<T: Sync>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
         PrecedingSiblings {
             arena: arena,
             node: Some(self),
@@ -204,7 +214,7 @@ impl NodeId {
     /// Return an iterator of references to this node and the siblings after it.
     ///
     /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
+    pub fn following_siblings<T: Sync>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
         FollowingSiblings {
             arena: arena,
             node: Some(self),
@@ -212,7 +222,7 @@ impl NodeId {
     }
 
     /// Return an iterator of references to this node’s children.
-    pub fn children<T>(self, arena: &Arena<T>) -> Children<T> {
+    pub fn children<T: Sync>(self, arena: &Arena<T>) -> Children<T> {
         Children {
             arena: arena,
             node: arena[self].first_child,
@@ -220,7 +230,7 @@ impl NodeId {
     }
 
     /// Return an iterator of references to this node’s children, in reverse order.
-    pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<T> {
+    pub fn reverse_children<T: Sync>(self, arena: &Arena<T>) -> ReverseChildren<T> {
         ReverseChildren {
             arena: arena,
             node: arena[self].last_child,
@@ -231,12 +241,12 @@ impl NodeId {
     ///
     /// Parent nodes appear before the descendants.
     /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn descendants<T>(self, arena: &Arena<T>) -> Descendants<T> {
+    pub fn descendants<T: Sync>(self, arena: &Arena<T>) -> Descendants<T> {
         Descendants(self.traverse(arena))
     }
 
     /// Return an iterator of references to this node and its descendants, in tree order.
-    pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<T> {
+    pub fn traverse<T: Sync>(self, arena: &Arena<T>) -> Traverse<T> {
         Traverse {
             arena: arena,
             root: self,
@@ -245,7 +255,7 @@ impl NodeId {
     }
 
     /// Return an iterator of references to this node and its descendants, in tree order.
-    pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<T> {
+    pub fn reverse_traverse<T: Sync>(self, arena: &Arena<T>) -> ReverseTraverse<T> {
         ReverseTraverse {
             arena: arena,
             root: self,
@@ -254,7 +264,7 @@ impl NodeId {
     }
 
     /// Detach a node from its parent and siblings. Children are not affected.
-    pub fn detach<T>(self, arena: &mut Arena<T>) {
+    pub fn detach<T: Sync>(self, arena: &mut Arena<T>) {
         let (parent, previous_sibling, next_sibling) = {
             let node = &mut arena[self];
             (
@@ -278,7 +288,7 @@ impl NodeId {
     }
 
     /// Append a new child to this node, after existing children.
-    pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
+    pub fn append<T: Sync>(self, new_child: NodeId, arena: &mut Arena<T>) {
         new_child.detach(arena);
         let last_child_opt;
         {
@@ -302,7 +312,7 @@ impl NodeId {
     }
 
     /// Prepend a new child to this node, before existing children.
-    pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
+    pub fn prepend<T: Sync>(self, new_child: NodeId, arena: &mut Arena<T>) {
         new_child.detach(arena);
         let first_child_opt;
         {
@@ -326,7 +336,7 @@ impl NodeId {
     }
 
     /// Insert a new sibling after this node.
-    pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
+    pub fn insert_after<T: Sync>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         new_sibling.detach(arena);
         let next_sibling_opt;
         let parent_opt;
@@ -353,7 +363,7 @@ impl NodeId {
     }
 
     /// Insert a new sibling before this node.
-    pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
+    pub fn insert_before<T: Sync>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         new_sibling.detach(arena);
         let previous_sibling_opt;
         let parent_opt;
@@ -382,7 +392,7 @@ impl NodeId {
 
 macro_rules! impl_node_iterator {
     ($name:ident, $next:expr) => {
-        impl<'a, T> Iterator for $name<'a, T> {
+        impl<'a, T: Sync> Iterator for $name<'a, T> {
             type Item = NodeId;
 
             fn next(&mut self) -> Option<NodeId> {
@@ -399,44 +409,44 @@ macro_rules! impl_node_iterator {
 }
 
 /// An iterator of references to the ancestors a given node.
-pub struct Ancestors<'a, T: 'a> {
+pub struct Ancestors<'a, T: 'a + Sync> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
 impl_node_iterator!(Ancestors, |node: &Node<T>| node.parent);
 
 /// An iterator of references to the siblings before a given node.
-pub struct PrecedingSiblings<'a, T: 'a> {
+pub struct PrecedingSiblings<'a, T: 'a + Sync> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
 impl_node_iterator!(PrecedingSiblings, |node: &Node<T>| node.previous_sibling);
 
 /// An iterator of references to the siblings after a given node.
-pub struct FollowingSiblings<'a, T: 'a> {
+pub struct FollowingSiblings<'a, T: 'a + Sync> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
 impl_node_iterator!(FollowingSiblings, |node: &Node<T>| node.next_sibling);
 
 /// An iterator of references to the children of a given node.
-pub struct Children<'a, T: 'a> {
+pub struct Children<'a, T: 'a + Sync> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
 impl_node_iterator!(Children, |node: &Node<T>| node.next_sibling);
 
 /// An iterator of references to the children of a given node, in reverse order.
-pub struct ReverseChildren<'a, T: 'a> {
+pub struct ReverseChildren<'a, T: 'a + Sync> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
 impl_node_iterator!(ReverseChildren, |node: &Node<T>| node.previous_sibling);
 
 /// An iterator of references to a given node and its descendants, in tree order.
-pub struct Descendants<'a, T: 'a>(Traverse<'a, T>);
+pub struct Descendants<'a, T: 'a + Sync>(Traverse<'a, T>);
 
-impl<'a, T> Iterator for Descendants<'a, T> {
+impl<'a, T: Sync> Iterator for Descendants<'a, T> {
     type Item = NodeId;
 
     fn next(&mut self) -> Option<NodeId> {
@@ -463,13 +473,13 @@ pub enum NodeEdge<T> {
 }
 
 /// An iterator of references to a given node and its descendants, in tree order.
-pub struct Traverse<'a, T: 'a> {
+pub struct Traverse<'a, T: 'a + Sync> {
     arena: &'a Arena<T>,
     root: NodeId,
     next: Option<NodeEdge<NodeId>>,
 }
 
-impl<'a, T> Iterator for Traverse<'a, T> {
+impl<'a, T: Sync> Iterator for Traverse<'a, T> {
     type Item = NodeEdge<NodeId>;
 
     fn next(&mut self) -> Option<NodeEdge<NodeId>> {
@@ -509,13 +519,13 @@ impl<'a, T> Iterator for Traverse<'a, T> {
 }
 
 /// An iterator of references to a given node and its descendants, in reverse tree order.
-pub struct ReverseTraverse<'a, T: 'a> {
+pub struct ReverseTraverse<'a, T: 'a + Sync> {
     arena: &'a Arena<T>,
     root: NodeId,
     next: Option<NodeEdge<NodeId>>,
 }
 
-impl<'a, T> Iterator for ReverseTraverse<'a, T> {
+impl<'a, T: Sync> Iterator for ReverseTraverse<'a, T> {
     type Item = NodeEdge<NodeId>;
 
     fn next(&mut self) -> Option<NodeEdge<NodeId>> {

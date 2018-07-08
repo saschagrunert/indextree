@@ -1,7 +1,9 @@
 extern crate indextree;
+#[cfg(feature = "par_iter")]
 extern crate rayon;
 
 use indextree::Arena;
+#[cfg(feature = "par_iter")]
 use rayon::prelude::*;
 
 #[test]
@@ -85,6 +87,7 @@ fn arenatree_iter() {
     assert_eq!(node_refs, vec![&arena[a], &arena[b], &arena[c], &arena[d]]);
 }
 
+#[cfg(feature = "par_iter")]
 #[test]
 fn arenatree_par_iter() {
     let arena = &mut Arena::new();

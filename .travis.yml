@@ -19,8 +19,8 @@ before_script:
   - cargo install cargo-kcov
 script:
   - export CARGO_TARGET_DIR=`pwd`/target
-  - travis-cargo build
-  - travis-cargo test
+  - travis-cargo build -- --features="par_iter"
+  - travis-cargo test -- --features="par_iter"
   - cargo doc --no-deps
 after_success:
   - if [[ "$TRAVIS_RUST_VERSION" == "stable" ]] && [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis-cargo doc-upload; fi

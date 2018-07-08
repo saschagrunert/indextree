@@ -17,5 +17,5 @@ install:
   - git submodule update --init --recursive
 build: false
 test_script:
-  - cargo test
+  - cargo test --features="par_iter"
   - cargo test --no-default-features

@@ -17,8 +17,13 @@ appveyor = { repository = "saschagrunert/indextree", branch = "master", service 
 
 [features]
 deser = [ "serde", "serde_derive" ]
+par_iter = ["rayon"]
 
 [dependencies]
 serde = { version = "^1", optional = true }
 serde_derive = { version = "^1", optional = true }
-rayon = "^1"
+rayon = { version = "^1", optional = true }
+
+[[example]]
+name = "parallel_iteration"
+required-features = ["par_iter"]

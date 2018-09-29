@@ -85,7 +85,15 @@ fn iter() {
     assert!(a.append(d, arena).is_ok());
 
     let node_refs = arena.iter().collect::<Vec<_>>();
-    assert_eq!(node_refs, vec![&arena[a], &arena[b], &arena[c], &arena[d]]);
+    assert_eq!(
+        node_refs,
+        vec![
+            &Some(arena[a].clone()),
+            &Some(arena[b].clone()),
+            &Some(arena[c].clone()),
+            &Some(arena[d].clone())
+        ]
+    );
 }
 
 #[cfg(feature = "par_iter")]
@@ -123,7 +131,10 @@ fn remove() {
     assert!(n2.append(n6, arena).is_ok());
     assert!(n2.remove(arena).is_ok());
 
-    let node_refs = arena.iter().map(|x| x.data).collect::<Vec<_>>();
+    let node_refs = arena
+        .iter()
+        .map(|x| x.clone().unwrap().data)
+        .collect::<Vec<_>>();
     assert_eq!(node_refs, vec![0, 1, 2, 3, 4, 5, 6]);
     assert_eq!(n2.children(arena).collect::<Vec<_>>().len(), 0);
     assert_eq!(n2.descendants(arena).collect::<Vec<_>>().len(), 1);

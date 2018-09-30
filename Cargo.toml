@@ -28,3 +28,6 @@ serde_derive = { version = "1.0.79", optional = true }
 [[example]]
 name = "parallel_iteration"
 required-features = ["par_iter"]
+
+[[example]]
+name = "simple"

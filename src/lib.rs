@@ -112,6 +112,7 @@ pub struct Node<T> {
     next_sibling: Option<NodeId>,
     first_child: Option<NodeId>,
     last_child: Option<NodeId>,
+    removed: bool,
 
     /// The actual data which will be stored within the tree
     pub data: T,
@@ -152,7 +153,7 @@ impl<T> fmt::Display for Node<T> {
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// An `Arena` structure containing certain Nodes
 pub struct Arena<T> {
-    nodes: Vec<Option<Node<T>>>,
+    nodes: Vec<Node<T>>,
 }
 
 impl<T> Arena<T> {
@@ -164,20 +165,21 @@ impl<T> Arena<T> {
     /// Create a new node from its associated data.
     pub fn new_node(&mut self, data: T) -> NodeId {
         let next_index = self.nodes.len();
-        self.nodes.push(Some(Node {
+        self.nodes.push(Node {
             parent: None,
             first_child: None,
             last_child: None,
             previous_sibling: None,
             next_sibling: None,
+            removed: false,
             data,
-        }));
+        });
         NodeId { index: next_index }
     }
 
-    // Count active nodes in the arena.
+    // Count nodes in arena.
     pub fn count(&self) -> usize {
-        self.nodes.iter().filter(|f| f.is_some()).count()
+        self.nodes.len()
     }
 
     // Returns true if arena has no nodes, false otherwise
@@ -188,20 +190,20 @@ impl<T> Arena<T> {
     /// Get a reference to the node with the given id if in the arena, None
     /// otherwise.
     pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
-        self.nodes.get(id.index).and_then(|x| x.as_ref())
+        self.nodes.get(id.index)
     }
 
     /// Get a mutable reference to the node with the given id if in the arena,
     /// None otherwise.
     pub fn get_mut(&mut self, id: NodeId) -> Option<&mut Node<T>> {
-        self.nodes.get_mut(id.index).and_then(|x| x.as_mut())
+        self.nodes.get_mut(id.index)
     }
 
     /// Iterate over all nodes in the arena in storage-order.
     ///
-    /// Note that this iterator also contains removed elements, which are
-    /// `None` in that case.
-    pub fn iter(&self) -> std::slice::Iter<Option<Node<T>>> {
+    /// Note that this iterator also contains removed elements, which can be
+    /// tested with the `is_removed()` method on the node.
+    pub fn iter(&self) -> std::slice::Iter<Node<T>> {
         self.nodes.iter()
     }
 }
@@ -211,8 +213,8 @@ impl<T: Sync> Arena<T> {
     /// Return an parallel iterator over the whole arena.
     ///
     /// Note that this iterator also contains removed elements, which can be
-    /// `None` in that case.
-    pub fn par_iter(&self) -> rayon::slice::Iter<Option<Node<T>>> {
+    /// tested with the `is_removed()` method on the node.
+    pub fn par_iter(&self) -> rayon::slice::Iter<Node<T>> {
         self.nodes.par_iter()
     }
 }
@@ -245,13 +247,13 @@ impl<T> Index<NodeId> for Arena<T> {
     type Output = Node<T>;
 
     fn index(&self, node: NodeId) -> &Node<T> {
-        self.get(node).unwrap()
+        &self.nodes[node.index]
     }
 }
 
 impl<T> IndexMut<NodeId> for Arena<T> {
     fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {
-        self.get_mut(node).unwrap()
+        &mut self.nodes[node.index]
     }
 }
 
@@ -282,6 +284,11 @@ impl<T> Node<T> {
     /// first child.
     pub fn next_sibling(&self) -> Option<NodeId> {
         self.next_sibling
+    }
+
+    /// Check if the node is marked as removed
+    pub fn is_removed(&self) -> bool {
+        self.removed
     }
 }
 
@@ -411,16 +418,12 @@ impl NodeId {
             if let Some((self_borrow, new_child_borrow)) =
                 arena.nodes.get_tuple_mut(self.index, new_child.index)
             {
-                new_child_borrow.as_mut().map(|x| x.parent = Some(self));
-                last_child_opt = mem::replace(
-                    &mut self_borrow.as_mut().and_then(|x| x.last_child),
-                    Some(new_child),
-                );
+                new_child_borrow.parent = Some(self);
+                last_child_opt =
+                    mem::replace(&mut self_borrow.last_child, Some(new_child));
                 if let Some(last_child) = last_child_opt {
-                    new_child_borrow
-                        .as_mut()
-                        .map(|x| x.previous_sibling = Some(last_child));
-                } else if let Some(self_borrow) = self_borrow {
+                    new_child_borrow.previous_sibling = Some(last_child);
+                } else {
                     if self_borrow.first_child.is_some() {
                         bail!(NodeError::FirstChildAlreadySet);
                     }
@@ -451,16 +454,12 @@ impl NodeId {
             if let Some((self_borrow, new_child_borrow)) =
                 arena.nodes.get_tuple_mut(self.index, new_child.index)
             {
-                new_child_borrow.as_mut().map(|x| x.parent = Some(self));
-                first_child_opt = mem::replace(
-                    &mut self_borrow.as_mut().and_then(|x| x.first_child),
-                    Some(new_child),
-                );
+                new_child_borrow.parent = Some(self);
+                first_child_opt =
+                    mem::replace(&mut self_borrow.first_child, Some(new_child));
                 if let Some(first_child) = first_child_opt {
-                    new_child_borrow
-                        .as_mut()
-                        .map(|x| x.next_sibling = Some(first_child));
-                } else if let Some(self_borrow) = self_borrow {
+                    new_child_borrow.next_sibling = Some(first_child);
+                } else {
                     self_borrow.last_child = Some(new_child);
                     if self_borrow.first_child.is_some() {
                         bail!(NodeError::FirstChildAlreadySet);
@@ -492,19 +491,15 @@ impl NodeId {
             if let Some((self_borrow, new_sibling_borrow)) =
                 arena.nodes.get_tuple_mut(self.index, new_sibling.index)
             {
-                parent_opt = self_borrow.as_ref().and_then(|x| x.parent);
-                new_sibling_borrow.as_mut().map(|x| {
-                    x.parent = parent_opt;
-                    x.previous_sibling = Some(self);
-                });
+                parent_opt = self_borrow.parent;
+                new_sibling_borrow.parent = parent_opt;
+                new_sibling_borrow.previous_sibling = Some(self);
                 next_sibling_opt = mem::replace(
-                    &mut self_borrow.as_mut().and_then(|x| x.next_sibling),
+                    &mut self_borrow.next_sibling,
                     Some(new_sibling),
                 );
                 if let Some(next_sibling) = next_sibling_opt {
-                    new_sibling_borrow
-                        .as_mut()
-                        .map(|x| x.next_sibling = Some(next_sibling));
+                    new_sibling_borrow.next_sibling = Some(next_sibling);
                 }
             } else {
                 bail!(NodeError::InsertAfterSelf);
@@ -547,19 +542,16 @@ impl NodeId {
             if let Some((self_borrow, new_sibling_borrow)) =
                 arena.nodes.get_tuple_mut(self.index, new_sibling.index)
             {
-                parent_opt = self_borrow.as_mut().and_then(|x| x.parent);
-                new_sibling_borrow.as_mut().map(|x| {
-                    x.parent = parent_opt;
-                    x.next_sibling = Some(self);
-                });
+                parent_opt = self_borrow.parent;
+                new_sibling_borrow.parent = parent_opt;
+                new_sibling_borrow.next_sibling = Some(self);
                 previous_sibling_opt = mem::replace(
-                    &mut self_borrow.as_mut().and_then(|x| x.previous_sibling),
+                    &mut self_borrow.previous_sibling,
                     Some(new_sibling),
                 );
                 if let Some(previous_sibling) = previous_sibling_opt {
-                    new_sibling_borrow
-                        .as_mut()
-                        .map(|x| x.previous_sibling = Some(previous_sibling));
+                    new_sibling_borrow.previous_sibling =
+                        Some(previous_sibling);
                 }
             } else {
                 bail!(NodeError::InsertBeforeSelf);
@@ -590,8 +582,9 @@ impl NodeId {
     /// Remove a node from the arena. Available children of the removed node
     /// will be append to the parent after the previous sibling if available.
     ///
-    /// Please note that the node id will not be removed from the internal arena
-    /// storage and is therefore not reusable.
+    /// Please note that the node will not be removed from the internal arena
+    /// storage, but marked as `removed`. Traversing the arena returns a
+    /// the plain iterator and contains removed elements too.
     pub fn remove<T>(self, arena: &mut Arena<T>) -> Fallible<()> {
         // Modify the parents of the childs
         for child in self.children(arena).collect::<Vec<_>>() {
@@ -631,8 +624,8 @@ impl NodeId {
             let mut_self = &mut arena[self];
             mut_self.first_child = None;
             mut_self.last_child = None;
+            mut_self.removed = true;
         }
-        arena.nodes[self.index] = None;
         Ok(())
     }
 }

@@ -1,4 +1,3 @@
-extern crate indextree;
 use indextree::Arena;
 
 pub fn main() {

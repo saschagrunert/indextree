@@ -10,6 +10,7 @@ homepage = "https://github.com/saschagrunert/indextree"
 documentation = "https://docs.rs/indextree"
 description = "Arena based tree structure by using indices instead of reference counted pointers"
 categories = ["data-structures"]
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "saschagrunert/indextree", branch = "master" }

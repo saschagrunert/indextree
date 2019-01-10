@@ -21,17 +21,8 @@
 //! assert!(a.append(b, arena).is_ok());
 //! assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 //! ```
-#[cfg(feature = "deser")]
-extern crate serde;
-#[cfg(feature = "deser")]
-#[macro_use]
-extern crate serde_derive;
-#[cfg(feature = "par_iter")]
-extern crate rayon;
-#[macro_use]
-extern crate failure;
 
-use failure::Fallible;
+use failure::{bail, Fail, Fallible};
 #[cfg(feature = "par_iter")]
 use rayon::prelude::*;
 use std::{

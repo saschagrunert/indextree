@@ -1,7 +1,3 @@
-extern crate indextree;
-#[cfg(feature = "par_iter")]
-extern crate rayon;
-
 use indextree::Arena;
 #[cfg(feature = "par_iter")]
 use rayon::prelude::*;

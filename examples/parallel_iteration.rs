@@ -1,7 +1,3 @@
-extern crate failure;
-extern crate indextree;
-extern crate rayon;
-
 use failure::Fallible;
 use indextree::*;
 use rayon::prelude::*;

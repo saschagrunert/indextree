@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/saschagrunert/indextree.svg)](https://travis-ci.org/saschagrunert/indextree)
 [![Build status](https://ci.appveyor.com/api/projects/status/byraapuh9py02us0?svg=true)](https://ci.appveyor.com/project/saschagrunert/indextree)
 [![Coverage Status](https://coveralls.io/repos/github/saschagrunert/indextree/badge.svg?branch=master)](https://coveralls.io/github/saschagrunert/indextree?branch=master)
+[![dependency status](https://deps.rs/repo/github/saschagrunert/indextree/status.svg)](https://deps.rs/repo/github/saschagrunert/indextree)
 [![doc indextree](https://img.shields.io/badge/master_doc-indextree-blue.svg)](https://saschagrunert.github.io/indextree)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/saschagrunert/indextree/blob/master/LICENSE)
 [![Crates.io](https://img.shields.io/crates/v/indextree.svg)](https://crates.io/crates/indextree)

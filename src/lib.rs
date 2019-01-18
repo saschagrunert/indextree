@@ -27,6 +27,7 @@ use failure::{bail, Fail, Fallible};
 use rayon::prelude::*;
 use std::{
     fmt, mem,
+    num::NonZeroUsize,
     ops::{Index, IndexMut},
 };
 
@@ -34,12 +35,13 @@ use std::{
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// A node identifier within a particular `Arena`
 pub struct NodeId {
-    index: usize,
+    /// One-based index.
+    index1: NonZeroUsize,
 }
 
 impl fmt::Display for NodeId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.index)
+        write!(f, "{}", self.index1)
     }
 }
 
@@ -154,8 +156,13 @@ impl<T> Arena<T> {
     }
 
     /// Create a new node from its associated data.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the arena already has `usize::max_value()` nodes.
     pub fn new_node(&mut self, data: T) -> NodeId {
-        let next_index = self.nodes.len();
+        let next_index1 = NonZeroUsize::new(self.nodes.len().wrapping_add(1))
+            .expect("Too many nodes in the arena");
         self.nodes.push(Node {
             parent: None,
             first_child: None,
@@ -165,7 +172,7 @@ impl<T> Arena<T> {
             removed: false,
             data,
         });
-        NodeId { index: next_index }
+        NodeId::from_non_zero_usize(next_index1)
     }
 
     // Count nodes in arena.
@@ -181,13 +188,13 @@ impl<T> Arena<T> {
     /// Get a reference to the node with the given id if in the arena, None
     /// otherwise.
     pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
-        self.nodes.get(id.index)
+        self.nodes.get(id.index0())
     }
 
     /// Get a mutable reference to the node with the given id if in the arena,
     /// None otherwise.
     pub fn get_mut(&mut self, id: NodeId) -> Option<&mut Node<T>> {
-        self.nodes.get_mut(id.index)
+        self.nodes.get_mut(id.index0())
     }
 
     /// Iterate over all nodes in the arena in storage-order.
@@ -238,13 +245,13 @@ impl<T> Index<NodeId> for Arena<T> {
     type Output = Node<T>;
 
     fn index(&self, node: NodeId) -> &Node<T> {
-        &self.nodes[node.index]
+        &self.nodes[node.index0()]
     }
 }
 
 impl<T> IndexMut<NodeId> for Arena<T> {
     fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {
-        &mut self.nodes[node.index]
+        &mut self.nodes[node.index0()]
     }
 }
 
@@ -284,10 +291,30 @@ impl<T> Node<T> {
 }
 
 impl NodeId {
+    /// Returns zero-based index.
+    fn index0(self) -> usize {
+        // This is totally safe because `self.index1 >= 1` is guaranteed by
+        // `NonZeroUsize` type.
+        self.index1.get() - 1
+    }
+
     /// Create a `NodeId` used for attempting to get `Node`s references from an
     /// `Arena`.
-    pub fn new(index: usize) -> Self {
-        Self { index }
+    ///
+    /// Note that a zero-based index should be given.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the value is `usize::max_value()`.
+    pub fn new(index0: usize) -> Self {
+        let index1 = NonZeroUsize::new(index0.wrapping_add(1))
+            .expect("Attempt to create `NodeId` from `usize::max_value()`");
+        NodeId { index1 }
+    }
+
+    /// Creates a new `NodeId` from the given one-based index.
+    pub fn from_non_zero_usize(index1: NonZeroUsize) -> Self {
+        NodeId { index1 }
     }
 
     /// Return an iterator of references to this node and its ancestors.
@@ -407,7 +434,7 @@ impl NodeId {
         let last_child_opt;
         {
             if let Some((self_borrow, new_child_borrow)) =
-                arena.nodes.get_tuple_mut(self.index, new_child.index)
+                arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
             {
                 new_child_borrow.parent = Some(self);
                 last_child_opt =
@@ -443,7 +470,7 @@ impl NodeId {
         let first_child_opt;
         {
             if let Some((self_borrow, new_child_borrow)) =
-                arena.nodes.get_tuple_mut(self.index, new_child.index)
+                arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
             {
                 new_child_borrow.parent = Some(self);
                 first_child_opt =
@@ -480,7 +507,7 @@ impl NodeId {
         let parent_opt;
         {
             if let Some((self_borrow, new_sibling_borrow)) =
-                arena.nodes.get_tuple_mut(self.index, new_sibling.index)
+                arena.nodes.get_tuple_mut(self.index0(), new_sibling.index0())
             {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;
@@ -531,7 +558,7 @@ impl NodeId {
         let parent_opt;
         {
             if let Some((self_borrow, new_sibling_borrow)) =
-                arena.nodes.get_tuple_mut(self.index, new_sibling.index)
+                arena.nodes.get_tuple_mut(self.index0(), new_sibling.index0())
             {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;

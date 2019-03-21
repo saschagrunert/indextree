@@ -278,8 +278,8 @@ impl<T> Node<T> {
         self.previous_sibling
     }
 
-    /// Return the ID of the previous sibling of this node, unless it is a
-    /// first child.
+    /// Return the ID of the next sibling of this node, unless it is a
+    /// last child.
     pub fn next_sibling(&self) -> Option<NodeId> {
         self.next_sibling
     }
@@ -602,7 +602,7 @@ impl NodeId {
     ///
     /// Please note that the node will not be removed from the internal arena
     /// storage, but marked as `removed`. Traversing the arena returns a
-    /// the plain iterator and contains removed elements too.
+    /// plain iterator and contains removed elements too.
     pub fn remove<T>(self, arena: &mut Arena<T>) -> Fallible<()> {
         // Modify the parents of the childs
         for child in self.children(arena).collect::<Vec<_>>() {

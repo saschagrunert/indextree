@@ -96,6 +96,7 @@ pub enum NodeError {
 
 #[derive(PartialEq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "derive-eq", derive(Eq))]
 /// A node within a particular `Arena`
 pub struct Node<T> {
     // Keep these private (with read-only accessors) so that we can keep them
@@ -144,6 +145,7 @@ impl<T> fmt::Display for Node<T> {
 
 #[derive(PartialEq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "derive-eq", derive(Eq))]
 /// An `Arena` structure containing certain Nodes
 pub struct Arena<T> {
     nodes: Vec<Node<T>>,

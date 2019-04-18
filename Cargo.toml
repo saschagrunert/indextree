@@ -1,6 +1,6 @@
 [package]
 name = "indextree"
-version = "3.1.1"
+version = "3.2.0"
 license = "MIT"
 readme = "README.md"
 keywords = ["tree", "arena", "index", "indextree", "trie"]
@@ -24,8 +24,8 @@ par_iter = ["rayon"]
 [dependencies]
 failure = "0.1.5"
 rayon = { version = "1.0.3", optional = true }
-serde = { version = "1.0.89", optional = true }
-serde_derive = { version = "1.0.89", optional = true }
+serde = { version = "1.0.90", optional = true }
+serde_derive = { version = "1.0.90", optional = true }
 
 [[example]]
 name = "parallel_iteration"

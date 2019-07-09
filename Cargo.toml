@@ -1,6 +1,6 @@
 [package]
 name = "indextree"
-version = "3.2.0"
+version = "3.3.0"
 license = "MIT"
 readme = "README.md"
 keywords = ["tree", "arena", "index", "indextree", "trie"]
@@ -17,9 +17,11 @@ travis-ci = { repository = "saschagrunert/indextree", branch = "master" }
 appveyor = { repository = "saschagrunert/indextree", branch = "master", service = "github" }
 
 [features]
+default = ["std"]
 deser = [ "serde", "serde_derive" ]
 derive-eq = []
 par_iter = ["rayon"]
+std = []
 
 [dependencies]
 failure = { version = "0.1.5", features = ["derive"] }

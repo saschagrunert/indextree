@@ -22,13 +22,35 @@
 //! assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 //! ```
 
-use failure::{bail, Fail, Fallible};
-#[cfg(feature = "par_iter")]
-use rayon::prelude::*;
-use std::{
+#![cfg_attr(not(feature = "std"), no_std)]
+
+#[cfg(not(feature = "std"))]
+extern crate alloc;
+
+#[cfg(not(feature = "std"))]
+use alloc::vec::Vec;
+
+#[cfg(not(feature = "std"))]
+use core::{
+    cmp::max,
     fmt, mem,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
+    slice::Iter,
+};
+
+use failure::{bail, Fail, Fallible};
+
+#[cfg(feature = "par_iter")]
+use rayon::prelude::*;
+
+#[cfg(feature = "std")]
+use std::{
+    cmp::max,
+    fmt, mem,
+    num::NonZeroUsize,
+    ops::{Index, IndexMut},
+    slice::Iter,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
@@ -203,7 +225,7 @@ impl<T> Arena<T> {
     ///
     /// Note that this iterator also contains removed elements, which can be
     /// tested with the `is_removed()` method on the node.
-    pub fn iter(&self) -> std::slice::Iter<Node<T>> {
+    pub fn iter(&self) -> Iter<Node<T>> {
         self.nodes.iter()
     }
 }
@@ -234,7 +256,7 @@ impl<T> GetPairMut<T> for Vec<T> {
         if a == b {
             return None;
         }
-        let (xs, ys) = self.split_at_mut(std::cmp::max(a, b));
+        let (xs, ys) = self.split_at_mut(max(a, b));
         if a < b {
             Some((&mut xs[a], &mut ys[0]))
         } else {
@@ -508,8 +530,9 @@ impl NodeId {
         let next_sibling_opt;
         let parent_opt;
         {
-            if let Some((self_borrow, new_sibling_borrow)) =
-                arena.nodes.get_tuple_mut(self.index0(), new_sibling.index0())
+            if let Some((self_borrow, new_sibling_borrow)) = arena
+                .nodes
+                .get_tuple_mut(self.index0(), new_sibling.index0())
             {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;
@@ -559,8 +582,9 @@ impl NodeId {
         let previous_sibling_opt;
         let parent_opt;
         {
-            if let Some((self_borrow, new_sibling_borrow)) =
-                arena.nodes.get_tuple_mut(self.index0(), new_sibling.index0())
+            if let Some((self_borrow, new_sibling_borrow)) = arena
+                .nodes
+                .get_tuple_mut(self.index0(), new_sibling.index0())
             {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;

@@ -3,6 +3,9 @@
 #[cfg(not(feature = "std"))]
 use core::fmt;
 
+#[cfg(feature = "deser")]
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "std")]
 use std::fmt;
 

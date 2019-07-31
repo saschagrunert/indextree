@@ -14,6 +14,9 @@ use core::{
 #[cfg(feature = "par_iter")]
 use rayon::prelude::*;
 
+#[cfg(feature = "deser")]
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "std")]
 use std::{
     cmp::max,

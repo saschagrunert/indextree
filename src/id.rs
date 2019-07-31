@@ -11,6 +11,9 @@ use core::{
 
 use failure::{bail, Fallible};
 
+#[cfg(feature = "deser")]
+use serde::{Deserialize, Serialize};
+
 #[cfg(feature = "std")]
 use std::{
     fmt, mem,

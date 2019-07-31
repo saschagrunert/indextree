@@ -5,7 +5,8 @@
 //! like. This means there is no `RefCell` and mutability is handled in a way
 //! much more idiomatic to Rust through unique (&mut) access to the arena. The
 //! tree can be sent or shared across threads like a `Vec`. This enables
-//! general multiprocessing support like parallel tree traversals.  
+//! general multiprocessing support like parallel tree traversals.
+//!
 //! # Example usage
 //! ```
 //! use indextree::Arena;

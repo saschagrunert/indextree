@@ -176,7 +176,7 @@ pub struct Arena<T> {
 impl<T> Arena<T> {
     /// Create a new empty `Arena`
     pub fn new() -> Arena<T> {
-        Arena { nodes: Vec::new() }
+        Self::default()
     }
 
     /// Create a new node from its associated data.
@@ -238,6 +238,14 @@ impl<T: Sync> Arena<T> {
     /// tested with the `is_removed()` method on the node.
     pub fn par_iter(&self) -> rayon::slice::Iter<Node<T>> {
         self.nodes.par_iter()
+    }
+}
+
+impl<T> Default for Arena<T> {
+    fn default() -> Self {
+        Self {
+            nodes: Vec::new(),
+        }
     }
 }
 

@@ -474,9 +474,10 @@ impl NodeId {
                 if let Some(last_child) = last_child_opt {
                     new_child_borrow.previous_sibling = Some(last_child);
                 } else {
-                    if self_borrow.first_child.is_some() {
-                        bail!(NodeError::FirstChildAlreadySet);
-                    }
+                    assert!(
+                        self_borrow.first_child.is_none(),
+                        "`first_child` must be `None` if `last_child` was `None`"
+                    );
                     self_borrow.first_child = Some(new_child);
                 }
             } else {
@@ -484,9 +485,10 @@ impl NodeId {
             }
         }
         if let Some(last_child) = last_child_opt {
-            if arena[last_child].next_sibling.is_some() {
-                bail!(NodeError::NextSiblingAlreadySet);
-            }
+            assert!(
+                arena[last_child].next_sibling.is_none(),
+                "The last child must not have next sibling"
+            );
             arena[last_child].next_sibling = Some(new_child);
         }
         Ok(())
@@ -510,19 +512,21 @@ impl NodeId {
                 if let Some(first_child) = first_child_opt {
                     new_child_borrow.next_sibling = Some(first_child);
                 } else {
+                    assert!(
+                        self_borrow.last_child.is_none(),
+                        "`last_child` must be `None` if `first_child` was `None`"
+                    );
                     self_borrow.last_child = Some(new_child);
-                    if self_borrow.first_child.is_some() {
-                        bail!(NodeError::FirstChildAlreadySet);
-                    }
                 }
             } else {
                 bail!(NodeError::PrependSelf);
             }
         }
         if let Some(first_child) = first_child_opt {
-            if arena[first_child].previous_sibling.is_some() {
-                bail!(NodeError::PreviousSiblingAlreadySet);
-            }
+            assert!(
+                arena[first_child].previous_sibling.is_none(),
+                "The last child must not have next sibling"
+            );
             arena[first_child].previous_sibling = Some(new_child);
         }
         Ok(())
@@ -557,23 +561,16 @@ impl NodeId {
             }
         }
         if let Some(next_sibling) = next_sibling_opt {
-            if let Some(previous_sibling) = arena[next_sibling].previous_sibling
-            {
-                if previous_sibling != self {
-                    bail!(NodeError::PreviousSiblingNotSelf);
-                }
-            } else {
-                bail!(NodeError::PreviousSiblingNotSet);
-            }
+            assert_eq!(
+                arena[next_sibling].previous_sibling, Some(self),
+                    "The previous sibling of the next sibling must be the current node"
+            );
             arena[next_sibling].previous_sibling = Some(new_sibling);
         } else if let Some(parent) = parent_opt {
-            if let Some(last_child) = arena[parent].last_child {
-                if last_child != self {
-                    bail!(NodeError::LastChildNotSelf);
-                }
-            } else {
-                bail!(NodeError::LastChildNotSet);
-            }
+            assert_eq!(
+                arena[parent].last_child, Some(self),
+                "The last child of the parent mush be the current node"
+            );
             arena[parent].last_child = Some(new_sibling);
         }
         Ok(())
@@ -610,22 +607,18 @@ impl NodeId {
             }
         }
         if let Some(previous_sibling) = previous_sibling_opt {
-            if let Some(next_sibling) = arena[previous_sibling].next_sibling {
-                if next_sibling != self {
-                    bail!(NodeError::NextSiblingNotSelf);
-                }
-            } else {
-                bail!(NodeError::NextSiblingNotSet);
-            }
+            assert_eq!(
+                arena[previous_sibling].next_sibling, Some(self),
+                "The next sibling of the previous sibling must be the current node"
+            );
             arena[previous_sibling].next_sibling = Some(new_sibling);
         } else if let Some(parent) = parent_opt {
-            if let Some(first_child) = arena[parent].first_child {
-                if first_child != self {
-                    bail!(NodeError::FirstChildNotSelf);
-                }
-            } else {
-                bail!(NodeError::FirstChildNotSet);
-            }
+            // The current node is the first child because it has no previous
+            // siblings.
+            assert_eq!(
+                arena[parent].first_child, Some(self),
+                "The first child of the parent must be the current node"
+            );
             arena[parent].first_child = Some(new_sibling);
         }
         Ok(())

@@ -37,11 +37,12 @@ fn success_create() {
 }
 
 #[test]
-fn failure_prepend() {
+// Issue #30.
+fn first_prepend() {
     let arena = &mut Arena::new();
     let a = arena.new_node(1);
     let b = arena.new_node(2);
-    assert!(!a.prepend(b, arena).is_ok());
+    assert!(a.prepend(b, arena).is_ok());
 }
 
 #[test]

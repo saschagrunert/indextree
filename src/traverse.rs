@@ -73,7 +73,7 @@ impl<'a, T> Iterator for Descendants<'a, T> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 /// Indicator if the node is at a start or endpoint of the tree
 pub enum NodeEdge<T> {
     /// Indicates that start of a node that has children. Yielded by

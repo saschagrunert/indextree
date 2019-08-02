@@ -384,46 +384,57 @@ impl NodeId {
     /// storage, but marked as `removed`. Traversing the arena returns a
     /// plain iterator and contains removed elements too.
     pub fn remove<T>(self, arena: &mut Arena<T>) -> Fallible<()> {
-        // Modify the parents of the childs
-        for child in self.children(arena).collect::<Vec<_>>() {
-            arena[child].parent = arena[self].parent
-        }
-
-        // Retrieve needed values
-        let (previous_sibling, next_sibling, first_child, last_child) = {
+        // Retrieve needed values and detach this node
+        let (parent, previous_sibling, next_sibling, first_child, last_child) = {
             let node = &mut arena[self];
             (
+                node.parent.take(),
                 node.previous_sibling.take(),
                 node.next_sibling.take(),
                 node.first_child.take(),
                 node.last_child.take(),
             )
         };
+        // Note that no `is_detached()` assertion here because neighbor nodes
+        // are not yet updated consistently.
 
-        // Modify the front
-        if let (Some(previous_sibling), Some(first_child)) =
-            (previous_sibling, first_child)
+        // Modify the parents of the childs
         {
-            arena[previous_sibling].next_sibling = Some(first_child);
-            arena[first_child].previous_sibling = Some(previous_sibling);
+            let mut child_opt = first_child;
+            while let Some(child_node) = child_opt.map(|id| &mut arena[id]) {
+                child_node.parent = parent;
+                child_opt = child_node.next_sibling;
+            }
         }
 
-        // Modify the back
-        if let (Some(next_sibling), Some(last_child)) =
-            (next_sibling, last_child)
-        {
-            arena[next_sibling].previous_sibling = Some(last_child);
-            arena[last_child].next_sibling = Some(next_sibling);
+        debug_assert_eq!(first_child.is_some(), last_child.is_some());
+        // `prev => ???` and `parent->first_child`
+        if let Some(previous_sibling) = previous_sibling {
+            arena[previous_sibling].next_sibling = first_child.or(next_sibling);
+        } else if let Some(parent) = parent {
+            arena[parent].first_child = first_child.or(next_sibling);
+        }
+        // `??? => first_child`
+        if let Some(first_child) = first_child {
+            arena[first_child].previous_sibling = previous_sibling;
+        }
+        // `last_child => ???`
+        if let Some(last_child) = last_child {
+            arena[last_child].next_sibling = next_sibling;
+        }
+        // `??? => next` and `parent->last_child`
+        if let Some(next_sibling) = next_sibling {
+            arena[next_sibling].previous_sibling = last_child.or(previous_sibling);
+        } else if let Some(parent) = parent {
+            arena[parent].last_child = last_child.or(previous_sibling);
         }
 
         // Cleanup the current node
-        self.detach(arena);
         {
             let mut_self = &mut arena[self];
-            mut_self.first_child = None;
-            mut_self.last_child = None;
             mut_self.removed = true;
         }
+
         Ok(())
     }
 }

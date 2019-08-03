@@ -1,6 +1,6 @@
 //! Utilities related to nodes relations.
 
-use crate::{Arena, NodeId};
+use crate::{error::ConsistencyError, siblings_range::SiblingsRange, Arena, NodeId};
 
 /// Ensures the given parent, previous, and next nodes are consistent.
 ///
@@ -99,4 +99,49 @@ pub(crate) fn connect_neighbors<T>(
     }
 
     debug_assert_triangle_nodes!(arena, parent, previous, next);
+}
+
+/// Detaches, inserts, and updates the given node using the given neighbors.
+///
+/// ```text
+/// Before:
+///
+///    parent
+///     /  \
+///    /    \
+/// prev -> next
+///
+/// After:
+///
+///        parent
+///    ______/|\_____
+///   /       |      \
+/// prev -> (new) -> next
+/// ```
+pub(crate) fn insert_with_neighbors<T>(
+    arena: &mut Arena<T>,
+    new: NodeId,
+    parent: Option<NodeId>,
+    previous_sibling: Option<NodeId>,
+    next_sibling: Option<NodeId>,
+) -> Result<(), ConsistencyError> {
+    debug_assert_triangle_nodes!(arena, parent, previous_sibling, next_sibling);
+    if previous_sibling == Some(new) || next_sibling == Some(new) {
+        // One of the given neighbors is going to be detached.
+        return Err(ConsistencyError::SiblingsLoop);
+    }
+    if parent == Some(new) {
+        // The given parent is the node itself.
+        return Err(ConsistencyError::ParentChildLoop);
+    }
+
+    SiblingsRange::new(new, new)
+        .detach_from_siblings(arena)
+        .transplant(arena, parent, previous_sibling, next_sibling)
+        .expect("Should never fail: neighbors including parent are not `self`");
+
+    debug_assert_triangle_nodes!(arena, parent, previous_sibling, Some(new));
+    debug_assert_triangle_nodes!(arena, parent, Some(new), next_sibling);
+
+    Ok(())
 }

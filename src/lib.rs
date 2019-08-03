@@ -40,9 +40,12 @@ pub use crate::{
     },
 };
 
+#[macro_use]
+pub(crate) mod relations;
+
 mod arena;
-mod error;
+pub(crate) mod error;
 mod id;
 mod node;
-pub(crate) mod relations;
+pub(crate) mod siblings_range;
 mod traverse;

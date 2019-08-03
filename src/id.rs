@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, mem, num::NonZeroUsize};
 
 use crate::{
-    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut, NodeEdge, NodeError,
+    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut, NodeError,
     PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
 };
 
@@ -134,10 +134,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn ancestors<T>(self, arena: &Arena<T>) -> Ancestors<T> {
-        Ancestors {
-            arena,
-            node: Some(self),
-        }
+        Ancestors::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and the siblings before
@@ -176,10 +173,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
-        PrecedingSiblings {
-            arena,
-            node: Some(self),
-        }
+        PrecedingSiblings::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and the siblings after
@@ -218,10 +212,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
-        FollowingSiblings {
-            arena,
-            node: Some(self),
-        }
+        FollowingSiblings::new(arena, self)
     }
 
     /// Returns an iterator of references to this node’s children.
@@ -255,10 +246,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn children<T>(self, arena: &Arena<T>) -> Children<T> {
-        Children {
-            arena,
-            node: arena[self].first_child,
-        }
+        Children::new(arena, self)
     }
 
     /// Returns an iterator of references to this node’s children, in reverse
@@ -293,10 +281,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<T> {
-        ReverseChildren {
-            arena,
-            node: arena[self].last_child,
-        }
+        ReverseChildren::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and its descendants, in
@@ -343,7 +328,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn descendants<T>(self, arena: &Arena<T>) -> Descendants<T> {
-        Descendants(self.traverse(arena))
+        Descendants::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and its descendants, in
@@ -385,11 +370,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<T> {
-        Traverse {
-            arena,
-            root: self,
-            next: Some(NodeEdge::Start(self)),
-        }
+        Traverse::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and its descendants, in
@@ -457,11 +438,7 @@ impl NodeId {
     /// assert_eq!(traverse, reverse);
     /// ```
     pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<T> {
-        ReverseTraverse {
-            arena,
-            root: self,
-            next: Some(NodeEdge::End(self)),
-        }
+        ReverseTraverse::new(arena, self)
     }
 
     /// Detaches a node from its parent and siblings. Children are not affected.

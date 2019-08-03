@@ -8,13 +8,9 @@ macro_rules! impl_node_iterator {
             type Item = NodeId;
 
             fn next(&mut self) -> Option<NodeId> {
-                match self.node.take() {
-                    Some(node) => {
-                        self.node = $next(&self.arena[node]);
-                        Some(node)
-                    }
-                    None => None,
-                }
+                let node = self.node.take()?;
+                self.node = $next(&self.arena[node]);
+                Some(node)
             }
         }
     };
@@ -113,13 +109,10 @@ impl<'a, T> Iterator for Descendants<'a, T> {
     type Item = NodeId;
 
     fn next(&mut self) -> Option<NodeId> {
-        loop {
-            match self.0.next() {
-                Some(NodeEdge::Start(node)) => return Some(node),
-                Some(NodeEdge::End(_)) => {}
-                None => return None,
-            }
-        }
+        self.0.find_map(|edge| match edge {
+            NodeEdge::Start(node) => Some(node),
+            NodeEdge::End(_) => None,
+        })
     }
 }
 

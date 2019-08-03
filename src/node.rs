@@ -29,6 +29,41 @@ pub struct Node<T> {
     pub data: T,
 }
 
+impl<T> Node<T> {
+    /// Return the ID of the parent node, unless this node is the root of the
+    /// tree.
+    pub fn parent(&self) -> Option<NodeId> {
+        self.parent
+    }
+
+    /// Return the ID of the first child of this node, unless it has no child.
+    pub fn first_child(&self) -> Option<NodeId> {
+        self.first_child
+    }
+
+    /// Return the ID of the last child of this node, unless it has no child.
+    pub fn last_child(&self) -> Option<NodeId> {
+        self.last_child
+    }
+
+    /// Return the ID of the previous sibling of this node, unless it is a
+    /// first child.
+    pub fn previous_sibling(&self) -> Option<NodeId> {
+        self.previous_sibling
+    }
+
+    /// Return the ID of the next sibling of this node, unless it is a
+    /// last child.
+    pub fn next_sibling(&self) -> Option<NodeId> {
+        self.next_sibling
+    }
+
+    /// Check if the node is marked as removed
+    pub fn is_removed(&self) -> bool {
+        self.removed
+    }
+}
+
 impl<T> fmt::Display for Node<T> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(parent) = self.parent {

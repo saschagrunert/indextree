@@ -28,7 +28,6 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-use crate::arena::GetPairMut;
 pub use crate::{
     arena::Arena,
     error::NodeError,

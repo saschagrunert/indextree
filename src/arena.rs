@@ -105,9 +105,7 @@ impl<T: Sync> Arena<T> {
 
 impl<T> Default for Arena<T> {
     fn default() -> Self {
-        Self {
-            nodes: Vec::new(),
-        }
+        Self { nodes: Vec::new() }
     }
 }
 
@@ -127,16 +125,11 @@ impl<T> IndexMut<NodeId> for Arena<T> {
 
 pub(crate) trait GetPairMut<T> {
     /// Get mutable references to two distinct nodes
-    fn get_tuple_mut(&mut self, a: usize, b: usize)
-        -> Option<(&mut T, &mut T)>;
+    fn get_tuple_mut(&mut self, a: usize, b: usize) -> Option<(&mut T, &mut T)>;
 }
 
 impl<T> GetPairMut<T> for Vec<T> {
-    fn get_tuple_mut(
-        &mut self,
-        a: usize,
-        b: usize,
-    ) -> Option<(&mut T, &mut T)> {
+    fn get_tuple_mut(&mut self, a: usize, b: usize) -> Option<(&mut T, &mut T)> {
         if a == b {
             return None;
         }

@@ -102,8 +102,7 @@ impl<'a, T> Iterator for Traverse<'a, T> {
         match self.next.take() {
             Some(item) => {
                 self.next = match item {
-                    NodeEdge::Start(node) => match self.arena[node].first_child
-                    {
+                    NodeEdge::Start(node) => match self.arena[node].first_child {
                         Some(first_child) => Some(NodeEdge::Start(first_child)),
                         None => Some(NodeEdge::End(node)),
                     },
@@ -112,14 +111,10 @@ impl<'a, T> Iterator for Traverse<'a, T> {
                             None
                         } else {
                             match self.arena[node].next_sibling {
-                                Some(next_sibling) => {
-                                    Some(NodeEdge::Start(next_sibling))
-                                }
+                                Some(next_sibling) => Some(NodeEdge::Start(next_sibling)),
                                 None => {
                                     match self.arena[node].parent {
-                                        Some(parent) => {
-                                            Some(NodeEdge::End(parent))
-                                        }
+                                        Some(parent) => Some(NodeEdge::End(parent)),
 
                                         // `node.parent()` here can only be
                                         // `None` if the tree has been modified
@@ -164,14 +159,10 @@ impl<'a, T> Iterator for ReverseTraverse<'a, T> {
                             None
                         } else {
                             match self.arena[node].previous_sibling {
-                                Some(previous_sibling) => {
-                                    Some(NodeEdge::End(previous_sibling))
-                                }
+                                Some(previous_sibling) => Some(NodeEdge::End(previous_sibling)),
                                 None => {
                                     match self.arena[node].parent {
-                                        Some(parent) => {
-                                            Some(NodeEdge::Start(parent))
-                                        }
+                                        Some(parent) => Some(NodeEdge::Start(parent)),
 
                                         // `node.parent()` here can only be
                                         // `None` if the tree has been modified
@@ -191,4 +182,3 @@ impl<'a, T> Iterator for ReverseTraverse<'a, T> {
         }
     }
 }
-

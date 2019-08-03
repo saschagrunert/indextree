@@ -4,10 +4,7 @@
 use alloc::vec::Vec;
 
 #[cfg(not(feature = "std"))]
-use core::{
-    fmt, mem,
-    num::NonZeroUsize,
-};
+use core::{fmt, mem, num::NonZeroUsize};
 
 use failure::{bail, Fallible};
 
@@ -15,15 +12,11 @@ use failure::{bail, Fallible};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
-use std::{
-    fmt, mem,
-    num::NonZeroUsize,
-};
+use std::{fmt, mem, num::NonZeroUsize};
 
 use crate::{
-    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut,
-    Node, NodeEdge, NodeError, PrecedingSiblings, ReverseChildren,
-    ReverseTraverse, Traverse,
+    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut, Node, NodeEdge,
+    NodeError, PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
@@ -116,10 +109,7 @@ impl NodeId {
     /// it.
     ///
     /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn preceding_siblings<T>(
-        self,
-        arena: &Arena<T>,
-    ) -> PrecedingSiblings<T> {
+    pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
         PrecedingSiblings {
             arena,
             node: Some(self),
@@ -129,10 +119,7 @@ impl NodeId {
     /// Return an iterator of references to this node and the siblings after it.
     ///
     /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn following_siblings<T>(
-        self,
-        arena: &Arena<T>,
-    ) -> FollowingSiblings<T> {
+    pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
         FollowingSiblings {
             arena,
             node: Some(self),
@@ -210,11 +197,7 @@ impl NodeId {
     }
 
     /// Append a new child to this node, after existing children.
-    pub fn append<T>(
-        self,
-        new_child: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_child.detach(arena);
         let last_child_opt;
         {
@@ -222,8 +205,7 @@ impl NodeId {
                 arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
             {
                 new_child_borrow.parent = Some(self);
-                last_child_opt =
-                    mem::replace(&mut self_borrow.last_child, Some(new_child));
+                last_child_opt = mem::replace(&mut self_borrow.last_child, Some(new_child));
                 if let Some(last_child) = last_child_opt {
                     new_child_borrow.previous_sibling = Some(last_child);
                 } else {
@@ -248,11 +230,7 @@ impl NodeId {
     }
 
     /// Prepend a new child to this node, before existing children.
-    pub fn prepend<T>(
-        self,
-        new_child: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_child.detach(arena);
         let first_child_opt;
         {
@@ -260,8 +238,7 @@ impl NodeId {
                 arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
             {
                 new_child_borrow.parent = Some(self);
-                first_child_opt =
-                    mem::replace(&mut self_borrow.first_child, Some(new_child));
+                first_child_opt = mem::replace(&mut self_borrow.first_child, Some(new_child));
                 if let Some(first_child) = first_child_opt {
                     new_child_borrow.next_sibling = Some(first_child);
                 } else {
@@ -286,11 +263,7 @@ impl NodeId {
     }
 
     /// Insert a new sibling after this node.
-    pub fn insert_after<T>(
-        self,
-        new_sibling: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_sibling.detach(arena);
         let next_sibling_opt;
         let parent_opt;
@@ -302,10 +275,7 @@ impl NodeId {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;
                 new_sibling_borrow.previous_sibling = Some(self);
-                next_sibling_opt = mem::replace(
-                    &mut self_borrow.next_sibling,
-                    Some(new_sibling),
-                );
+                next_sibling_opt = mem::replace(&mut self_borrow.next_sibling, Some(new_sibling));
                 if let Some(next_sibling) = next_sibling_opt {
                     new_sibling_borrow.next_sibling = Some(next_sibling);
                 }
@@ -315,13 +285,15 @@ impl NodeId {
         }
         if let Some(next_sibling) = next_sibling_opt {
             assert_eq!(
-                arena[next_sibling].previous_sibling, Some(self),
-                    "The previous sibling of the next sibling must be the current node"
+                arena[next_sibling].previous_sibling,
+                Some(self),
+                "The previous sibling of the next sibling must be the current node"
             );
             arena[next_sibling].previous_sibling = Some(new_sibling);
         } else if let Some(parent) = parent_opt {
             assert_eq!(
-                arena[parent].last_child, Some(self),
+                arena[parent].last_child,
+                Some(self),
                 "The last child of the parent mush be the current node"
             );
             arena[parent].last_child = Some(new_sibling);
@@ -331,11 +303,7 @@ impl NodeId {
 
     /// Insert a new sibling before this node.
     /// success.
-    pub fn insert_before<T>(
-        self,
-        new_sibling: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_sibling.detach(arena);
         let previous_sibling_opt;
         let parent_opt;
@@ -347,13 +315,10 @@ impl NodeId {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;
                 new_sibling_borrow.next_sibling = Some(self);
-                previous_sibling_opt = mem::replace(
-                    &mut self_borrow.previous_sibling,
-                    Some(new_sibling),
-                );
+                previous_sibling_opt =
+                    mem::replace(&mut self_borrow.previous_sibling, Some(new_sibling));
                 if let Some(previous_sibling) = previous_sibling_opt {
-                    new_sibling_borrow.previous_sibling =
-                        Some(previous_sibling);
+                    new_sibling_borrow.previous_sibling = Some(previous_sibling);
                 }
             } else {
                 bail!(NodeError::InsertBeforeSelf);
@@ -361,7 +326,8 @@ impl NodeId {
         }
         if let Some(previous_sibling) = previous_sibling_opt {
             assert_eq!(
-                arena[previous_sibling].next_sibling, Some(self),
+                arena[previous_sibling].next_sibling,
+                Some(self),
                 "The next sibling of the previous sibling must be the current node"
             );
             arena[previous_sibling].next_sibling = Some(new_sibling);
@@ -369,7 +335,8 @@ impl NodeId {
             // The current node is the first child because it has no previous
             // siblings.
             assert_eq!(
-                arena[parent].first_child, Some(self),
+                arena[parent].first_child,
+                Some(self),
                 "The first child of the parent must be the current node"
             );
             arena[parent].first_child = Some(new_sibling);

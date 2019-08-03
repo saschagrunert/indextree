@@ -4,10 +4,7 @@
 use alloc::vec::Vec;
 
 #[cfg(not(feature = "std"))]
-use core::{
-    fmt, mem,
-    num::NonZeroUsize,
-};
+use core::{fmt, mem, num::NonZeroUsize};
 
 use failure::{bail, Fallible};
 
@@ -15,20 +12,21 @@ use failure::{bail, Fallible};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
-use std::{
-    fmt, mem,
-    num::NonZeroUsize,
-};
+use std::{fmt, mem, num::NonZeroUsize};
 
 use crate::{
-    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut,
-    Node, NodeEdge, NodeError, PrecedingSiblings, ReverseChildren,
-    ReverseTraverse, Traverse,
+    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut, NodeEdge, NodeError,
+    PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-/// A node identifier within a particular `Arena`
+/// A node identifier within a particular [`Arena`].
+///
+/// This ID is used to get [`Node`] references from an [`Arena`].
+///
+/// [`Arena`]: struct.Arena.html
+/// [`Node`]: struct.Node.html
 pub struct NodeId {
     /// One-based index.
     index1: NonZeroUsize,
@@ -40,41 +38,6 @@ impl fmt::Display for NodeId {
     }
 }
 
-impl<T> Node<T> {
-    /// Return the ID of the parent node, unless this node is the root of the
-    /// tree.
-    pub fn parent(&self) -> Option<NodeId> {
-        self.parent
-    }
-
-    /// Return the ID of the first child of this node, unless it has no child.
-    pub fn first_child(&self) -> Option<NodeId> {
-        self.first_child
-    }
-
-    /// Return the ID of the last child of this node, unless it has no child.
-    pub fn last_child(&self) -> Option<NodeId> {
-        self.last_child
-    }
-
-    /// Return the ID of the previous sibling of this node, unless it is a
-    /// first child.
-    pub fn previous_sibling(&self) -> Option<NodeId> {
-        self.previous_sibling
-    }
-
-    /// Return the ID of the next sibling of this node, unless it is a
-    /// last child.
-    pub fn next_sibling(&self) -> Option<NodeId> {
-        self.next_sibling
-    }
-
-    /// Check if the node is marked as removed
-    pub fn is_removed(&self) -> bool {
-        self.removed
-    }
-}
-
 impl NodeId {
     /// Returns zero-based index.
     pub(crate) fn index0(self) -> usize {
@@ -83,14 +46,28 @@ impl NodeId {
         self.index1.get() - 1
     }
 
-    /// Create a `NodeId` used for attempting to get `Node`s references from an
-    /// `Arena`.
-    ///
-    /// Note that a zero-based index should be given.
+    /// Creates a new `NodeId` from the given zero-based index.
     ///
     /// # Panics
     ///
-    /// Panics if the value is `usize::max_value()`.
+    /// Panics if the value is [`usize::max_value()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeId};
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let bar = arena.new_node("bar");
+    /// let baz = arena.new_node("baz");
+    ///
+    /// assert_eq!(NodeId::new(0), foo);
+    /// assert_eq!(NodeId::new(1), bar);
+    /// assert_eq!(NodeId::new(2), baz);
+    /// ```
+    ///
+    /// [`usize::max_value()`]:
+    /// https://doc.rust-lang.org/stable/std/primitive.usize.html#method.min_value
     pub fn new(index0: usize) -> Self {
         let index1 = NonZeroUsize::new(index0.wrapping_add(1))
             .expect("Attempt to create `NodeId` from `usize::max_value()`");
@@ -98,13 +75,64 @@ impl NodeId {
     }
 
     /// Creates a new `NodeId` from the given one-based index.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::num::NonZeroUsize;
+    /// # use indextree::{Arena, NodeId};
+    /// let mut arena = Arena::new();
+    /// let _foo = arena.new_node("foo");
+    /// let bar = arena.new_node("bar");
+    /// let _baz = arena.new_node("baz");
+    ///
+    /// let second_id = NonZeroUsize::new(2)
+    ///     .expect("Should success with non-zero integer");
+    /// let second = NodeId::from_non_zero_usize(second_id);
+    /// assert_eq!(second, bar);
+    /// ```
     pub fn from_non_zero_usize(index1: NonZeroUsize) -> Self {
         NodeId { index1 }
     }
 
-    /// Return an iterator of references to this node and its ancestors.
+    /// Returns an iterator of references to this node and its ancestors.
     ///
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_1_1_1 = arena.new_node("1_1_1_1");
+    /// # n1_1_1.append(n1_1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |       `-- 1_1_1_1
+    /// //     _-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1_1_1.ancestors(&arena);
+    /// assert_eq!(iter.next(), Some(n1_1_1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn ancestors<T>(self, arena: &Arena<T>) -> Ancestors<T> {
         Ancestors {
             arena,
@@ -112,34 +140,120 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node and the siblings before
+    /// Returns an iterator of references to this node and the siblings before
     /// it.
     ///
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn preceding_siblings<T>(
-        self,
-        arena: &Arena<T>,
-    ) -> PrecedingSiblings<T> {
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1_2.preceding_siblings(&arena);
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
         PrecedingSiblings {
             arena,
             node: Some(self),
         }
     }
 
-    /// Return an iterator of references to this node and the siblings after it.
+    /// Returns an iterator of references to this node and the siblings after
+    /// it.
     ///
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
-    pub fn following_siblings<T>(
-        self,
-        arena: &Arena<T>,
-    ) -> FollowingSiblings<T> {
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1_2.following_siblings(&arena);
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
         FollowingSiblings {
             arena,
             node: Some(self),
         }
     }
 
-    /// Return an iterator of references to this node’s children.
+    /// Returns an iterator of references to this node’s children.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.children(&arena);
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     pub fn children<T>(self, arena: &Arena<T>) -> Children<T> {
         Children {
             arena,
@@ -147,8 +261,37 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node’s children, in reverse
+    /// Returns an iterator of references to this node’s children, in reverse
     /// order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.reverse_children(&arena);
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<T> {
         ReverseChildren {
             arena,
@@ -156,17 +299,91 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node and its descendants, in
+    /// Returns an iterator of references to this node and its descendants, in
     /// tree order.
     ///
     /// Parent nodes appear before the descendants.
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_1_1_1 = arena.new_node("1_1_1_1");
+    /// # n1_1_1.append(n1_1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |       `-- 1_1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_1_1));
+    /// assert_eq!(iter.next(), Some(n1_1_1_1));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn descendants<T>(self, arena: &Arena<T>) -> Descendants<T> {
         Descendants(self.traverse(arena))
     }
 
-    /// Return an iterator of references to this node and its descendants, in
+    /// Returns an iterator of references to this node and its descendants, in
     /// tree order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.traverse(&arena);
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<T> {
         Traverse {
             arena,
@@ -175,8 +392,70 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node and its descendants, in
-    /// tree order.
+    /// Returns an iterator of references to this node and its descendants, in
+    /// reverse tree order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.reverse_traverse(&arena);
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// # // arena
+    /// # // `-- 1
+    /// # //     |-- 1_1
+    /// # //     |   `-- 1_1_1
+    /// # //     |-- 1_2
+    /// # //     `-- 1_3
+    /// #
+    /// let traverse = n1.traverse(&arena).collect::<Vec<_>>();
+    /// let mut reverse = n1.reverse_traverse(&arena).collect::<Vec<_>>();
+    /// reverse.reverse();
+    /// assert_eq!(traverse, reverse);
+    /// ```
     pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<T> {
         ReverseTraverse {
             arena,
@@ -185,7 +464,52 @@ impl NodeId {
         }
     }
 
-    /// Detach a node from its parent and siblings. Children are not affected.
+    /// Detaches a node from its parent and siblings. Children are not affected.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- (implicit)
+    /// //     `-- 1
+    /// //         |-- 1_1
+    /// //         |   `-- 1_1_1
+    /// //         |-- 1_2 *
+    /// //         `-- 1_3
+    ///
+    /// n1_2.detach(&mut arena);
+    /// // arena
+    /// // |-- (implicit)
+    /// // |   `-- 1
+    /// // |       |-- 1_1
+    /// // |       |   `-- 1_1_1
+    /// // |       `-- 1_3
+    /// // `-- (implicit)
+    /// //     `-- 1_2
+    ///
+    /// assert!(arena[n1_2].parent().is_none());
+    /// assert!(arena[n1_2].previous_sibling().is_none());
+    /// assert!(arena[n1_2].next_sibling().is_none());
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
     pub fn detach<T>(self, arena: &mut Arena<T>) {
         let (parent, previous_sibling, next_sibling) = {
             let node = &mut arena[self];
@@ -209,12 +533,39 @@ impl NodeId {
         }
     }
 
-    /// Append a new child to this node, after existing children.
-    pub fn append<T>(
-        self,
-        new_child: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    /// Appends a new child to this node, after existing children.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new child is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = arena.new_node("1_1");
+    /// n1.append(n1_1, &mut arena);
+    /// let n1_2 = arena.new_node("1_2");
+    /// n1.append(n1_2, &mut arena);
+    /// let n1_3 = arena.new_node("1_3");
+    /// n1.append(n1_3, &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_child.detach(arena);
         let last_child_opt;
         {
@@ -222,8 +573,7 @@ impl NodeId {
                 arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
             {
                 new_child_borrow.parent = Some(self);
-                last_child_opt =
-                    mem::replace(&mut self_borrow.last_child, Some(new_child));
+                last_child_opt = mem::replace(&mut self_borrow.last_child, Some(new_child));
                 if let Some(last_child) = last_child_opt {
                     new_child_borrow.previous_sibling = Some(last_child);
                 } else {
@@ -247,12 +597,39 @@ impl NodeId {
         Ok(())
     }
 
-    /// Prepend a new child to this node, before existing children.
-    pub fn prepend<T>(
-        self,
-        new_child: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    /// Prepends a new child to this node, before existing children.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new child is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = arena.new_node("1_1");
+    /// n1.prepend(n1_1, &mut arena);
+    /// let n1_2 = arena.new_node("1_2");
+    /// n1.prepend(n1_2, &mut arena);
+    /// let n1_3 = arena.new_node("1_3");
+    /// n1.prepend(n1_3, &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_3
+    /// //     |-- 1_2
+    /// //     `-- 1_1
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_child.detach(arena);
         let first_child_opt;
         {
@@ -260,8 +637,7 @@ impl NodeId {
                 arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
             {
                 new_child_borrow.parent = Some(self);
-                first_child_opt =
-                    mem::replace(&mut self_borrow.first_child, Some(new_child));
+                first_child_opt = mem::replace(&mut self_borrow.first_child, Some(new_child));
                 if let Some(first_child) = first_child_opt {
                     new_child_borrow.next_sibling = Some(first_child);
                 } else {
@@ -285,12 +661,45 @@ impl NodeId {
         Ok(())
     }
 
-    /// Insert a new sibling after this node.
-    pub fn insert_after<T>(
-        self,
-        new_sibling: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    /// Inserts a new sibling after this node.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new sibling is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = arena.new_node("1_1");
+    /// n1.append(n1_1, &mut arena);
+    /// let n1_2 = arena.new_node("1_2");
+    /// n1.append(n1_2, &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     `-- 1_2
+    ///
+    /// let n1_3 = arena.new_node("1_3");
+    /// n1_1.insert_after(n1_3, &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_3
+    /// //     `-- 1_2
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_sibling.detach(arena);
         let next_sibling_opt;
         let parent_opt;
@@ -302,10 +711,7 @@ impl NodeId {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;
                 new_sibling_borrow.previous_sibling = Some(self);
-                next_sibling_opt = mem::replace(
-                    &mut self_borrow.next_sibling,
-                    Some(new_sibling),
-                );
+                next_sibling_opt = mem::replace(&mut self_borrow.next_sibling, Some(new_sibling));
                 if let Some(next_sibling) = next_sibling_opt {
                     new_sibling_borrow.next_sibling = Some(next_sibling);
                 }
@@ -315,13 +721,15 @@ impl NodeId {
         }
         if let Some(next_sibling) = next_sibling_opt {
             assert_eq!(
-                arena[next_sibling].previous_sibling, Some(self),
-                    "The previous sibling of the next sibling must be the current node"
+                arena[next_sibling].previous_sibling,
+                Some(self),
+                "The previous sibling of the next sibling must be the current node"
             );
             arena[next_sibling].previous_sibling = Some(new_sibling);
         } else if let Some(parent) = parent_opt {
             assert_eq!(
-                arena[parent].last_child, Some(self),
+                arena[parent].last_child,
+                Some(self),
                 "The last child of the parent mush be the current node"
             );
             arena[parent].last_child = Some(new_sibling);
@@ -329,13 +737,45 @@ impl NodeId {
         Ok(())
     }
 
-    /// Insert a new sibling before this node.
-    /// success.
-    pub fn insert_before<T>(
-        self,
-        new_sibling: NodeId,
-        arena: &mut Arena<T>,
-    ) -> Fallible<()> {
+    /// Inserts a new sibling before this node.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new sibling is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = arena.new_node("1_1");
+    /// n1.append(n1_1, &mut arena);
+    /// let n1_2 = arena.new_node("1_2");
+    /// n1.append(n1_2, &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     `-- 1_2
+    ///
+    /// let n1_3 = arena.new_node("1_3");
+    /// n1_2.insert_before(n1_3, &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_3
+    /// //     `-- 1_2
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_sibling.detach(arena);
         let previous_sibling_opt;
         let parent_opt;
@@ -347,13 +787,10 @@ impl NodeId {
                 parent_opt = self_borrow.parent;
                 new_sibling_borrow.parent = parent_opt;
                 new_sibling_borrow.next_sibling = Some(self);
-                previous_sibling_opt = mem::replace(
-                    &mut self_borrow.previous_sibling,
-                    Some(new_sibling),
-                );
+                previous_sibling_opt =
+                    mem::replace(&mut self_borrow.previous_sibling, Some(new_sibling));
                 if let Some(previous_sibling) = previous_sibling_opt {
-                    new_sibling_borrow.previous_sibling =
-                        Some(previous_sibling);
+                    new_sibling_borrow.previous_sibling = Some(previous_sibling);
                 }
             } else {
                 bail!(NodeError::InsertBeforeSelf);
@@ -361,7 +798,8 @@ impl NodeId {
         }
         if let Some(previous_sibling) = previous_sibling_opt {
             assert_eq!(
-                arena[previous_sibling].next_sibling, Some(self),
+                arena[previous_sibling].next_sibling,
+                Some(self),
                 "The next sibling of the previous sibling must be the current node"
             );
             arena[previous_sibling].next_sibling = Some(new_sibling);
@@ -369,7 +807,8 @@ impl NodeId {
             // The current node is the first child because it has no previous
             // siblings.
             assert_eq!(
-                arena[parent].first_child, Some(self),
+                arena[parent].first_child,
+                Some(self),
                 "The first child of the parent must be the current node"
             );
             arena[parent].first_child = Some(new_sibling);
@@ -377,12 +816,55 @@ impl NodeId {
         Ok(())
     }
 
-    /// Remove a node from the arena. Available children of the removed node
-    /// will be append to the parent after the previous sibling if available.
+    /// Removes a node from the arena.
+    ///
+    /// Children of the removed node will be inserted to the place where the
+    /// removed node was.
     ///
     /// Please note that the node will not be removed from the internal arena
     /// storage, but marked as `removed`. Traversing the arena returns a
     /// plain iterator and contains removed elements too.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_2_1 = arena.new_node("1_2_1");
+    /// # n1_2.append(n1_2_1, &mut arena);
+    /// # let n1_2_2 = arena.new_node("1_2_2");
+    /// # n1_2.append(n1_2_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     |   |-- 1_2_1
+    /// //     |   `-- 1_2_2
+    /// //     `-- 1_3
+    ///
+    /// n1_2.remove(&mut arena)?;
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2_1));
+    /// assert_eq!(iter.next(), Some(n1_2_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// # Ok::<(), failure::Error>(())
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
     pub fn remove<T>(self, arena: &mut Arena<T>) -> Fallible<()> {
         // Retrieve needed values and detach this node
         let (parent, previous_sibling, next_sibling, first_child, last_child) = {

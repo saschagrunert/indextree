@@ -56,8 +56,9 @@ impl<T> Arena<T> {
     pub fn new_node(&mut self, data: T) -> NodeId {
         let next_index1 = NonZeroUsize::new(self.nodes.len().wrapping_add(1))
             .expect("Too many nodes in the arena");
-        self.nodes.push(Node::new(data));
-        NodeId::from_non_zero_usize(next_index1)
+        let id = NodeId::from_non_zero_usize(next_index1);
+        self.nodes.push(Node::new(data, id));
+        id
     }
 
     /// Counts the number of nodes in arena and returns it.

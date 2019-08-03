@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "std")]
 use std::fmt;
 
-use crate::NodeId;
+use crate::{Arena, NodeId};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
@@ -18,10 +18,12 @@ pub struct Node<T> {
     // Keep these private (with read-only accessors) so that we can keep them
     // consistent. E.g. the parent of a node’s child is that node.
     pub(crate) parent: Option<NodeId>,
-    pub(crate) previous_sibling: Option<NodeId>,
+    // The first sibling node points the last sibling node by this field.
+    // See <http://www.aosabook.org/en/posa/parsing-xml-at-the-speed-of-light.html>.
+    pub(crate) cyclic_previous_sibling: NodeId,
+    // This field will have `None` for the last sibling node.
     pub(crate) next_sibling: Option<NodeId>,
     pub(crate) first_child: Option<NodeId>,
-    pub(crate) last_child: Option<NodeId>,
     pub(crate) removed: bool,
     /// The actual data which will be stored within the tree.
     pub(crate) data: T,
@@ -39,13 +41,12 @@ impl<T> Node<T> {
     }
 
     /// Creates a new `Node` with the default state and the given data.
-    pub(crate) fn new(data: T) -> Self {
+    pub(crate) fn new(data: T, id: NodeId) -> Self {
         Self {
             parent: None,
-            previous_sibling: None,
+            cyclic_previous_sibling: id,
             next_sibling: None,
             first_child: None,
-            last_child: None,
             removed: false,
             data,
         }
@@ -127,13 +128,14 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].last_child(), Some(n1_3));
-    /// assert_eq!(arena[n1_1].last_child(), None);
-    /// assert_eq!(arena[n1_2].last_child(), None);
-    /// assert_eq!(arena[n1_3].last_child(), None);
+    /// assert_eq!(arena[n1].last_child(&arena), Some(n1_3));
+    /// assert_eq!(arena[n1_1].last_child(&arena), None);
+    /// assert_eq!(arena[n1_2].last_child(&arena), None);
+    /// assert_eq!(arena[n1_3].last_child(&arena), None);
     /// ```
-    pub fn last_child(&self) -> Option<NodeId> {
-        self.last_child
+    pub fn last_child(&self, arena: &Arena<T>) -> Option<NodeId> {
+        self.first_child
+            .map(|first| arena[first].cyclic_previous_sibling)
     }
 
     /// Returns the ID of the previous sibling of this node, unless it is a
@@ -156,10 +158,10 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].previous_sibling(), None);
-    /// assert_eq!(arena[n1_1].previous_sibling(), None);
-    /// assert_eq!(arena[n1_2].previous_sibling(), Some(n1_1));
-    /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_2));
+    /// assert_eq!(arena[n1].previous_sibling(&arena), None);
+    /// assert_eq!(arena[n1_1].previous_sibling(&arena), None);
+    /// assert_eq!(arena[n1_2].previous_sibling(&arena), Some(n1_1));
+    /// assert_eq!(arena[n1_3].previous_sibling(&arena), Some(n1_2));
     /// ```
     ///
     /// Note that newly created nodes are independent toplevel nodes, and they
@@ -175,19 +177,26 @@ impl<T> Node<T> {
     /// // |   `-- 1
     /// // `-- (implicit)
     /// //     `-- 2
-    /// assert_eq!(arena[n1].previous_sibling(), None);
-    /// assert_eq!(arena[n2].previous_sibling(), None);
+    /// assert_eq!(arena[n1].previous_sibling(&arena), None, "1");
+    /// assert_eq!(arena[n2].previous_sibling(&arena), None, "2");
     ///
     /// n1.insert_after(n2, &mut arena);
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
     /// //     `-- 2
-    /// assert_eq!(arena[n1].previous_sibling(), None);
-    /// assert_eq!(arena[n2].previous_sibling(), Some(n1));
+    /// assert_eq!(arena[n1].previous_sibling(&arena), None, "3");
+    /// assert_eq!(arena[n2].previous_sibling(&arena), Some(n1));
     /// ```
-    pub fn previous_sibling(&self) -> Option<NodeId> {
-        self.previous_sibling
+    pub fn previous_sibling(&self, arena: &Arena<T>) -> Option<NodeId> {
+        if arena[self.cyclic_previous_sibling].next_sibling.is_some() {
+            // The cyclic previous node has next sibling (it is `self`).
+            Some(self.cyclic_previous_sibling)
+        } else {
+            // The cyclic previous node has no next siblings.
+            // This means the node is the last node and `self` is the first node.
+            None
+        }
     }
 
     /// Returns the ID of the next sibling of this node, unless it is a
@@ -266,7 +275,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_2));
     /// assert_eq!(arena[n1_2].parent(), Some(n1));
     /// assert!(!arena[n1_2].is_removed());
-    /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_2));
+    /// assert_eq!(arena[n1_3].previous_sibling(&arena), Some(n1_2));
     ///
     /// n1_2.remove(&mut arena);
     /// // arena
@@ -276,15 +285,17 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_3));
     /// assert_eq!(arena[n1_2].parent(), None);
     /// assert!(arena[n1_2].is_removed());
-    /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_1));
+    /// assert_eq!(arena[n1_3].previous_sibling(&arena), Some(n1_1));
     /// ```
     pub fn is_removed(&self) -> bool {
         self.removed
     }
 
     /// Checks if the node is detached.
-    pub(crate) fn is_detached(&self) -> bool {
-        self.parent.is_none() && self.previous_sibling.is_none() && self.next_sibling.is_none()
+    pub(crate) fn is_detached(&self, arena: &Arena<T>) -> bool {
+        self.parent.is_none()
+            && self.previous_sibling(&arena).is_none()
+            && self.next_sibling.is_none()
     }
 }
 
@@ -295,11 +306,11 @@ impl<T> fmt::Display for Node<T> {
         } else {
             write!(f, "no parent; ")?;
         }
-        if let Some(previous_sibling) = self.previous_sibling {
-            write!(f, "previous sibling: {}; ", previous_sibling)?;
-        } else {
-            write!(f, "no previous sibling; ")?;
-        }
+        write!(
+            f,
+            "cyclic previous sibling: {}; ",
+            self.cyclic_previous_sibling
+        )?;
         if let Some(next_sibling) = self.next_sibling {
             write!(f, "next sibling: {}; ", next_sibling)?;
         } else {
@@ -309,11 +320,6 @@ impl<T> fmt::Display for Node<T> {
             write!(f, "first child: {}; ", first_child)?;
         } else {
             write!(f, "no first child; ")?;
-        }
-        if let Some(last_child) = self.last_child {
-            write!(f, "last child: {}; ", last_child)?;
-        } else {
-            write!(f, "no last child; ")?;
         }
         Ok(())
     }

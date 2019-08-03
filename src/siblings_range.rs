@@ -29,21 +29,23 @@ impl SiblingsRange {
 
         // Update siblings relations outside the range and old parent's
         // children if necessary.
-        let prev_of_range = arena[self.first].previous_sibling.take();
+        //let prev_of_range = arena[self.first].previous_sibling.take(); // FIXME
+        let prev_of_range = arena[self.first].previous_sibling(arena);
+        arena[self.first].cyclic_previous_sibling = self.last;
         let next_of_range = arena[self.last].next_sibling.take();
         connect_neighbors(arena, parent, prev_of_range, next_of_range);
 
         if cfg!(debug_assertions) {
-            debug_assert_eq!(arena[self.first].previous_sibling, None);
+            debug_assert_eq!(arena[self.first].previous_sibling(arena), None);
             debug_assert_eq!(arena[self.last].next_sibling, None);
             debug_assert_triangle_nodes!(arena, parent, prev_of_range, next_of_range);
             if let Some(parent_node) = parent.map(|id| &arena[id]) {
                 debug_assert_eq!(
                     parent_node.first_child.is_some(),
-                    parent_node.last_child.is_some()
+                    parent_node.last_child(arena).is_some()
                 );
                 debug_assert_triangle_nodes!(arena, parent, None, parent_node.first_child);
-                debug_assert_triangle_nodes!(arena, parent, parent_node.last_child, None);
+                debug_assert_triangle_nodes!(arena, parent, parent_node.last_child(arena), None);
             }
         }
 
@@ -122,7 +124,7 @@ impl DetachedSiblingsRange {
             if let Some(parent_node) = parent.map(|id| &arena[id]) {
                 debug_assert_eq!(
                     parent_node.first_child.is_some(),
-                    parent_node.last_child.is_some()
+                    parent_node.last_child(arena).is_some()
                 );
             }
         }
@@ -143,11 +145,11 @@ impl DetachedSiblingsRange {
             debug_assert_triangle_nodes!(arena, parent, Some(self.last), next_sibling);
             if let Some(parent_node) = parent.map(|id| &arena[id]) {
                 debug_assert!(
-                    parent_node.first_child.is_some() && parent_node.last_child.is_some(),
+                    parent_node.first_child.is_some() && parent_node.last_child(arena).is_some(),
                     "parent should have children (at least `self.first`)"
                 );
                 debug_assert_triangle_nodes!(arena, parent, None, parent_node.first_child);
-                debug_assert_triangle_nodes!(arena, parent, parent_node.last_child, None);
+                debug_assert_triangle_nodes!(arena, parent, parent_node.last_child(arena), None);
             }
         }
 

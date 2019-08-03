@@ -9,7 +9,7 @@ macro_rules! impl_node_iterator {
 
             fn next(&mut self) -> Option<NodeId> {
                 let node = self.node.take()?;
-                self.node = $next(&self.arena[node]);
+                self.node = $next(&self.arena, &self.arena[node]);
                 Some(node)
             }
         }
@@ -22,7 +22,7 @@ pub struct Ancestors<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
-impl_node_iterator!(Ancestors, |node: &Node<T>| node.parent);
+impl_node_iterator!(Ancestors, |_arena: &Arena<T>, node: &Node<T>| node.parent);
 
 impl<'a, T> Ancestors<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
@@ -39,7 +39,8 @@ pub struct PrecedingSiblings<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
-impl_node_iterator!(PrecedingSiblings, |node: &Node<T>| node.previous_sibling);
+impl_node_iterator!(PrecedingSiblings, |_arena: &Arena<T>, node: &Node<T>| node
+    .previous_sibling(_arena));
 
 impl<'a, T> PrecedingSiblings<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
@@ -56,7 +57,8 @@ pub struct FollowingSiblings<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
-impl_node_iterator!(FollowingSiblings, |node: &Node<T>| node.next_sibling);
+impl_node_iterator!(FollowingSiblings, |_arena: &Arena<T>, node: &Node<T>| node
+    .next_sibling);
 
 impl<'a, T> FollowingSiblings<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
@@ -73,7 +75,8 @@ pub struct Children<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
-impl_node_iterator!(Children, |node: &Node<T>| node.next_sibling);
+impl_node_iterator!(Children, |_arena: &Arena<T>, node: &Node<T>| node
+    .next_sibling);
 
 impl<'a, T> Children<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
@@ -90,13 +93,14 @@ pub struct ReverseChildren<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
-impl_node_iterator!(ReverseChildren, |node: &Node<T>| node.previous_sibling);
+impl_node_iterator!(ReverseChildren, |_arena: &Arena<T>, node: &Node<T>| node
+    .previous_sibling(_arena));
 
 impl<'a, T> ReverseChildren<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
         Self {
             arena,
-            node: arena[current].last_child,
+            node: arena[current].last_child(arena),
         }
     }
 }
@@ -211,7 +215,7 @@ impl<'a, T> ReverseTraverse<'a, T> {
     /// Calculates the next node.
     fn next_of_next(&self, next: NodeEdge) -> Option<NodeEdge> {
         match next {
-            NodeEdge::End(node) => match self.arena[node].last_child {
+            NodeEdge::End(node) => match self.arena[node].last_child(self.arena) {
                 Some(last_child) => Some(NodeEdge::End(last_child)),
                 None => Some(NodeEdge::Start(node)),
             },
@@ -220,7 +224,7 @@ impl<'a, T> ReverseTraverse<'a, T> {
                     return None;
                 }
                 let node = &self.arena[node];
-                match node.previous_sibling {
+                match node.previous_sibling(self.arena) {
                     Some(previous_sibling) => Some(NodeEdge::End(previous_sibling)),
                     // `node.parent()` here can only be `None` if the tree has
                     // been modified during iteration, but silently stoping

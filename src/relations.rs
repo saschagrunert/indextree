@@ -40,7 +40,8 @@ pub(crate) fn assert_triangle_nodes<T>(
             "`next->parent` must equal to `parent`"
         );
         assert_eq!(
-            next_node.previous_sibling, previous,
+            next_node.previous_sibling(&arena),
+            previous,
             "`next->prev` must equal to `prev`"
         );
     }
@@ -57,6 +58,10 @@ pub(crate) fn assert_triangle_nodes<T>(
 ///    /    \
 /// prev -> next
 /// ```
+///
+/// Note that `first_child` and `last_child` fields of the parent may not be
+/// updated properly.
+/// It is user's responsibility to update them consistent.
 pub(crate) fn connect_neighbors<T>(
     arena: &mut Arena<T>,
     parent: Option<NodeId>,
@@ -67,7 +72,7 @@ pub(crate) fn connect_neighbors<T>(
         if let Some(parent_node) = parent.map(|id| &arena[id]) {
             debug_assert_eq!(
                 parent_node.first_child.is_some(),
-                parent_node.last_child.is_some()
+                parent_node.last_child(&arena).is_some()
             );
             debug_assert!(!parent_node.is_removed());
         }
@@ -75,31 +80,57 @@ pub(crate) fn connect_neighbors<T>(
         debug_assert!(!next.map_or(false, |id| arena[id].is_removed()));
     }
 
-    let (mut parent_first_child, mut parent_last_child) = parent
-        .map(|id| &arena[id])
-        .map_or((None, None), |node| (node.first_child, node.last_child));
+    let (mut parent_first_child, mut parent_last_child) = match parent.map(|id| &arena[id]) {
+        Some(node) => (node.first_child, node.last_child(arena)),
+        None => match previous.or(next) {
+            // NOTE: These are not O(1) operations.
+            // This is because nodes are allowed to having no children.
+            // If the node has no children, it is impossible to get the first
+            // and the last siblings.
+            Some(id) => (
+                id.preceding_siblings(arena).last(),
+                id.following_siblings(arena).last(),
+            ),
+            None => (None, None),
+        },
+    };
     if let Some(previous) = previous {
         // `previous` ==> `next`
         arena[previous].next_sibling = next;
         parent_first_child = parent_first_child.or_else(|| Some(previous));
+        if parent_first_child == next {
+            parent_first_child = Some(previous);
+        }
     } else {
         // `next` is the first child of the parent.
         parent_first_child = next;
     }
     if let Some(next) = next {
         // `previous` <== `next`
-        arena[next].previous_sibling = previous;
+        // If `previous` is `None`, it means `next` is the first node.
+        // Then, `next->cyclic_previous_sibling` will be set later (by
+        // `set_children()`), and no need of setting some valid value here.
+        if let Some(previous) = previous {
+            arena[next].cyclic_previous_sibling = previous;
+        }
         parent_last_child = parent_last_child.or_else(|| Some(next));
+        if parent_last_child == previous {
+            parent_last_child = Some(next);
+        }
     } else {
         // `previous` is the last child of the parent.
         parent_last_child = previous;
     }
 
-    if let Some(parent_node) = parent.map(|id| &mut arena[id]) {
-        debug_assert_eq!(parent_first_child.is_some(), parent_last_child.is_some());
-        parent_node.first_child = parent_first_child;
-        parent_node.last_child = parent_last_child;
-    }
+    let children = match (parent_first_child, parent_last_child) {
+        (Some(first), Some(last)) => Some((first, last)),
+        (None, None) => None,
+        _ => unreachable!(
+            "Should never happen because `Some`-ness of \
+             `parent_first_child` and `parent_last_child` must be the same"
+        ),
+    };
+    set_children(arena, parent, children);
 
     debug_assert_triangle_nodes!(arena, parent, previous, next);
 }
@@ -147,4 +178,26 @@ pub(crate) fn insert_with_neighbors<T>(
     debug_assert_triangle_nodes!(arena, parent, Some(new), next_sibling);
 
     Ok(())
+}
+
+/// Update the first and the last children and the parent consistently.
+fn set_children<T>(
+    arena: &mut Arena<T>,
+    parent: Option<NodeId>,
+    children: Option<(NodeId, NodeId)>,
+) {
+    let first = match children {
+        Some((first, last)) => {
+            // Do not check whether `last->cyclic_previous_sibling` is valid
+            // here, because they would be temporarily inconsistent in
+            // `connect_neighbors()`.
+            debug_assert_eq!(arena[last].next_sibling, None);
+            arena[first].cyclic_previous_sibling = last;
+            Some(first)
+        }
+        None => None,
+    };
+    if let Some(parent) = parent {
+        arena[parent].first_child = first;
+    }
 }

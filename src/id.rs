@@ -429,7 +429,7 @@ impl NodeId {
     /// //     `-- 1_2
     ///
     /// assert!(arena[n1_2].parent().is_none());
-    /// assert!(arena[n1_2].previous_sibling().is_none());
+    /// assert!(arena[n1_2].previous_sibling(&arena).is_none());
     /// assert!(arena[n1_2].next_sibling().is_none());
     ///
     /// let mut iter = n1.descendants(&arena);
@@ -447,7 +447,7 @@ impl NodeId {
 
         // Ensure the node is surely detached.
         debug_assert!(
-            arena[self].is_detached(),
+            arena[self].is_detached(arena),
             "The node should be successfully detached"
         );
     }
@@ -536,8 +536,14 @@ impl NodeId {
             return Err(NodeError::Removed);
         }
         new_child.detach(arena);
-        insert_with_neighbors(arena, new_child, Some(self), arena[self].last_child, None)
-            .expect("Should never fail: `new_child` is not `self` and they are not removed");
+        insert_with_neighbors(
+            arena,
+            new_child,
+            Some(self),
+            arena[self].last_child(arena),
+            None,
+        )
+        .expect("Should never fail: `new_child` is not `self`");
 
         Ok(())
     }
@@ -823,7 +829,7 @@ impl NodeId {
         new_sibling.detach(arena);
         let (previous_sibling, parent) = {
             let current = &arena[self];
-            (current.previous_sibling, current.parent)
+            (current.previous_sibling(arena), current.parent)
         };
         insert_with_neighbors(arena, new_sibling, parent, previous_sibling, Some(self))
             .expect("Should never fail: `new_sibling` is not `self` and they are not removed");
@@ -883,7 +889,7 @@ impl NodeId {
         debug_assert_triangle_nodes!(
             arena,
             arena[self].parent,
-            arena[self].previous_sibling,
+            arena[self].previous_sibling(arena),
             Some(self)
         );
         debug_assert_triangle_nodes!(
@@ -893,17 +899,17 @@ impl NodeId {
             arena[self].next_sibling
         );
         debug_assert_triangle_nodes!(arena, Some(self), None, arena[self].first_child);
-        debug_assert_triangle_nodes!(arena, Some(self), arena[self].last_child, None);
+        debug_assert_triangle_nodes!(arena, Some(self), arena[self].last_child(arena), None);
 
         // Retrieve needed values.
         let (parent, previous_sibling, next_sibling, first_child, last_child) = {
             let node = &arena[self];
             (
                 node.parent,
-                node.previous_sibling,
+                node.previous_sibling(arena),
                 node.next_sibling,
                 node.first_child,
-                node.last_child,
+                node.last_child(arena),
             )
         };
 
@@ -916,6 +922,6 @@ impl NodeId {
                 .expect("Should never fail: neighbors and children must be consistent");
         }
         arena[self].removed = true;
-        debug_assert!(arena[self].is_detached());
+        debug_assert!(arena[self].is_detached(arena));
     }
 }

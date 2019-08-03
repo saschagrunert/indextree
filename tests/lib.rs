@@ -26,7 +26,7 @@ fn success_create() {
     let c = new!(); // 10
     assert!(b.checked_append(c, arena).is_ok());
 
-    arena[c].previous_sibling().unwrap().detach(arena);
+    arena[c].previous_sibling(&arena).unwrap().detach(arena);
 
     assert_eq!(
         b.descendants(arena)

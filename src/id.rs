@@ -1,9 +1,6 @@
 //! Node ID.
 
 #[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
-
-#[cfg(not(feature = "std"))]
 use core::{fmt, num::NonZeroUsize};
 
 use failure::{bail, Fallible};

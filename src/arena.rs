@@ -30,18 +30,20 @@ use crate::{Node, NodeId};
 #[derive(PartialEq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "derive-eq", derive(Eq))]
-/// An `Arena` structure containing certain Nodes
+/// An `Arena` structure containing certain [`Node`]s.
+///
+/// [`Node`]: struct.Node.html
 pub struct Arena<T> {
     pub(crate) nodes: Vec<Node<T>>,
 }
 
 impl<T> Arena<T> {
-    /// Create a new empty `Arena`
+    /// Creates a new empty `Arena`.
     pub fn new() -> Arena<T> {
         Self::default()
     }
 
-    /// Create a new node from its associated data.
+    /// Creates a new node from its associated data.
     ///
     /// # Panics
     ///
@@ -61,32 +63,37 @@ impl<T> Arena<T> {
         NodeId::from_non_zero_usize(next_index1)
     }
 
-    // Count nodes in arena.
+    /// Counts the number of nodes in arena and returns it.
     pub fn count(&self) -> usize {
         self.nodes.len()
     }
 
-    // Returns true if arena has no nodes, false otherwise
+    /// Returns `true` if arena has no nodes, `false` otherwise.
     pub fn is_empty(&self) -> bool {
         self.count() == 0
     }
 
-    /// Get a reference to the node with the given id if in the arena, None
-    /// otherwise.
+    /// Returns a reference to the node with the given id if in the arena.
+    ///
+    /// Returns `None` if not available.
     pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
         self.nodes.get(id.index0())
     }
 
-    /// Get a mutable reference to the node with the given id if in the arena,
-    /// None otherwise.
+    /// Returns a mutable reference to the node with the given id if in the
+    /// arena.
+    ///
+    /// Returns `None` if not available.
     pub fn get_mut(&mut self, id: NodeId) -> Option<&mut Node<T>> {
         self.nodes.get_mut(id.index0())
     }
 
-    /// Iterate over all nodes in the arena in storage-order.
+    /// Returns an iterator of all nodes in the arena in storage-order.
     ///
-    /// Note that this iterator also contains removed elements, which can be
-    /// tested with the `is_removed()` method on the node.
+    /// Note that this iterator returns also removed elements, which can be
+    /// tested with the [`is_removed()`] method on the node.
+    ///
+    /// [`is_removed()`]: struct.Node.html#method.is_removed
     pub fn iter(&self) -> Iter<Node<T>> {
         self.nodes.iter()
     }
@@ -94,10 +101,12 @@ impl<T> Arena<T> {
 
 #[cfg(feature = "par_iter")]
 impl<T: Sync> Arena<T> {
-    /// Return an parallel iterator over the whole arena.
+    /// Returns an parallel iterator over the whole arena.
     ///
-    /// Note that this iterator also contains removed elements, which can be
-    /// tested with the `is_removed()` method on the node.
+    /// Note that this iterator returns also removed elements, which can be
+    /// tested with the [`is_removed()`] method on the node.
+    ///
+    /// [`is_removed()`]: struct.Node.html#method.is_removed
     pub fn par_iter(&self) -> rayon::slice::Iter<Node<T>> {
         self.nodes.par_iter()
     }

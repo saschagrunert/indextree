@@ -3,7 +3,7 @@
 use failure::Fail;
 
 #[derive(Debug, Fail)]
-/// Possible node failures
+/// Possible node failures.
 pub enum NodeError {
     #[fail(display = "Can not append a node to itself")]
     AppendSelf,

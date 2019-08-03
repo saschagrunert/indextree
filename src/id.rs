@@ -15,13 +15,18 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, mem, num::NonZeroUsize};
 
 use crate::{
-    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut, Node, NodeEdge,
-    NodeError, PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
+    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut, NodeEdge, NodeError,
+    PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-/// A node identifier within a particular `Arena`
+/// A node identifier within a particular [`Arena`].
+///
+/// This ID is used to get [`Node`] references from an [`Arena`].
+///
+/// [`Arena`]: struct.Arena.html
+/// [`Node`]: struct.Node.html
 pub struct NodeId {
     /// One-based index.
     index1: NonZeroUsize,
@@ -41,14 +46,14 @@ impl NodeId {
         self.index1.get() - 1
     }
 
-    /// Create a `NodeId` used for attempting to get `Node`s references from an
-    /// `Arena`.
-    ///
-    /// Note that a zero-based index should be given.
+    /// Creates a new `NodeId` from the given zero-based index.
     ///
     /// # Panics
     ///
-    /// Panics if the value is `usize::max_value()`.
+    /// Panics if the value is [`usize::max_value()`].
+    ///
+    /// [`usize::max_value()`]:
+    /// https://doc.rust-lang.org/stable/std/primitive.usize.html#method.min_value
     pub fn new(index0: usize) -> Self {
         let index1 = NonZeroUsize::new(index0.wrapping_add(1))
             .expect("Attempt to create `NodeId` from `usize::max_value()`");
@@ -60,9 +65,12 @@ impl NodeId {
         NodeId { index1 }
     }
 
-    /// Return an iterator of references to this node and its ancestors.
+    /// Returns an iterator of references to this node and its ancestors.
     ///
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn ancestors<T>(self, arena: &Arena<T>) -> Ancestors<T> {
         Ancestors {
             arena,
@@ -70,10 +78,13 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node and the siblings before
+    /// Returns an iterator of references to this node and the siblings before
     /// it.
     ///
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
         PrecedingSiblings {
             arena,
@@ -81,9 +92,12 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node and the siblings after it.
+    /// Returns an iterator of references to this node and the siblings after
+    /// it.
     ///
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
         FollowingSiblings {
             arena,
@@ -91,7 +105,7 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node’s children.
+    /// Returns an iterator of references to this node’s children.
     pub fn children<T>(self, arena: &Arena<T>) -> Children<T> {
         Children {
             arena,
@@ -99,7 +113,7 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node’s children, in reverse
+    /// Returns an iterator of references to this node’s children, in reverse
     /// order.
     pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<T> {
         ReverseChildren {
@@ -108,16 +122,18 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node and its descendants, in
+    /// Returns an iterator of references to this node and its descendants, in
     /// tree order.
     ///
     /// Parent nodes appear before the descendants.
-    /// Call `.next().unwrap()` once on the iterator to skip the node itself.
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn descendants<T>(self, arena: &Arena<T>) -> Descendants<T> {
         Descendants(self.traverse(arena))
     }
 
-    /// Return an iterator of references to this node and its descendants, in
+    /// Returns an iterator of references to this node and its descendants, in
     /// tree order.
     pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<T> {
         Traverse {
@@ -127,8 +143,8 @@ impl NodeId {
         }
     }
 
-    /// Return an iterator of references to this node and its descendants, in
-    /// tree order.
+    /// Returns an iterator of references to this node and its descendants, in
+    /// reverse tree order.
     pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<T> {
         ReverseTraverse {
             arena,
@@ -137,7 +153,7 @@ impl NodeId {
         }
     }
 
-    /// Detach a node from its parent and siblings. Children are not affected.
+    /// Detaches a node from its parent and siblings. Children are not affected.
     pub fn detach<T>(self, arena: &mut Arena<T>) {
         let (parent, previous_sibling, next_sibling) = {
             let node = &mut arena[self];
@@ -161,7 +177,11 @@ impl NodeId {
         }
     }
 
-    /// Append a new child to this node, after existing children.
+    /// Appends a new child to this node, after existing children.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new child is `self`.
     pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_child.detach(arena);
         let last_child_opt;
@@ -194,7 +214,11 @@ impl NodeId {
         Ok(())
     }
 
-    /// Prepend a new child to this node, before existing children.
+    /// Prepends a new child to this node, before existing children.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new child is `self`.
     pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_child.detach(arena);
         let first_child_opt;
@@ -227,7 +251,11 @@ impl NodeId {
         Ok(())
     }
 
-    /// Insert a new sibling after this node.
+    /// Inserts a new sibling after this node.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new sibling is `self`.
     pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_sibling.detach(arena);
         let next_sibling_opt;
@@ -266,8 +294,11 @@ impl NodeId {
         Ok(())
     }
 
-    /// Insert a new sibling before this node.
-    /// success.
+    /// Inserts a new sibling before this node.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new sibling is `self`.
     pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
         new_sibling.detach(arena);
         let previous_sibling_opt;
@@ -309,12 +340,18 @@ impl NodeId {
         Ok(())
     }
 
-    /// Remove a node from the arena. Available children of the removed node
-    /// will be append to the parent after the previous sibling if available.
+    /// Removes a node from the arena.
+    ///
+    /// Children of the removed node will be inserted to the place where the
+    /// removed node was.
     ///
     /// Please note that the node will not be removed from the internal arena
     /// storage, but marked as `removed`. Traversing the arena returns a
     /// plain iterator and contains removed elements too.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
     pub fn remove<T>(self, arena: &mut Arena<T>) -> Fallible<()> {
         // Retrieve needed values and detach this node
         let (parent, previous_sibling, next_sibling, first_child, last_child) = {

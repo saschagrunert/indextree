@@ -493,6 +493,12 @@ impl NodeId {
         range
             .rewrite_parents(arena, None)
             .expect("Should never happen: `None` as parent is always valid");
+
+        // Ensure the node is surely detached.
+        debug_assert!(
+            arena[self].is_detached(),
+            "The node should be successfully detached"
+        );
     }
 
     /// Appends a new child to this node, after existing children.
@@ -772,6 +778,7 @@ impl NodeId {
                 .expect("Should never fail: neighbors and children must be consistent");
         }
         arena[self].removed = true;
+        debug_assert!(arena[self].is_detached());
 
         Ok(())
     }

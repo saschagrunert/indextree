@@ -263,6 +263,11 @@ impl<T> Node<T> {
     pub fn is_removed(&self) -> bool {
         self.removed
     }
+
+    /// Checks if the node is detached.
+    pub(crate) fn is_detached(&self) -> bool {
+        self.parent.is_none() && self.previous_sibling.is_none() && self.next_sibling.is_none()
+    }
 }
 
 impl<T> fmt::Display for Node<T> {

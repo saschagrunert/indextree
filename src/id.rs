@@ -1,10 +1,7 @@
 //! Node ID.
 
 #[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
-
-#[cfg(not(feature = "std"))]
-use core::{fmt, mem, num::NonZeroUsize};
+use core::{fmt, num::NonZeroUsize};
 
 use failure::{bail, Fallible};
 
@@ -12,11 +9,12 @@ use failure::{bail, Fallible};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
-use std::{fmt, mem, num::NonZeroUsize};
+use std::{fmt, num::NonZeroUsize};
 
 use crate::{
-    Ancestors, Arena, Children, Descendants, FollowingSiblings, GetPairMut, NodeEdge, NodeError,
-    PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
+    relations::insert_with_neighbors, siblings_range::SiblingsRange, Ancestors, Arena, Children,
+    Descendants, FollowingSiblings, NodeError, PrecedingSiblings, ReverseChildren, ReverseTraverse,
+    Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
@@ -134,10 +132,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn ancestors<T>(self, arena: &Arena<T>) -> Ancestors<T> {
-        Ancestors {
-            arena,
-            node: Some(self),
-        }
+        Ancestors::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and the siblings before
@@ -176,10 +171,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
-        PrecedingSiblings {
-            arena,
-            node: Some(self),
-        }
+        PrecedingSiblings::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and the siblings after
@@ -218,10 +210,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
-        FollowingSiblings {
-            arena,
-            node: Some(self),
-        }
+        FollowingSiblings::new(arena, self)
     }
 
     /// Returns an iterator of references to this node’s children.
@@ -255,10 +244,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn children<T>(self, arena: &Arena<T>) -> Children<T> {
-        Children {
-            arena,
-            node: arena[self].first_child,
-        }
+        Children::new(arena, self)
     }
 
     /// Returns an iterator of references to this node’s children, in reverse
@@ -293,10 +279,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<T> {
-        ReverseChildren {
-            arena,
-            node: arena[self].last_child,
-        }
+        ReverseChildren::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and its descendants, in
@@ -343,7 +326,7 @@ impl NodeId {
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
     pub fn descendants<T>(self, arena: &Arena<T>) -> Descendants<T> {
-        Descendants(self.traverse(arena))
+        Descendants::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and its descendants, in
@@ -385,11 +368,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<T> {
-        Traverse {
-            arena,
-            root: self,
-            next: Some(NodeEdge::Start(self)),
-        }
+        Traverse::new(arena, self)
     }
 
     /// Returns an iterator of references to this node and its descendants, in
@@ -457,11 +436,7 @@ impl NodeId {
     /// assert_eq!(traverse, reverse);
     /// ```
     pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<T> {
-        ReverseTraverse {
-            arena,
-            root: self,
-            next: Some(NodeEdge::End(self)),
-        }
+        ReverseTraverse::new(arena, self)
     }
 
     /// Detaches a node from its parent and siblings. Children are not affected.
@@ -511,26 +486,16 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn detach<T>(self, arena: &mut Arena<T>) {
-        let (parent, previous_sibling, next_sibling) = {
-            let node = &mut arena[self];
-            (
-                node.parent.take(),
-                node.previous_sibling.take(),
-                node.next_sibling.take(),
-            )
-        };
+        let range = SiblingsRange::new(self, self).detach_from_siblings(arena);
+        range
+            .rewrite_parents(arena, None)
+            .expect("Should never happen: `None` as parent is always valid");
 
-        if let Some(next_sibling) = next_sibling {
-            arena[next_sibling].previous_sibling = previous_sibling;
-        } else if let Some(parent) = parent {
-            arena[parent].last_child = previous_sibling;
-        }
-
-        if let Some(previous_sibling) = previous_sibling {
-            arena[previous_sibling].next_sibling = next_sibling;
-        } else if let Some(parent) = parent {
-            arena[parent].first_child = next_sibling;
-        }
+        // Ensure the node is surely detached.
+        debug_assert!(
+            arena[self].is_detached(),
+            "The node should be successfully detached"
+        );
     }
 
     /// Appends a new child to this node, after existing children.
@@ -566,34 +531,13 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
+        if new_child == self {
+            bail!(NodeError::AppendSelf);
+        }
         new_child.detach(arena);
-        let last_child_opt;
-        {
-            if let Some((self_borrow, new_child_borrow)) =
-                arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
-            {
-                new_child_borrow.parent = Some(self);
-                last_child_opt = mem::replace(&mut self_borrow.last_child, Some(new_child));
-                if let Some(last_child) = last_child_opt {
-                    new_child_borrow.previous_sibling = Some(last_child);
-                } else {
-                    assert!(
-                        self_borrow.first_child.is_none(),
-                        "`first_child` must be `None` if `last_child` was `None`"
-                    );
-                    self_borrow.first_child = Some(new_child);
-                }
-            } else {
-                bail!(NodeError::AppendSelf);
-            }
-        }
-        if let Some(last_child) = last_child_opt {
-            assert!(
-                arena[last_child].next_sibling.is_none(),
-                "The last child must not have next sibling"
-            );
-            arena[last_child].next_sibling = Some(new_child);
-        }
+        insert_with_neighbors(arena, new_child, Some(self), arena[self].last_child, None)
+            .expect("Should never fail: `new_child` is not `self`");
+
         Ok(())
     }
 
@@ -630,34 +574,12 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
-        new_child.detach(arena);
-        let first_child_opt;
-        {
-            if let Some((self_borrow, new_child_borrow)) =
-                arena.nodes.get_tuple_mut(self.index0(), new_child.index0())
-            {
-                new_child_borrow.parent = Some(self);
-                first_child_opt = mem::replace(&mut self_borrow.first_child, Some(new_child));
-                if let Some(first_child) = first_child_opt {
-                    new_child_borrow.next_sibling = Some(first_child);
-                } else {
-                    assert!(
-                        self_borrow.last_child.is_none(),
-                        "`last_child` must be `None` if `first_child` was `None`"
-                    );
-                    self_borrow.last_child = Some(new_child);
-                }
-            } else {
-                bail!(NodeError::PrependSelf);
-            }
+        if new_child == self {
+            bail!(NodeError::PrependSelf);
         }
-        if let Some(first_child) = first_child_opt {
-            assert!(
-                arena[first_child].previous_sibling.is_none(),
-                "The last child must not have next sibling"
-            );
-            arena[first_child].previous_sibling = Some(new_child);
-        }
+        insert_with_neighbors(arena, new_child, Some(self), None, arena[self].first_child)
+            .expect("Should never fail: `new_child` is not `self`");
+
         Ok(())
     }
 
@@ -700,40 +622,17 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
+        if new_sibling == self {
+            bail!(NodeError::InsertAfterSelf);
+        }
         new_sibling.detach(arena);
-        let next_sibling_opt;
-        let parent_opt;
-        {
-            if let Some((self_borrow, new_sibling_borrow)) = arena
-                .nodes
-                .get_tuple_mut(self.index0(), new_sibling.index0())
-            {
-                parent_opt = self_borrow.parent;
-                new_sibling_borrow.parent = parent_opt;
-                new_sibling_borrow.previous_sibling = Some(self);
-                next_sibling_opt = mem::replace(&mut self_borrow.next_sibling, Some(new_sibling));
-                if let Some(next_sibling) = next_sibling_opt {
-                    new_sibling_borrow.next_sibling = Some(next_sibling);
-                }
-            } else {
-                bail!(NodeError::InsertAfterSelf);
-            }
-        }
-        if let Some(next_sibling) = next_sibling_opt {
-            assert_eq!(
-                arena[next_sibling].previous_sibling,
-                Some(self),
-                "The previous sibling of the next sibling must be the current node"
-            );
-            arena[next_sibling].previous_sibling = Some(new_sibling);
-        } else if let Some(parent) = parent_opt {
-            assert_eq!(
-                arena[parent].last_child,
-                Some(self),
-                "The last child of the parent mush be the current node"
-            );
-            arena[parent].last_child = Some(new_sibling);
-        }
+        let (next_sibling, parent) = {
+            let current = &arena[self];
+            (current.next_sibling, current.parent)
+        };
+        insert_with_neighbors(arena, new_sibling, parent, Some(self), next_sibling)
+            .expect("Should never fail: `new_sibling` is not `self`");
+
         Ok(())
     }
 
@@ -776,43 +675,17 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
+        if new_sibling == self {
+            bail!(NodeError::InsertBeforeSelf);
+        }
         new_sibling.detach(arena);
-        let previous_sibling_opt;
-        let parent_opt;
-        {
-            if let Some((self_borrow, new_sibling_borrow)) = arena
-                .nodes
-                .get_tuple_mut(self.index0(), new_sibling.index0())
-            {
-                parent_opt = self_borrow.parent;
-                new_sibling_borrow.parent = parent_opt;
-                new_sibling_borrow.next_sibling = Some(self);
-                previous_sibling_opt =
-                    mem::replace(&mut self_borrow.previous_sibling, Some(new_sibling));
-                if let Some(previous_sibling) = previous_sibling_opt {
-                    new_sibling_borrow.previous_sibling = Some(previous_sibling);
-                }
-            } else {
-                bail!(NodeError::InsertBeforeSelf);
-            }
-        }
-        if let Some(previous_sibling) = previous_sibling_opt {
-            assert_eq!(
-                arena[previous_sibling].next_sibling,
-                Some(self),
-                "The next sibling of the previous sibling must be the current node"
-            );
-            arena[previous_sibling].next_sibling = Some(new_sibling);
-        } else if let Some(parent) = parent_opt {
-            // The current node is the first child because it has no previous
-            // siblings.
-            assert_eq!(
-                arena[parent].first_child,
-                Some(self),
-                "The first child of the parent must be the current node"
-            );
-            arena[parent].first_child = Some(new_sibling);
-        }
+        let (previous_sibling, parent) = {
+            let current = &arena[self];
+            (current.previous_sibling, current.parent)
+        };
+        insert_with_neighbors(arena, new_sibling, parent, previous_sibling, Some(self))
+            .expect("Should never fail: `new_sibling` is not `self`");
+
         Ok(())
     }
 
@@ -866,56 +739,43 @@ impl NodeId {
     ///
     /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
     pub fn remove<T>(self, arena: &mut Arena<T>) -> Fallible<()> {
-        // Retrieve needed values and detach this node
+        debug_assert_triangle_nodes!(
+            arena,
+            arena[self].parent,
+            arena[self].previous_sibling,
+            Some(self)
+        );
+        debug_assert_triangle_nodes!(
+            arena,
+            arena[self].parent,
+            Some(self),
+            arena[self].next_sibling
+        );
+        debug_assert_triangle_nodes!(arena, Some(self), None, arena[self].first_child);
+        debug_assert_triangle_nodes!(arena, Some(self), arena[self].last_child, None);
+
+        // Retrieve needed values.
         let (parent, previous_sibling, next_sibling, first_child, last_child) = {
-            let node = &mut arena[self];
+            let node = &arena[self];
             (
-                node.parent.take(),
-                node.previous_sibling.take(),
-                node.next_sibling.take(),
-                node.first_child.take(),
-                node.last_child.take(),
+                node.parent,
+                node.previous_sibling,
+                node.next_sibling,
+                node.first_child,
+                node.last_child,
             )
         };
-        // Note that no `is_detached()` assertion here because neighbor nodes
-        // are not yet updated consistently.
 
-        // Modify the parents of the childs
-        {
-            let mut child_opt = first_child;
-            while let Some(child_node) = child_opt.map(|id| &mut arena[id]) {
-                child_node.parent = parent;
-                child_opt = child_node.next_sibling;
-            }
+        assert_eq!(first_child.is_some(), last_child.is_some());
+        self.detach(arena);
+        if let (Some(first_child), Some(last_child)) = (first_child, last_child) {
+            let range = SiblingsRange::new(first_child, last_child).detach_from_siblings(arena);
+            range
+                .transplant(arena, parent, previous_sibling, next_sibling)
+                .expect("Should never fail: neighbors and children must be consistent");
         }
-
-        debug_assert_eq!(first_child.is_some(), last_child.is_some());
-        // `prev => ???` and `parent->first_child`
-        if let Some(previous_sibling) = previous_sibling {
-            arena[previous_sibling].next_sibling = first_child.or(next_sibling);
-        } else if let Some(parent) = parent {
-            arena[parent].first_child = first_child.or(next_sibling);
-        }
-        // `??? => first_child`
-        if let Some(first_child) = first_child {
-            arena[first_child].previous_sibling = previous_sibling;
-        }
-        // `last_child => ???`
-        if let Some(last_child) = last_child {
-            arena[last_child].next_sibling = next_sibling;
-        }
-        // `??? => next` and `parent->last_child`
-        if let Some(next_sibling) = next_sibling {
-            arena[next_sibling].previous_sibling = last_child.or(previous_sibling);
-        } else if let Some(parent) = parent {
-            arena[parent].last_child = last_child.or(previous_sibling);
-        }
-
-        // Cleanup the current node
-        {
-            let mut_self = &mut arena[self];
-            mut_self.removed = true;
-        }
+        arena[self].removed = true;
+        debug_assert!(arena[self].is_detached());
 
         Ok(())
     }

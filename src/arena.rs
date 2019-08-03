@@ -5,7 +5,6 @@ use alloc::vec::Vec;
 
 #[cfg(not(feature = "std"))]
 use core::{
-    cmp::max,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
     slice::Iter,
@@ -19,7 +18,6 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
 use std::{
-    cmp::max,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
     slice::Iter,
@@ -34,7 +32,7 @@ use crate::{Node, NodeId};
 ///
 /// [`Node`]: struct.Node.html
 pub struct Arena<T> {
-    pub(crate) nodes: Vec<Node<T>>,
+    nodes: Vec<Node<T>>,
 }
 
 impl<T> Arena<T> {
@@ -237,24 +235,5 @@ impl<T> Index<NodeId> for Arena<T> {
 impl<T> IndexMut<NodeId> for Arena<T> {
     fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {
         &mut self.nodes[node.index0()]
-    }
-}
-
-pub(crate) trait GetPairMut<T> {
-    /// Get mutable references to two distinct nodes
-    fn get_tuple_mut(&mut self, a: usize, b: usize) -> Option<(&mut T, &mut T)>;
-}
-
-impl<T> GetPairMut<T> for Vec<T> {
-    fn get_tuple_mut(&mut self, a: usize, b: usize) -> Option<(&mut T, &mut T)> {
-        if a == b {
-            return None;
-        }
-        let (xs, ys) = self.split_at_mut(max(a, b));
-        if a < b {
-            Some((&mut xs[a], &mut ys[0]))
-        } else {
-            Some((&mut ys[0], &mut xs[b]))
-        }
     }
 }

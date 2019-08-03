@@ -28,7 +28,6 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-use crate::arena::GetPairMut;
 pub use crate::{
     arena::Arena,
     error::NodeError,
@@ -40,8 +39,12 @@ pub use crate::{
     },
 };
 
+#[macro_use]
+pub(crate) mod relations;
+
 mod arena;
-mod error;
+pub(crate) mod error;
 mod id;
 mod node;
+pub(crate) mod siblings_range;
 mod traverse;

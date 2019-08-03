@@ -1,6 +1,12 @@
 //! Errors.
 
+#[cfg(not(feature = "std"))]
+use core::fmt;
+
 use failure::Fail;
+
+#[cfg(feature = "std")]
+use std::{error, fmt};
 
 #[derive(Debug, Fail)]
 /// Possible node failures.
@@ -61,3 +67,26 @@ pub enum NodeError {
     #[fail(display = "Last child is not set")]
     LastChildNotSet,
 }
+
+/// An error type that represents the given structure or argument is
+/// inconsistent or invalid.
+// Intended for internal use.
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum ConsistencyError {
+    /// Specified a node as its parent.
+    ParentChildLoop,
+    /// Specified a node as its sibling.
+    SiblingsLoop,
+}
+
+impl fmt::Display for ConsistencyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ConsistencyError::ParentChildLoop => f.write_str("Specified a node as its parent"),
+            ConsistencyError::SiblingsLoop => f.write_str("Specified a node as its sibling"),
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+impl error::Error for ConsistencyError {}

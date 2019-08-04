@@ -500,7 +500,12 @@ impl NodeId {
     ///
     /// # Panics
     ///
-    /// Returns an error if the given new child is `self`.
+    /// Panics if:
+    ///
+    /// * the given new child is `self`, or
+    /// * the current node or the given new child was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -528,16 +533,24 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_3));
     /// assert_eq!(iter.next(), None);
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
         self.checked_append(new_child, arena)
-            .expect("Preconditions not met: `self != new_child` should hold but not");
+            .expect("Preconditions not met: invalid argument");
     }
 
     /// Appends a new child to this node, after existing children.
     ///
     /// # Failures
     ///
-    /// Returns an error if the given new child is `self`.
+    /// * Returns [`NodeError::AppendSelf`] error if the given new child is
+    ///   `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new child or `self`
+    ///   is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -550,6 +563,11 @@ impl NodeId {
     /// let n1_1 = arena.new_node("1_1");
     /// assert!(n1.checked_append(n1_1, &mut arena).is_ok());
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::AppendSelf`]: enum.NodeError.html#variant.AppendSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn checked_append<T>(
         self,
         new_child: NodeId,
@@ -558,9 +576,12 @@ impl NodeId {
         if new_child == self {
             return Err(NodeError::AppendSelf);
         }
+        if arena[self].is_removed() || arena[new_child].is_removed() {
+            return Err(NodeError::Removed);
+        }
         new_child.detach(arena);
         insert_with_neighbors(arena, new_child, Some(self), arena[self].last_child, None)
-            .expect("Should never fail: `new_child` is not `self`");
+            .expect("Should never fail: `new_child` is not `self` and they are not removed");
 
         Ok(())
     }
@@ -569,7 +590,12 @@ impl NodeId {
     ///
     /// # Panics
     ///
-    /// Returns an error if the given new child is `self`.
+    /// Panics if:
+    ///
+    /// * the given new child is `self`, or
+    /// * the current node or the given new child was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -597,16 +623,24 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_1));
     /// assert_eq!(iter.next(), None);
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
         self.checked_prepend(new_child, arena)
-            .expect("Preconditions not met: `self != new_child` should hold but not");
+            .expect("Preconditions not met: invalid argument");
     }
 
     /// Prepends a new child to this node, before existing children.
     ///
     /// # Failures
     ///
-    /// Returns an error if the given new child is `self`.
+    /// * Returns [`NodeError::PrependSelf`] error if the given new child is
+    ///   `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new child or `self`
+    ///   is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -619,6 +653,11 @@ impl NodeId {
     /// let n1_1 = arena.new_node("1_1");
     /// assert!(n1.checked_prepend(n1_1, &mut arena).is_ok());
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::PrependSelf`]: enum.NodeError.html#variant.PrependSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn checked_prepend<T>(
         self,
         new_child: NodeId,
@@ -627,8 +666,11 @@ impl NodeId {
         if new_child == self {
             return Err(NodeError::PrependSelf);
         }
+        if arena[self].is_removed() || arena[new_child].is_removed() {
+            return Err(NodeError::Removed);
+        }
         insert_with_neighbors(arena, new_child, Some(self), None, arena[self].first_child)
-            .expect("Should never fail: `new_child` is not `self`");
+            .expect("Should never fail: `new_child` is not `self` and they are not removed");
 
         Ok(())
     }
@@ -637,7 +679,12 @@ impl NodeId {
     ///
     /// # Panics
     ///
-    /// Returns an error if the given new sibling is `self`.
+    /// Panics if:
+    ///
+    /// * the given new sibling is `self`, or
+    /// * the current node or the given new sibling was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -671,16 +718,24 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_2));
     /// assert_eq!(iter.next(), None);
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         self.checked_insert_after(new_sibling, arena)
-            .expect("Preconditions not met: `self != new_sibling` should hold but not");
+            .expect("Preconditions not met: invalid argument");
     }
 
     /// Inserts a new sibling after this node.
     ///
     /// # Failures
     ///
-    /// Returns an error if the given new sibling is `self`.
+    /// * Returns [`NodeError::InsertAfterSelf`] error if the given new sibling
+    ///   is `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new sibling or
+    ///   `self` is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -693,6 +748,11 @@ impl NodeId {
     /// let n2 = arena.new_node("2");
     /// assert!(n1.checked_insert_after(n2, &mut arena).is_ok());
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::InsertAfterSelf`]: enum.NodeError.html#variant.InsertAfterSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn checked_insert_after<T>(
         self,
         new_sibling: NodeId,
@@ -701,22 +761,30 @@ impl NodeId {
         if new_sibling == self {
             return Err(NodeError::InsertAfterSelf);
         }
+        if arena[self].is_removed() || arena[new_sibling].is_removed() {
+            return Err(NodeError::Removed);
+        }
         new_sibling.detach(arena);
         let (next_sibling, parent) = {
             let current = &arena[self];
             (current.next_sibling, current.parent)
         };
         insert_with_neighbors(arena, new_sibling, parent, Some(self), next_sibling)
-            .expect("Should never fail: `new_sibling` is not `self`");
+            .expect("Should never fail: `new_sibling` is not `self` and they are not removed");
 
         Ok(())
     }
 
     /// Inserts a new sibling before this node.
     ///
-    /// # Failures
+    /// # Panics
     ///
-    /// Returns an error if the given new sibling is `self`.
+    /// Panics if:
+    ///
+    /// * the given new sibling is `self`, or
+    /// * the current node or the given new sibling was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -750,16 +818,24 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_2));
     /// assert_eq!(iter.next(), None);
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         self.checked_insert_before(new_sibling, arena)
-            .expect("Preconditions not met: `self != new_sibling` should hold but not");
+            .expect("Preconditions not met: invalid argument");
     }
 
     /// Inserts a new sibling before this node.
     ///
     /// # Failures
     ///
-    /// Returns an error if the given new sibling is `self`.
+    /// * Returns [`NodeError::InsertBeforeSelf`] error if the given new sibling
+    ///   is `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new sibling or
+    ///   `self` is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
     ///
     /// # Examples
     ///
@@ -772,6 +848,11 @@ impl NodeId {
     /// let n2 = arena.new_node("2");
     /// assert!(n1.checked_insert_before(n2, &mut arena).is_ok());
     /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::InsertBeforeSelf`]: enum.NodeError.html#variant.InsertBeforeSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
     pub fn checked_insert_before<T>(
         self,
         new_sibling: NodeId,
@@ -780,13 +861,16 @@ impl NodeId {
         if new_sibling == self {
             return Err(NodeError::InsertBeforeSelf);
         }
+        if arena[self].is_removed() || arena[new_sibling].is_removed() {
+            return Err(NodeError::Removed);
+        }
         new_sibling.detach(arena);
         let (previous_sibling, parent) = {
             let current = &arena[self];
             (current.previous_sibling, current.parent)
         };
         insert_with_neighbors(arena, new_sibling, parent, previous_sibling, Some(self))
-            .expect("Should never fail: `new_sibling` is not `self`");
+            .expect("Should never fail: `new_sibling` is not `self` and they are not removed");
 
         Ok(())
     }

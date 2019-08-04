@@ -17,6 +17,8 @@ pub enum NodeError {
     InsertBeforeSelf,
     /// Attempt to insert a node after itself.
     InsertAfterSelf,
+    /// Attempt to insert a removed node, or insert to a removed node.
+    Removed,
     // See <https://github.com/rust-lang/rfcs/blob/master/text/2008-non-exhaustive.md#how-we-do-this-today>.
     #[doc(hidden)]
     __Nonexhaustive,
@@ -29,6 +31,7 @@ impl NodeError {
             NodeError::PrependSelf => "Can not prepend a node to itself",
             NodeError::InsertBeforeSelf => "Can not insert a node before itself",
             NodeError::InsertAfterSelf => "Can not insert a node after itself",
+            NodeError::Removed => "Removed node cannot have any parent, siblings, and children",
             NodeError::__Nonexhaustive => panic!("`__Nonexhaustive` should not be used"),
         }
     }

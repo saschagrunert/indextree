@@ -42,52 +42,8 @@ impl NodeId {
         self.index1.get() - 1
     }
 
-    /// Creates a new `NodeId` from the given zero-based index.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the value is [`usize::max_value()`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use indextree::{Arena, NodeId};
-    /// let mut arena = Arena::new();
-    /// let foo = arena.new_node("foo");
-    /// let bar = arena.new_node("bar");
-    /// let baz = arena.new_node("baz");
-    ///
-    /// assert_eq!(NodeId::new(0), foo);
-    /// assert_eq!(NodeId::new(1), bar);
-    /// assert_eq!(NodeId::new(2), baz);
-    /// ```
-    ///
-    /// [`usize::max_value()`]:
-    /// https://doc.rust-lang.org/stable/std/primitive.usize.html#method.min_value
-    pub fn new(index0: usize) -> Self {
-        let index1 = NonZeroUsize::new(index0.wrapping_add(1))
-            .expect("Attempt to create `NodeId` from `usize::max_value()`");
-        NodeId { index1 }
-    }
-
     /// Creates a new `NodeId` from the given one-based index.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use std::num::NonZeroUsize;
-    /// # use indextree::{Arena, NodeId};
-    /// let mut arena = Arena::new();
-    /// let _foo = arena.new_node("foo");
-    /// let bar = arena.new_node("bar");
-    /// let _baz = arena.new_node("baz");
-    ///
-    /// let second_id = NonZeroUsize::new(2)
-    ///     .expect("Should success with non-zero integer");
-    /// let second = NodeId::from_non_zero_usize(second_id);
-    /// assert_eq!(second, bar);
-    /// ```
-    pub fn from_non_zero_usize(index1: NonZeroUsize) -> Self {
+    pub(crate) fn from_non_zero_usize(index1: NonZeroUsize) -> Self {
         NodeId { index1 }
     }
 

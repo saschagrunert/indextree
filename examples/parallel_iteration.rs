@@ -17,6 +17,6 @@ pub fn main() {
     println!("Parallel iteration over arena tree");
     let _: Vec<f64> = arena
         .par_iter()
-        .map(|ref mut i| (i.data as f64).sqrt())
+        .map(|ref mut i| (*i.get() as f64).sqrt())
         .collect();
 }

@@ -30,7 +30,7 @@ fn success_create() {
 
     assert_eq!(
         b.descendants(arena)
-            .map(|node| arena[node].data)
+            .map(|node| *arena[node].get())
             .collect::<Vec<_>>(),
         [5, 6, 7, 1, 4, 2, 3, 9, 10]
     );
@@ -60,14 +60,14 @@ fn success_detach() {
 fn get() {
     let arena = &mut Arena::new();
     let id = arena.new_node(1);
-    assert_eq!(arena.get(id).unwrap().data, 1);
+    assert_eq!(*arena.get(id).unwrap().get(), 1);
 }
 
 #[test]
 fn get_mut() {
     let arena = &mut Arena::new();
     let id = arena.new_node(1);
-    assert_eq!(arena.get_mut(id).unwrap().data, 1);
+    assert_eq!(*arena.get_mut(id).unwrap().get(), 1);
 }
 
 #[test]
@@ -122,7 +122,13 @@ fn remove() {
 
     let node_refs = arena
         .iter()
-        .filter_map(|x| if !x.is_removed() { Some(x.data) } else { None })
+        .filter_map(|x| {
+            if !x.is_removed() {
+                Some(*x.get())
+            } else {
+                None
+            }
+        })
         .collect::<Vec<_>>();
     assert_eq!(node_refs, vec![0, 1, 3, 4, 5, 6]);
     assert_eq!(n2.children(arena).collect::<Vec<_>>().len(), 0);
@@ -134,7 +140,13 @@ fn remove() {
 
     let node_refs = arena
         .iter()
-        .filter_map(|x| if !x.is_removed() { Some(x.data) } else { None })
+        .filter_map(|x| {
+            if !x.is_removed() {
+                Some(*x.get())
+            } else {
+                None
+            }
+        })
         .collect::<Vec<_>>();
     assert_eq!(node_refs, vec![0, 1, 4, 5, 6]);
     assert_eq!(n3.children(arena).collect::<Vec<_>>().len(), 0);

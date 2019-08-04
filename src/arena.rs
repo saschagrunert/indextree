@@ -51,7 +51,7 @@ impl<T> Arena<T> {
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
     ///
-    /// assert_eq!(arena[foo].data, "foo");
+    /// assert_eq!(*arena[foo].get(), "foo");
     /// ```
     pub fn new_node(&mut self, data: T) -> NodeId {
         let next_index1 = NonZeroUsize::new(self.nodes.len().wrapping_add(1))
@@ -115,7 +115,7 @@ impl<T> Arena<T> {
     /// # use indextree::{Arena, NodeId};
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
-    /// assert_eq!(arena.get(foo).map(|node| node.data), Some("foo"));
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some("foo"));
     /// ```
     ///
     /// Note that this does not check whether the given node ID is created by
@@ -126,11 +126,11 @@ impl<T> Arena<T> {
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
     /// let bar = arena.new_node("bar");
-    /// assert_eq!(arena.get(foo).map(|node| node.data), Some("foo"));
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some("foo"));
     ///
     /// let mut another_arena = Arena::new();
     /// let _ = another_arena.new_node("Another arena");
-    /// assert_eq!(another_arena.get(foo).map(|node| node.data), Some("Another arena"));
+    /// assert_eq!(another_arena.get(foo).map(|node| *node.get()), Some("Another arena"));
     /// assert!(another_arena.get(bar).is_none());
     /// ```
     pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
@@ -148,10 +148,10 @@ impl<T> Arena<T> {
     /// # use indextree::{Arena, NodeId};
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
-    /// assert_eq!(arena.get(foo).map(|node| node.data), Some("foo"));
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some("foo"));
     ///
-    /// arena.get_mut(foo).expect("The `foo` node exists").data = "FOO!";
-    /// assert_eq!(arena.get(foo).map(|node| node.data), Some("FOO!"));
+    /// *arena.get_mut(foo).expect("The `foo` node exists").get_mut() = "FOO!";
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some("FOO!"));
     /// ```
     pub fn get_mut(&mut self, id: NodeId) -> Option<&mut Node<T>> {
         self.nodes.get_mut(id.index0())
@@ -171,9 +171,9 @@ impl<T> Arena<T> {
     /// let _bar = arena.new_node("bar");
     ///
     /// let mut iter = arena.iter();
-    /// assert_eq!(iter.next().map(|node| node.data), Some("foo"));
-    /// assert_eq!(iter.next().map(|node| node.data), Some("bar"));
-    /// assert_eq!(iter.next().map(|node| node.data), None);
+    /// assert_eq!(iter.next().map(|node| *node.get()), Some("foo"));
+    /// assert_eq!(iter.next().map(|node| *node.get()), Some("bar"));
+    /// assert_eq!(iter.next().map(|node| *node.get()), None);
     /// ```
     ///
     /// ```
@@ -184,9 +184,9 @@ impl<T> Arena<T> {
     /// bar.remove(&mut arena);
     ///
     /// let mut iter = arena.iter();
-    /// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), Some(("foo", false)));
-    /// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), Some(("bar", true)));
-    /// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), None);
+    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some(("foo", false)));
+    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some(("bar", true)));
+    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);
     /// ```
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed

@@ -229,10 +229,6 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Arena.</span>
 
@@ -354,9 +350,6 @@
     <span class="doccomment">/// let mut arena = Arena::new();</span>
     <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
     <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let ghost = NodeId::new(42);</span>
-    <span class="doccomment">/// assert!(arena.get(ghost).is_none());</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note that this does not check whether the given node ID is created by</span>
@@ -366,11 +359,13 @@
     <span class="doccomment">/// # use indextree::Arena;</span>
     <span class="doccomment">/// let mut arena = Arena::new();</span>
     <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
+    <span class="doccomment">/// let bar = arena.new_node(&quot;bar&quot;);</span>
     <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;foo&quot;));</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut another_arena = Arena::new();</span>
     <span class="doccomment">/// let _ = another_arena.new_node(&quot;Another arena&quot;);</span>
     <span class="doccomment">/// assert_eq!(another_arena.get(foo).map(|node| node.data), Some(&quot;Another arena&quot;));</span>
+    <span class="doccomment">/// assert!(another_arena.get(bar).is_none());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NodeId</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
         <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="ident">index0</span>())
@@ -388,9 +383,6 @@
     <span class="doccomment">/// let mut arena = Arena::new();</span>
     <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
     <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let ghost = NodeId::new(42);</span>
-    <span class="doccomment">/// assert!(arena.get_mut(ghost).is_none());</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// arena.get_mut(foo).expect(&quot;The `foo` node exists&quot;).data = &quot;FOO!&quot;;</span>
     <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;FOO!&quot;));</span>

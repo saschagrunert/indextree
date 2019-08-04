@@ -919,50 +919,6 @@
 <span id="919">919</span>
 <span id="920">920</span>
 <span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
-<span id="927">927</span>
-<span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
-<span id="946">946</span>
-<span id="947">947</span>
-<span id="948">948</span>
-<span id="949">949</span>
-<span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
-<span id="957">957</span>
-<span id="958">958</span>
-<span id="959">959</span>
-<span id="960">960</span>
-<span id="961">961</span>
-<span id="962">962</span>
-<span id="963">963</span>
-<span id="964">964</span>
-<span id="965">965</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Node ID.</span>
 
@@ -1008,52 +964,8 @@
         <span class="self">self</span>.<span class="ident">index1</span>.<span class="ident">get</span>() <span class="op">-</span> <span class="number">1</span>
     }
 
-    <span class="doccomment">/// Creates a new `NodeId` from the given zero-based index.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the value is [`usize::max_value()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeId};</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// let bar = arena.new_node(&quot;bar&quot;);</span>
-    <span class="doccomment">/// let baz = arena.new_node(&quot;baz&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(NodeId::new(0), foo);</span>
-    <span class="doccomment">/// assert_eq!(NodeId::new(1), bar);</span>
-    <span class="doccomment">/// assert_eq!(NodeId::new(2), baz);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`usize::max_value()`]:</span>
-    <span class="doccomment">/// https://doc.rust-lang.org/stable/std/primitive.usize.html#method.min_value</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">index0</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">index1</span> <span class="op">=</span> <span class="ident">NonZeroUsize</span>::<span class="ident">new</span>(<span class="ident">index0</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>))
-            .<span class="ident">expect</span>(<span class="string">&quot;Attempt to create `NodeId` from `usize::max_value()`&quot;</span>);
-        <span class="ident">NodeId</span> { <span class="ident">index1</span> }
-    }
-
     <span class="doccomment">/// Creates a new `NodeId` from the given one-based index.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use std::num::NonZeroUsize;</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeId};</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let _foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// let bar = arena.new_node(&quot;bar&quot;);</span>
-    <span class="doccomment">/// let _baz = arena.new_node(&quot;baz&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let second_id = NonZeroUsize::new(2)</span>
-    <span class="doccomment">///     .expect(&quot;Should success with non-zero integer&quot;);</span>
-    <span class="doccomment">/// let second = NodeId::from_non_zero_usize(second_id);</span>
-    <span class="doccomment">/// assert_eq!(second, bar);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_non_zero_usize</span>(<span class="ident">index1</span>: <span class="ident">NonZeroUsize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_non_zero_usize</span>(<span class="ident">index1</span>: <span class="ident">NonZeroUsize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="ident">NodeId</span> { <span class="ident">index1</span> }
     }
 

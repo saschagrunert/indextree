@@ -23,12 +23,34 @@ pub struct Node<T> {
     pub(crate) first_child: Option<NodeId>,
     pub(crate) last_child: Option<NodeId>,
     pub(crate) removed: bool,
-
     /// The actual data which will be stored within the tree.
-    pub data: T,
+    pub(crate) data: T,
 }
 
 impl<T> Node<T> {
+    /// Returns a reference to the node data.
+    pub fn get(&self) -> &T {
+        &self.data
+    }
+
+    /// Returns a mutable reference to the node data.
+    pub fn get_mut(&mut self) -> &mut T {
+        &mut self.data
+    }
+
+    /// Creates a new `Node` with the default state and the given data.
+    pub(crate) fn new(data: T) -> Self {
+        Self {
+            parent: None,
+            previous_sibling: None,
+            next_sibling: None,
+            first_child: None,
+            last_child: None,
+            removed: false,
+            data,
+        }
+    }
+
     /// Returns the ID of the parent node, unless this node is the root of the
     /// tree.
     ///

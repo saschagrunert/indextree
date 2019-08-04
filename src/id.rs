@@ -3,8 +3,6 @@
 #[cfg(not(feature = "std"))]
 use core::{fmt, num::NonZeroUsize};
 
-use failure::{bail, Fallible};
-
 #[cfg(feature = "deser")]
 use serde::{Deserialize, Serialize};
 
@@ -530,9 +528,9 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_3));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
+    pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Result<(), NodeError> {
         if new_child == self {
-            bail!(NodeError::AppendSelf);
+            return Err(NodeError::AppendSelf);
         }
         new_child.detach(arena);
         insert_with_neighbors(arena, new_child, Some(self), arena[self].last_child, None)
@@ -573,9 +571,9 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_1));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
+    pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Result<(), NodeError> {
         if new_child == self {
-            bail!(NodeError::PrependSelf);
+            return Err(NodeError::PrependSelf);
         }
         insert_with_neighbors(arena, new_child, Some(self), None, arena[self].first_child)
             .expect("Should never fail: `new_child` is not `self`");
@@ -621,9 +619,13 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_2));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
+    pub fn insert_after<T>(
+        self,
+        new_sibling: NodeId,
+        arena: &mut Arena<T>,
+    ) -> Result<(), NodeError> {
         if new_sibling == self {
-            bail!(NodeError::InsertAfterSelf);
+            return Err(NodeError::InsertAfterSelf);
         }
         new_sibling.detach(arena);
         let (next_sibling, parent) = {
@@ -674,9 +676,13 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_2));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) -> Fallible<()> {
+    pub fn insert_before<T>(
+        self,
+        new_sibling: NodeId,
+        arena: &mut Arena<T>,
+    ) -> Result<(), NodeError> {
         if new_sibling == self {
-            bail!(NodeError::InsertBeforeSelf);
+            return Err(NodeError::InsertBeforeSelf);
         }
         new_sibling.detach(arena);
         let (previous_sibling, parent) = {

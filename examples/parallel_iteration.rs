@@ -1,8 +1,7 @@
-use failure::Fallible;
 use indextree::*;
 use rayon::prelude::*;
 
-pub fn main() -> Fallible<()> {
+pub fn main() -> Result<(), NodeError> {
     // Create a new arena
     let arena = &mut Arena::new();
 

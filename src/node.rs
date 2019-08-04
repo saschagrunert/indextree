@@ -72,12 +72,12 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].parent(), None);
-    /// assert_eq!(arena[n1_1].parent(), Some(n1));
-    /// assert_eq!(arena[n1_2].parent(), Some(n1));
-    /// assert_eq!(arena[n1_3].parent(), Some(n1));
+    /// assert_eq!(arena[n1].parent(&arena), None);
+    /// assert_eq!(arena[n1_1].parent(&arena), Some(n1));
+    /// assert_eq!(arena[n1_2].parent(&arena), Some(n1));
+    /// assert_eq!(arena[n1_3].parent(&arena), Some(n1));
     /// ```
-    pub fn parent(&self) -> Option<NodeId> {
+    pub fn parent(&self, _arena: &Arena<T>) -> Option<NodeId> {
         self.parent
     }
 
@@ -100,12 +100,12 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].first_child(), Some(n1_1));
-    /// assert_eq!(arena[n1_1].first_child(), None);
-    /// assert_eq!(arena[n1_2].first_child(), None);
-    /// assert_eq!(arena[n1_3].first_child(), None);
+    /// assert_eq!(arena[n1].first_child(&arena), Some(n1_1));
+    /// assert_eq!(arena[n1_1].first_child(&arena), None);
+    /// assert_eq!(arena[n1_2].first_child(&arena), None);
+    /// assert_eq!(arena[n1_3].first_child(&arena), None);
     /// ```
-    pub fn first_child(&self) -> Option<NodeId> {
+    pub fn first_child(&self, _arena: &Arena<T>) -> Option<NodeId> {
         self.first_child
     }
 
@@ -219,10 +219,10 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].next_sibling(), None);
-    /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_2));
-    /// assert_eq!(arena[n1_2].next_sibling(), Some(n1_3));
-    /// assert_eq!(arena[n1_3].next_sibling(), None);
+    /// assert_eq!(arena[n1].next_sibling(&arena), None);
+    /// assert_eq!(arena[n1_1].next_sibling(&arena), Some(n1_2));
+    /// assert_eq!(arena[n1_2].next_sibling(&arena), Some(n1_3));
+    /// assert_eq!(arena[n1_3].next_sibling(&arena), None);
     /// ```
     ///
     /// Note that newly created nodes are independent toplevel nodes, and they
@@ -238,18 +238,18 @@ impl<T> Node<T> {
     /// // |   `-- 1
     /// // `-- (implicit)
     /// //     `-- 2
-    /// assert_eq!(arena[n1].next_sibling(), None);
-    /// assert_eq!(arena[n2].next_sibling(), None);
+    /// assert_eq!(arena[n1].next_sibling(&arena), None);
+    /// assert_eq!(arena[n2].next_sibling(&arena), None);
     ///
     /// n1.insert_after(n2, &mut arena);
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
     /// //     `-- 2
-    /// assert_eq!(arena[n1].next_sibling(), Some(n2));
-    /// assert_eq!(arena[n2].next_sibling(), None);
+    /// assert_eq!(arena[n1].next_sibling(&arena), Some(n2));
+    /// assert_eq!(arena[n2].next_sibling(&arena), None);
     /// ```
-    pub fn next_sibling(&self) -> Option<NodeId> {
+    pub fn next_sibling(&self, _arena: &Arena<T>) -> Option<NodeId> {
         self.next_sibling
     }
 
@@ -272,8 +272,8 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2 *
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_2));
-    /// assert_eq!(arena[n1_2].parent(), Some(n1));
+    /// assert_eq!(arena[n1_1].next_sibling(&arena), Some(n1_2));
+    /// assert_eq!(arena[n1_2].parent(&arena), Some(n1));
     /// assert!(!arena[n1_2].is_removed());
     /// assert_eq!(arena[n1_3].previous_sibling(&arena), Some(n1_2));
     ///
@@ -282,8 +282,8 @@ impl<T> Node<T> {
     /// // `-- 1
     /// //     |-- 1_1
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_3));
-    /// assert_eq!(arena[n1_2].parent(), None);
+    /// assert_eq!(arena[n1_1].next_sibling(&arena), Some(n1_3));
+    /// assert_eq!(arena[n1_2].parent(&arena), None);
     /// assert!(arena[n1_2].is_removed());
     /// assert_eq!(arena[n1_3].previous_sibling(&arena), Some(n1_1));
     /// ```

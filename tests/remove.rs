@@ -28,7 +28,7 @@ fn toplevel_with_single_child() {
     n1.remove(&mut arena);
     // arena
     // `-- 1_1
-    assert!(arena[n1_1].parent().is_none());
+    assert!(arena[n1_1].parent(&arena).is_none());
 }
 
 #[test]
@@ -58,8 +58,8 @@ fn toplevel_with_multiple_children() {
     // arena
     // |-- 1_1
     // `-- 1_2
-    assert!(arena[n1_1].parent().is_none());
-    assert!(arena[n1_2].parent().is_none());
+    assert!(arena[n1_1].parent(&arena).is_none());
+    assert!(arena[n1_2].parent(&arena).is_none());
     assert_eq!(
         n1_1.following_siblings(&arena).collect::<Vec<_>>(),
         &[n1_1, n1_2]
@@ -82,7 +82,7 @@ fn single_child_with_no_children() {
     n1_1.remove(&mut arena);
     // arena
     // `-- 1
-    assert!(arena[n1_1].parent().is_none());
+    assert!(arena[n1_1].parent(&arena).is_none());
     assert_eq!(
         n1.traverse(&arena).collect::<Vec<_>>(),
         &[Start(n1), End(n1),]
@@ -116,8 +116,8 @@ fn single_child_with_single_child() {
     // arena
     // `-- 1
     //     `-- 1_1_1
-    assert!(arena[n1_1].parent().is_none());
-    assert!(arena[n1_1].first_child().is_none());
+    assert!(arena[n1_1].parent(&arena).is_none());
+    assert!(arena[n1_1].first_child(&arena).is_none());
     assert_eq!(n1_1_1.ancestors(&arena).collect::<Vec<_>>(), &[n1_1_1, n1]);
     assert_eq!(
         n1.traverse(&arena).collect::<Vec<_>>(),

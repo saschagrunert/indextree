@@ -428,9 +428,9 @@ impl NodeId {
     /// // `-- (implicit)
     /// //     `-- 1_2
     ///
-    /// assert!(arena[n1_2].parent().is_none());
+    /// assert!(arena[n1_2].parent(&arena).is_none());
     /// assert!(arena[n1_2].previous_sibling(&arena).is_none());
-    /// assert!(arena[n1_2].next_sibling().is_none());
+    /// assert!(arena[n1_2].next_sibling(&arena).is_none());
     ///
     /// let mut iter = n1.descendants(&arena);
     /// assert_eq!(iter.next(), Some(n1));

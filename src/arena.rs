@@ -25,9 +25,8 @@ use std::{
 
 use crate::{Node, NodeId};
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-#[cfg_attr(feature = "derive-eq", derive(Eq))]
 /// An `Arena` structure containing certain [`Node`]s.
 ///
 /// [`Node`]: struct.Node.html

@@ -105,15 +105,15 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_1_1_1 = arena.new_node("1_1_1_1");
-    /// # n1_1_1.append(n1_1_1_1, &mut arena);
+    /// # n1_1_1.append(n1_1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -148,13 +148,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -187,13 +187,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -222,13 +222,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -257,13 +257,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -296,15 +296,15 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_1_1_1 = arena.new_node("1_1_1_1");
-    /// # n1_1_1.append(n1_1_1_1, &mut arena);
+    /// # n1_1_1.append(n1_1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -339,13 +339,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -381,13 +381,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1
@@ -415,13 +415,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// # // arena
     /// # // `-- 1
@@ -448,13 +448,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- (implicit)
@@ -511,11 +511,11 @@ impl NodeId {
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n1_1 = arena.new_node("1_1");
-    /// n1.append(n1_1, &mut arena);
+    /// n1.append(n1_1, &mut arena).unwrap();
     /// let n1_2 = arena.new_node("1_2");
-    /// n1.append(n1_2, &mut arena);
+    /// n1.append(n1_2, &mut arena).unwrap();
     /// let n1_3 = arena.new_node("1_3");
-    /// n1.append(n1_3, &mut arena);
+    /// n1.append(n1_3, &mut arena).unwrap();
     ///
     /// // arena
     /// // `-- 1
@@ -554,11 +554,11 @@ impl NodeId {
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n1_1 = arena.new_node("1_1");
-    /// n1.prepend(n1_1, &mut arena);
+    /// n1.prepend(n1_1, &mut arena).unwrap();
     /// let n1_2 = arena.new_node("1_2");
-    /// n1.prepend(n1_2, &mut arena);
+    /// n1.prepend(n1_2, &mut arena).unwrap();
     /// let n1_3 = arena.new_node("1_3");
-    /// n1.prepend(n1_3, &mut arena);
+    /// n1.prepend(n1_3, &mut arena).unwrap();
     ///
     /// // arena
     /// // `-- 1
@@ -596,9 +596,9 @@ impl NodeId {
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n1_1 = arena.new_node("1_1");
-    /// n1.append(n1_1, &mut arena);
+    /// n1.append(n1_1, &mut arena).unwrap();
     /// let n1_2 = arena.new_node("1_2");
-    /// n1.append(n1_2, &mut arena);
+    /// n1.append(n1_2, &mut arena).unwrap();
     ///
     /// // arena
     /// // `-- 1
@@ -606,7 +606,7 @@ impl NodeId {
     /// //     `-- 1_2
     ///
     /// let n1_3 = arena.new_node("1_3");
-    /// n1_1.insert_after(n1_3, &mut arena);
+    /// n1_1.insert_after(n1_3, &mut arena).unwrap();
     ///
     /// // arena
     /// // `-- 1
@@ -649,9 +649,9 @@ impl NodeId {
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n1_1 = arena.new_node("1_1");
-    /// n1.append(n1_1, &mut arena);
+    /// n1.append(n1_1, &mut arena).unwrap();
     /// let n1_2 = arena.new_node("1_2");
-    /// n1.append(n1_2, &mut arena);
+    /// n1.append(n1_2, &mut arena).unwrap();
     ///
     /// // arena
     /// // `-- 1
@@ -659,7 +659,7 @@ impl NodeId {
     /// //     `-- 1_2
     ///
     /// let n1_3 = arena.new_node("1_3");
-    /// n1_2.insert_before(n1_3, &mut arena);
+    /// n1_2.insert_before(n1_3, &mut arena).unwrap();
     ///
     /// // arena
     /// // `-- 1
@@ -707,15 +707,15 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_2_1 = arena.new_node("1_2_1");
-    /// # n1_2.append(n1_2_1, &mut arena);
+    /// # n1_2.append(n1_2_1, &mut arena).unwrap();
     /// # let n1_2_2 = arena.new_node("1_2_2");
-    /// # n1_2.append(n1_2_2, &mut arena);
+    /// # n1_2.append(n1_2_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// #
     /// // arena
     /// // `-- 1

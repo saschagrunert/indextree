@@ -219,14 +219,6 @@
 <span id="219">219</span>
 <span id="220">220</span>
 <span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Arena.</span>
 
@@ -281,20 +273,12 @@
     <span class="doccomment">/// let mut arena = Arena::new();</span>
     <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(arena[foo].data, &quot;foo&quot;);</span>
+    <span class="doccomment">/// assert_eq!(*arena[foo].get(), &quot;foo&quot;);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_node</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">NodeId</span> {
         <span class="kw">let</span> <span class="ident">next_index1</span> <span class="op">=</span> <span class="ident">NonZeroUsize</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>().<span class="ident">wrapping_add</span>(<span class="number">1</span>))
             .<span class="ident">expect</span>(<span class="string">&quot;Too many nodes in the arena&quot;</span>);
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">Node</span> {
-            <span class="ident">parent</span>: <span class="prelude-val">None</span>,
-            <span class="ident">first_child</span>: <span class="prelude-val">None</span>,
-            <span class="ident">last_child</span>: <span class="prelude-val">None</span>,
-            <span class="ident">previous_sibling</span>: <span class="prelude-val">None</span>,
-            <span class="ident">next_sibling</span>: <span class="prelude-val">None</span>,
-            <span class="ident">removed</span>: <span class="bool-val">false</span>,
-            <span class="ident">data</span>,
-        });
+        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">Node</span>::<span class="ident">new</span>(<span class="ident">data</span>));
         <span class="ident">NodeId</span>::<span class="ident">from_non_zero_usize</span>(<span class="ident">next_index1</span>)
     }
 
@@ -345,7 +329,7 @@
     <span class="doccomment">/// # use indextree::{Arena, NodeId};</span>
     <span class="doccomment">/// let mut arena = Arena::new();</span>
     <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;foo&quot;));</span>
+    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Note that this does not check whether the given node ID is created by</span>
@@ -356,11 +340,11 @@
     <span class="doccomment">/// let mut arena = Arena::new();</span>
     <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
     <span class="doccomment">/// let bar = arena.new_node(&quot;bar&quot;);</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;foo&quot;));</span>
+    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut another_arena = Arena::new();</span>
     <span class="doccomment">/// let _ = another_arena.new_node(&quot;Another arena&quot;);</span>
-    <span class="doccomment">/// assert_eq!(another_arena.get(foo).map(|node| node.data), Some(&quot;Another arena&quot;));</span>
+    <span class="doccomment">/// assert_eq!(another_arena.get(foo).map(|node| *node.get()), Some(&quot;Another arena&quot;));</span>
     <span class="doccomment">/// assert!(another_arena.get(bar).is_none());</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NodeId</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
@@ -378,10 +362,10 @@
     <span class="doccomment">/// # use indextree::{Arena, NodeId};</span>
     <span class="doccomment">/// let mut arena = Arena::new();</span>
     <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;foo&quot;));</span>
+    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// arena.get_mut(foo).expect(&quot;The `foo` node exists&quot;).data = &quot;FOO!&quot;;</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| node.data), Some(&quot;FOO!&quot;));</span>
+    <span class="doccomment">/// *arena.get_mut(foo).expect(&quot;The `foo` node exists&quot;).get_mut() = &quot;FOO!&quot;;</span>
+    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;FOO!&quot;));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NodeId</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
         <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get_mut</span>(<span class="ident">id</span>.<span class="ident">index0</span>())
@@ -401,9 +385,9 @@
     <span class="doccomment">/// let _bar = arena.new_node(&quot;bar&quot;);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut iter = arena.iter();</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| node.data), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| node.data), Some(&quot;bar&quot;));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| node.data), None);</span>
+    <span class="doccomment">/// assert_eq!(iter.next().map(|node| *node.get()), Some(&quot;foo&quot;));</span>
+    <span class="doccomment">/// assert_eq!(iter.next().map(|node| *node.get()), Some(&quot;bar&quot;));</span>
+    <span class="doccomment">/// assert_eq!(iter.next().map(|node| *node.get()), None);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
@@ -414,9 +398,9 @@
     <span class="doccomment">/// bar.remove(&amp;mut arena);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut iter = arena.iter();</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), Some((&quot;foo&quot;, false)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), Some((&quot;bar&quot;, true)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), None);</span>
+    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some((&quot;foo&quot;, false)));</span>
+    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some((&quot;bar&quot;, true)));</span>
+    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`is_removed()`]: struct.Node.html#method.is_removed</span>

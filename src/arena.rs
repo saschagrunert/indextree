@@ -118,9 +118,6 @@ impl<T> Arena<T> {
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
     /// assert_eq!(arena.get(foo).map(|node| node.data), Some("foo"));
-    ///
-    /// let ghost = NodeId::new(42);
-    /// assert!(arena.get(ghost).is_none());
     /// ```
     ///
     /// Note that this does not check whether the given node ID is created by
@@ -130,11 +127,13 @@ impl<T> Arena<T> {
     /// # use indextree::Arena;
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
+    /// let bar = arena.new_node("bar");
     /// assert_eq!(arena.get(foo).map(|node| node.data), Some("foo"));
     ///
     /// let mut another_arena = Arena::new();
     /// let _ = another_arena.new_node("Another arena");
     /// assert_eq!(another_arena.get(foo).map(|node| node.data), Some("Another arena"));
+    /// assert!(another_arena.get(bar).is_none());
     /// ```
     pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
         self.nodes.get(id.index0())
@@ -152,9 +151,6 @@ impl<T> Arena<T> {
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
     /// assert_eq!(arena.get(foo).map(|node| node.data), Some("foo"));
-    ///
-    /// let ghost = NodeId::new(42);
-    /// assert!(arena.get_mut(ghost).is_none());
     ///
     /// arena.get_mut(foo).expect("The `foo` node exists").data = "FOO!";
     /// assert_eq!(arena.get(foo).map(|node| node.data), Some("FOO!"));

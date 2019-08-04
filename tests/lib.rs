@@ -142,3 +142,20 @@ fn remove() {
     assert_eq!(n3.preceding_siblings(arena).collect::<Vec<_>>().len(), 1);
     assert_eq!(n3.following_siblings(arena).collect::<Vec<_>>().len(), 1);
 }
+
+#[test]
+fn insert_removed_node() {
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    let n2 = arena.new_node("2");
+    n2.remove(&mut arena);
+
+    assert!(n1.checked_append(n2, &mut arena).is_err());
+    assert!(n2.checked_append(n1, &mut arena).is_err());
+    assert!(n1.checked_prepend(n2, &mut arena).is_err());
+    assert!(n2.checked_prepend(n1, &mut arena).is_err());
+    assert!(n1.checked_insert_after(n2, &mut arena).is_err());
+    assert!(n2.checked_insert_after(n1, &mut arena).is_err());
+    assert!(n1.checked_insert_before(n2, &mut arena).is_err());
+    assert!(n2.checked_insert_before(n1, &mut arena).is_err());
+}

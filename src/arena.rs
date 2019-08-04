@@ -56,15 +56,7 @@ impl<T> Arena<T> {
     pub fn new_node(&mut self, data: T) -> NodeId {
         let next_index1 = NonZeroUsize::new(self.nodes.len().wrapping_add(1))
             .expect("Too many nodes in the arena");
-        self.nodes.push(Node {
-            parent: None,
-            first_child: None,
-            last_child: None,
-            previous_sibling: None,
-            next_sibling: None,
-            removed: false,
-            data,
-        });
+        self.nodes.push(Node::new(data));
         NodeId::from_non_zero_usize(next_index1)
     }
 

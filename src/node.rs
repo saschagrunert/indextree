@@ -38,6 +38,19 @@ impl<T> Node<T> {
         &mut self.data
     }
 
+    /// Creates a new `Node` with the default state and the given data.
+    pub(crate) fn new(data: T) -> Self {
+        Self {
+            parent: None,
+            previous_sibling: None,
+            next_sibling: None,
+            first_child: None,
+            last_child: None,
+            removed: false,
+            data,
+        }
+    }
+
     /// Returns the ID of the parent node, unless this node is the root of the
     /// tree.
     ///

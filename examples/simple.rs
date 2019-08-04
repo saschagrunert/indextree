@@ -9,6 +9,6 @@ pub fn main() {
     let b = arena.new_node(2);
 
     // Append a to b
-    assert!(a.append(b, arena).is_ok());
+    a.append(b, arena);
     assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 }

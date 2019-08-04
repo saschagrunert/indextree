@@ -1,7 +1,7 @@
 use indextree::*;
 use rayon::prelude::*;
 
-pub fn main() -> Result<(), NodeError> {
+pub fn main() {
     // Create a new arena
     let arena = &mut Arena::new();
 
@@ -10,7 +10,7 @@ pub fn main() -> Result<(), NodeError> {
     let mut last_node = arena.new_node(1);
     for i in 1..10_000_000 {
         let node = arena.new_node(i);
-        node.append(last_node, arena)?;
+        node.append(last_node, arena);
         last_node = node;
     }
 
@@ -19,6 +19,4 @@ pub fn main() -> Result<(), NodeError> {
         .par_iter()
         .map(|ref mut i| (i.data as f64).sqrt())
         .collect();
-
-    Ok(())
 }

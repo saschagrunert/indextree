@@ -29,7 +29,7 @@ pub struct NodeId {
 }
 
 impl fmt::Display for NodeId {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.index1)
     }
 }
@@ -129,7 +129,7 @@ impl NodeId {
     /// ```
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
-    pub fn ancestors<T>(self, arena: &Arena<T>) -> Ancestors<T> {
+    pub fn ancestors<T>(self, arena: &Arena<T>) -> Ancestors<'_, T> {
         Ancestors::new(arena, self)
     }
 
@@ -168,7 +168,7 @@ impl NodeId {
     /// ```
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
-    pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<T> {
+    pub fn preceding_siblings<T>(self, arena: &Arena<T>) -> PrecedingSiblings<'_, T> {
         PrecedingSiblings::new(arena, self)
     }
 
@@ -207,7 +207,7 @@ impl NodeId {
     /// ```
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
-    pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<T> {
+    pub fn following_siblings<T>(self, arena: &Arena<T>) -> FollowingSiblings<'_, T> {
         FollowingSiblings::new(arena, self)
     }
 
@@ -241,7 +241,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_3));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn children<T>(self, arena: &Arena<T>) -> Children<T> {
+    pub fn children<T>(self, arena: &Arena<T>) -> Children<'_, T> {
         Children::new(arena, self)
     }
 
@@ -276,7 +276,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_1));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<T> {
+    pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<'_, T> {
         ReverseChildren::new(arena, self)
     }
 
@@ -323,7 +323,7 @@ impl NodeId {
     /// ```
     ///
     /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
-    pub fn descendants<T>(self, arena: &Arena<T>) -> Descendants<T> {
+    pub fn descendants<T>(self, arena: &Arena<T>) -> Descendants<'_, T> {
         Descendants::new(arena, self)
     }
 
@@ -365,7 +365,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<T> {
+    pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<'_, T> {
         Traverse::new(arena, self)
     }
 
@@ -433,7 +433,7 @@ impl NodeId {
     /// reverse.reverse();
     /// assert_eq!(traverse, reverse);
     /// ```
-    pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<T> {
+    pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<'_, T> {
         ReverseTraverse::new(arena, self)
     }
 

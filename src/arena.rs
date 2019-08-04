@@ -196,7 +196,7 @@ impl<T> Arena<T> {
     /// ```
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed
-    pub fn iter(&self) -> Iter<Node<T>> {
+    pub fn iter(&self) -> Iter<'_, Node<T>> {
         self.nodes.iter()
     }
 }
@@ -209,7 +209,7 @@ impl<T: Sync> Arena<T> {
     /// tested with the [`is_removed()`] method on the node.
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed
-    pub fn par_iter(&self) -> rayon::slice::Iter<Node<T>> {
+    pub fn par_iter(&self) -> rayon::slice::Iter<'_, Node<T>> {
         self.nodes.par_iter()
     }
 }

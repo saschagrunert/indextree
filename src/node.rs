@@ -11,9 +11,8 @@ use std::fmt;
 
 use crate::NodeId;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-#[cfg_attr(feature = "derive-eq", derive(Eq))]
 /// A node within a particular `Arena`.
 pub struct Node<T> {
     // Keep these private (with read-only accessors) so that we can keep them

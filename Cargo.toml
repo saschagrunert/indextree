@@ -19,7 +19,6 @@ appveyor = { repository = "saschagrunert/indextree", branch = "master", service 
 [features]
 default = ["std"]
 deser = [ "serde" ]
-derive-eq = []
 par_iter = ["rayon"]
 std = []
 

@@ -18,7 +18,7 @@ macro_rules! impl_node_iterator {
 
 #[derive(Clone)]
 /// An iterator of references to the ancestors a given node.
-pub struct Ancestors<'a, T: 'a> {
+pub struct Ancestors<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
@@ -35,7 +35,7 @@ impl<'a, T> Ancestors<'a, T> {
 
 #[derive(Clone)]
 /// An iterator of references to the siblings before a given node.
-pub struct PrecedingSiblings<'a, T: 'a> {
+pub struct PrecedingSiblings<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
@@ -52,7 +52,7 @@ impl<'a, T> PrecedingSiblings<'a, T> {
 
 #[derive(Clone)]
 /// An iterator of references to the siblings after a given node.
-pub struct FollowingSiblings<'a, T: 'a> {
+pub struct FollowingSiblings<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
@@ -69,7 +69,7 @@ impl<'a, T> FollowingSiblings<'a, T> {
 
 #[derive(Clone)]
 /// An iterator of references to the children of a given node.
-pub struct Children<'a, T: 'a> {
+pub struct Children<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
@@ -86,7 +86,7 @@ impl<'a, T> Children<'a, T> {
 
 #[derive(Clone)]
 /// An iterator of references to the children of a given node, in reverse order.
-pub struct ReverseChildren<'a, T: 'a> {
+pub struct ReverseChildren<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
 }
@@ -103,7 +103,7 @@ impl<'a, T> ReverseChildren<'a, T> {
 
 #[derive(Clone)]
 /// An iterator of references to a given node and its descendants, in tree order.
-pub struct Descendants<'a, T: 'a>(Traverse<'a, T>);
+pub struct Descendants<'a, T>(Traverse<'a, T>);
 
 impl<'a, T> Descendants<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
@@ -141,7 +141,7 @@ pub enum NodeEdge {
 #[derive(Clone)]
 /// An iterator of references to a given node and its descendants, in tree
 /// order.
-pub struct Traverse<'a, T: 'a> {
+pub struct Traverse<'a, T> {
     arena: &'a Arena<T>,
     root: NodeId,
     next: Option<NodeEdge>,
@@ -193,7 +193,7 @@ impl<'a, T> Iterator for Traverse<'a, T> {
 #[derive(Clone)]
 /// An iterator of references to a given node and its descendants, in reverse
 /// tree order.
-pub struct ReverseTraverse<'a, T: 'a> {
+pub struct ReverseTraverse<'a, T> {
     arena: &'a Arena<T>,
     root: NodeId,
     next: Option<NodeEdge>,

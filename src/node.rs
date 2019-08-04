@@ -267,7 +267,7 @@ impl<T> Node<T> {
 }
 
 impl<T> fmt::Display for Node<T> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(parent) = self.parent {
             write!(f, "parent: {}; ", parent)?;
         } else {

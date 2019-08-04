@@ -247,7 +247,7 @@ impl<T> Node<T> {
     /// assert!(!arena[n1_2].is_removed());
     /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_2));
     ///
-    /// n1_2.remove(&mut arena)?;
+    /// n1_2.remove(&mut arena);
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
@@ -256,7 +256,6 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_2].parent(), None);
     /// assert!(arena[n1_2].is_removed());
     /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_1));
-    /// # Ok::<(), failure::Error>(())
     /// ```
     pub fn is_removed(&self) -> bool {
         self.removed

@@ -9,7 +9,7 @@ fn toplevel_with_no_child() {
     let n1 = arena.new_node("1");
     // arena
     // `-- 1
-    assert!(n1.remove(&mut arena).is_ok());
+    n1.remove(&mut arena);
 }
 
 #[test]
@@ -25,7 +25,7 @@ fn toplevel_with_single_child() {
         n1.traverse(&arena).collect::<Vec<_>>(),
         &[Start(n1), Start(n1_1), End(n1_1), End(n1)]
     );
-    n1.remove(&mut arena).unwrap();
+    n1.remove(&mut arena);
     // arena
     // `-- 1_1
     assert!(arena[n1_1].parent().is_none());
@@ -54,7 +54,7 @@ fn toplevel_with_multiple_children() {
             End(n1)
         ]
     );
-    n1.remove(&mut arena).unwrap();
+    n1.remove(&mut arena);
     // arena
     // |-- 1_1
     // `-- 1_2
@@ -79,7 +79,7 @@ fn single_child_with_no_children() {
         n1.traverse(&arena).collect::<Vec<_>>(),
         &[Start(n1), Start(n1_1), End(n1_1), End(n1),]
     );
-    n1_1.remove(&mut arena).unwrap();
+    n1_1.remove(&mut arena);
     // arena
     // `-- 1
     assert!(arena[n1_1].parent().is_none());
@@ -112,7 +112,7 @@ fn single_child_with_single_child() {
             End(n1),
         ]
     );
-    n1_1.remove(&mut arena).unwrap();
+    n1_1.remove(&mut arena);
     // arena
     // `-- 1
     //     `-- 1_1_1
@@ -153,7 +153,7 @@ fn first_child_with_no_children() {
             End(n1),
         ]
     );
-    n1_1.remove(&mut arena).unwrap();
+    n1_1.remove(&mut arena);
     // arena
     // `-- 1
     //     |-- 1_2
@@ -199,7 +199,7 @@ fn middle_child_with_no_children() {
             End(n1),
         ]
     );
-    n1_2.remove(&mut arena).unwrap();
+    n1_2.remove(&mut arena);
     // arena
     // `-- 1
     //     |-- 1_1
@@ -245,7 +245,7 @@ fn last_child_with_no_children() {
             End(n1),
         ]
     );
-    n1_3.remove(&mut arena).unwrap();
+    n1_3.remove(&mut arena);
     // arena
     // `-- 1
     //     |-- 1_1
@@ -296,7 +296,7 @@ fn middle_child_with_single_child() {
             End(n1),
         ]
     );
-    n1_2.remove(&mut arena).unwrap();
+    n1_2.remove(&mut arena);
     // arena
     // `-- 1
     //     |-- 1_1
@@ -360,7 +360,7 @@ fn middle_child_with_multiple_children() {
             End(n1),
         ]
     );
-    n1_2.remove(&mut arena).unwrap();
+    n1_2.remove(&mut arena);
     // arena
     // `-- 1
     //     |-- 1_1

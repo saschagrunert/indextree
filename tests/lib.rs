@@ -118,7 +118,7 @@ fn remove() {
     assert!(n2.append(n5, arena).is_ok());
     assert!(n2.append(n5, arena).is_ok());
     assert!(n2.append(n6, arena).is_ok());
-    assert!(n2.remove(arena).is_ok());
+    n2.remove(arena);
 
     let node_refs = arena
         .iter()
@@ -130,7 +130,7 @@ fn remove() {
     assert_eq!(n2.preceding_siblings(arena).collect::<Vec<_>>().len(), 1);
     assert_eq!(n2.following_siblings(arena).collect::<Vec<_>>().len(), 1);
 
-    assert!(n3.remove(arena).is_ok());
+    n3.remove(arena);
 
     let node_refs = arena
         .iter()

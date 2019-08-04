@@ -725,7 +725,7 @@ impl NodeId {
     /// //     |   `-- 1_2_2
     /// //     `-- 1_3
     ///
-    /// n1_2.remove(&mut arena)?;
+    /// n1_2.remove(&mut arena);
     ///
     /// let mut iter = n1.descendants(&arena);
     /// assert_eq!(iter.next(), Some(n1));
@@ -734,11 +734,10 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_2_2));
     /// assert_eq!(iter.next(), Some(n1_3));
     /// assert_eq!(iter.next(), None);
-    /// # Ok::<(), failure::Error>(())
     /// ```
     ///
     /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    pub fn remove<T>(self, arena: &mut Arena<T>) -> Fallible<()> {
+    pub fn remove<T>(self, arena: &mut Arena<T>) {
         debug_assert_triangle_nodes!(
             arena,
             arena[self].parent,
@@ -776,7 +775,5 @@ impl NodeId {
         }
         arena[self].removed = true;
         debug_assert!(arena[self].is_detached());
-
-        Ok(())
     }
 }

@@ -65,6 +65,9 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Errors.</span>
 
@@ -85,6 +88,8 @@
     <span class="ident">InsertBeforeSelf</span>,
     <span class="doccomment">/// Attempt to insert a node after itself.</span>
     <span class="ident">InsertAfterSelf</span>,
+    <span class="doccomment">/// Attempt to insert a removed node, or insert to a removed node.</span>
+    <span class="ident">Removed</span>,
     <span class="comment">// See &lt;https://github.com/rust-lang/rfcs/blob/master/text/2008-non-exhaustive.md#how-we-do-this-today&gt;.</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="ident">__Nonexhaustive</span>,
@@ -97,6 +102,7 @@
             <span class="ident">NodeError</span>::<span class="ident">PrependSelf</span> <span class="op">=&gt;</span> <span class="string">&quot;Can not prepend a node to itself&quot;</span>,
             <span class="ident">NodeError</span>::<span class="ident">InsertBeforeSelf</span> <span class="op">=&gt;</span> <span class="string">&quot;Can not insert a node before itself&quot;</span>,
             <span class="ident">NodeError</span>::<span class="ident">InsertAfterSelf</span> <span class="op">=&gt;</span> <span class="string">&quot;Can not insert a node after itself&quot;</span>,
+            <span class="ident">NodeError</span>::<span class="ident">Removed</span> <span class="op">=&gt;</span> <span class="string">&quot;Removed node cannot have any parent, siblings, and children&quot;</span>,
             <span class="ident">NodeError</span>::<span class="ident">__Nonexhaustive</span> <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;`__Nonexhaustive` should not be used&quot;</span>),
         }
     }

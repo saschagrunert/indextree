@@ -145,6 +145,9 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Utilities related to nodes relations.</span>
 
@@ -217,7 +220,10 @@
                 <span class="ident">parent_node</span>.<span class="ident">first_child</span>.<span class="ident">is_some</span>(),
                 <span class="ident">parent_node</span>.<span class="ident">last_child</span>.<span class="ident">is_some</span>()
             );
+            <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">parent_node</span>.<span class="ident">is_removed</span>());
         }
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">previous</span>.<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">id</span>].<span class="ident">is_removed</span>()));
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">next</span>.<span class="ident">map_or</span>(<span class="bool-val">false</span>, <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">id</span>].<span class="ident">is_removed</span>()));
     }
 
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">parent_first_child</span>, <span class="kw-2">mut</span> <span class="ident">parent_last_child</span>) <span class="op">=</span> <span class="ident">parent</span>

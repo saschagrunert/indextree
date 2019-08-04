@@ -879,6 +879,90 @@
 <span id="879">879</span>
 <span id="880">880</span>
 <span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Node ID.</span>
 
@@ -1382,7 +1466,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new child is `self`.</span>
+    <span class="doccomment">/// Panics if:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * the given new child is `self`, or</span>
+    <span class="doccomment">/// * the current node or the given new child was already [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1410,16 +1499,24 @@
     <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
     <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_child</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">checked_append</span>(<span class="ident">new_child</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: `self != new_child` should hold but not&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
     }
 
     <span class="doccomment">/// Appends a new child to this node, after existing children.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Failures</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new child is `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::AppendSelf`] error if the given new child is</span>
+    <span class="doccomment">///   `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new child or `self`</span>
+    <span class="doccomment">///   is [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1432,6 +1529,11 @@
     <span class="doccomment">/// let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
     <span class="doccomment">/// assert!(n1.checked_append(n1_1, &amp;mut arena).is_ok());</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`NodeError::AppendSelf`]: enum.NodeError.html#variant.AppendSelf</span>
+    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_append</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">new_child</span>: <span class="ident">NodeId</span>,
@@ -1440,9 +1542,12 @@
         <span class="kw">if</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="self">self</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">AppendSelf</span>);
         }
+        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">||</span> <span class="ident">arena</span>[<span class="ident">new_child</span>].<span class="ident">is_removed</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">Removed</span>);
+        }
         <span class="ident">new_child</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
         <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_child</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">last_child</span>, <span class="prelude-val">None</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self`&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -1451,7 +1556,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new child is `self`.</span>
+    <span class="doccomment">/// Panics if:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * the given new child is `self`, or</span>
+    <span class="doccomment">/// * the current node or the given new child was already [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1479,16 +1589,24 @@
     <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
     <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prepend</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_child</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">checked_prepend</span>(<span class="ident">new_child</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: `self != new_child` should hold but not&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
     }
 
     <span class="doccomment">/// Prepends a new child to this node, before existing children.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Failures</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new child is `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::PrependSelf`] error if the given new child is</span>
+    <span class="doccomment">///   `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new child or `self`</span>
+    <span class="doccomment">///   is [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1501,6 +1619,11 @@
     <span class="doccomment">/// let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
     <span class="doccomment">/// assert!(n1.checked_prepend(n1_1, &amp;mut arena).is_ok());</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`NodeError::PrependSelf`]: enum.NodeError.html#variant.PrependSelf</span>
+    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_prepend</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">new_child</span>: <span class="ident">NodeId</span>,
@@ -1509,8 +1632,11 @@
         <span class="kw">if</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="self">self</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">PrependSelf</span>);
         }
+        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">||</span> <span class="ident">arena</span>[<span class="ident">new_child</span>].<span class="ident">is_removed</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">Removed</span>);
+        }
         <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_child</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="prelude-val">None</span>, <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">first_child</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self`&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -1519,7 +1645,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new sibling is `self`.</span>
+    <span class="doccomment">/// Panics if:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * the given new sibling is `self`, or</span>
+    <span class="doccomment">/// * the current node or the given new sibling was already [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1553,16 +1684,24 @@
     <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
     <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_after</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">checked_insert_after</span>(<span class="ident">new_sibling</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: `self != new_sibling` should hold but not&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
     }
 
     <span class="doccomment">/// Inserts a new sibling after this node.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Failures</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new sibling is `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::InsertAfterSelf`] error if the given new sibling</span>
+    <span class="doccomment">///   is `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new sibling or</span>
+    <span class="doccomment">///   `self` is [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1575,6 +1714,11 @@
     <span class="doccomment">/// let n2 = arena.new_node(&quot;2&quot;);</span>
     <span class="doccomment">/// assert!(n1.checked_insert_after(n2, &amp;mut arena).is_ok());</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`NodeError::InsertAfterSelf`]: enum.NodeError.html#variant.InsertAfterSelf</span>
+    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_insert_after</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>,
@@ -1583,22 +1727,30 @@
         <span class="kw">if</span> <span class="ident">new_sibling</span> <span class="op">==</span> <span class="self">self</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">InsertAfterSelf</span>);
         }
+        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">||</span> <span class="ident">arena</span>[<span class="ident">new_sibling</span>].<span class="ident">is_removed</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">Removed</span>);
+        }
         <span class="ident">new_sibling</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
         <span class="kw">let</span> (<span class="ident">next_sibling</span>, <span class="ident">parent</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="self">self</span>];
             (<span class="ident">current</span>.<span class="ident">next_sibling</span>, <span class="ident">current</span>.<span class="ident">parent</span>)
         };
         <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_sibling</span>, <span class="ident">parent</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="ident">next_sibling</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_sibling` is not `self`&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_sibling` is not `self` and they are not removed&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Inserts a new sibling before this node.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # Failures</span>
+    <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new sibling is `self`.</span>
+    <span class="doccomment">/// Panics if:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * the given new sibling is `self`, or</span>
+    <span class="doccomment">/// * the current node or the given new sibling was already [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1632,16 +1784,24 @@
     <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
     <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_before</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">checked_insert_before</span>(<span class="ident">new_sibling</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: `self != new_sibling` should hold but not&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
     }
 
     <span class="doccomment">/// Inserts a new sibling before this node.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Failures</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given new sibling is `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::InsertBeforeSelf`] error if the given new sibling</span>
+    <span class="doccomment">///   is `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new sibling or</span>
+    <span class="doccomment">///   `self` is [`remove`]d.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
@@ -1654,6 +1814,11 @@
     <span class="doccomment">/// let n2 = arena.new_node(&quot;2&quot;);</span>
     <span class="doccomment">/// assert!(n1.checked_insert_before(n2, &amp;mut arena).is_ok());</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
+    <span class="doccomment">/// [`NodeError::InsertBeforeSelf`]: enum.NodeError.html#variant.InsertBeforeSelf</span>
+    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
+    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_insert_before</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
         <span class="self">self</span>,
         <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>,
@@ -1662,13 +1827,16 @@
         <span class="kw">if</span> <span class="ident">new_sibling</span> <span class="op">==</span> <span class="self">self</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">InsertBeforeSelf</span>);
         }
+        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">||</span> <span class="ident">arena</span>[<span class="ident">new_sibling</span>].<span class="ident">is_removed</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError</span>::<span class="ident">Removed</span>);
+        }
         <span class="ident">new_sibling</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
         <span class="kw">let</span> (<span class="ident">previous_sibling</span>, <span class="ident">parent</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="self">self</span>];
             (<span class="ident">current</span>.<span class="ident">previous_sibling</span>, <span class="ident">current</span>.<span class="ident">parent</span>)
         };
         <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_sibling</span>, <span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>))
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_sibling` is not `self`&quot;</span>);
+            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_sibling` is not `self` and they are not removed&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }

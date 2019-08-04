@@ -156,7 +156,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1].previous_sibling(), None);
     /// assert_eq!(arena[n2].previous_sibling(), None);
     ///
-    /// n1.insert_after(n2, &mut arena).unwrap();
+    /// n1.insert_after(n2, &mut arena);
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
@@ -210,7 +210,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1].next_sibling(), None);
     /// assert_eq!(arena[n2].next_sibling(), None);
     ///
-    /// n1.insert_after(n2, &mut arena).unwrap();
+    /// n1.insert_after(n2, &mut arena);
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
@@ -231,11 +231,11 @@ impl<T> Node<T> {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1

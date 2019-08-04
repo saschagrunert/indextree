@@ -103,15 +103,15 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_1_1_1 = arena.new_node("1_1_1_1");
-    /// # n1_1_1.append(n1_1_1_1, &mut arena).unwrap();
+    /// # n1_1_1.append(n1_1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -146,13 +146,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -185,13 +185,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -220,13 +220,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -255,13 +255,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -294,15 +294,15 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_1_1_1 = arena.new_node("1_1_1_1");
-    /// # n1_1_1.append(n1_1_1_1, &mut arena).unwrap();
+    /// # n1_1_1.append(n1_1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -337,13 +337,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -379,13 +379,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1
@@ -413,13 +413,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// # // arena
     /// # // `-- 1
@@ -446,13 +446,13 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena).unwrap();
+    /// # n1_1.append(n1_1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- (implicit)
@@ -498,7 +498,7 @@ impl NodeId {
 
     /// Appends a new child to this node, after existing children.
     ///
-    /// # Failures
+    /// # Panics
     ///
     /// Returns an error if the given new child is `self`.
     ///
@@ -509,11 +509,11 @@ impl NodeId {
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n1_1 = arena.new_node("1_1");
-    /// n1.append(n1_1, &mut arena).unwrap();
+    /// n1.append(n1_1, &mut arena);
     /// let n1_2 = arena.new_node("1_2");
-    /// n1.append(n1_2, &mut arena).unwrap();
+    /// n1.append(n1_2, &mut arena);
     /// let n1_3 = arena.new_node("1_3");
-    /// n1.append(n1_3, &mut arena).unwrap();
+    /// n1.append(n1_3, &mut arena);
     ///
     /// // arena
     /// // `-- 1
@@ -528,7 +528,33 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_3));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Result<(), NodeError> {
+    pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
+        self.checked_append(new_child, arena)
+            .expect("Preconditions not met: `self != new_child` should hold but not");
+    }
+
+    /// Appends a new child to this node, after existing children.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new child is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// assert!(n1.checked_append(n1, &mut arena).is_err());
+    ///
+    /// let n1_1 = arena.new_node("1_1");
+    /// assert!(n1.checked_append(n1_1, &mut arena).is_ok());
+    /// ```
+    pub fn checked_append<T>(
+        self,
+        new_child: NodeId,
+        arena: &mut Arena<T>,
+    ) -> Result<(), NodeError> {
         if new_child == self {
             return Err(NodeError::AppendSelf);
         }
@@ -541,7 +567,7 @@ impl NodeId {
 
     /// Prepends a new child to this node, before existing children.
     ///
-    /// # Failures
+    /// # Panics
     ///
     /// Returns an error if the given new child is `self`.
     ///
@@ -552,11 +578,11 @@ impl NodeId {
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n1_1 = arena.new_node("1_1");
-    /// n1.prepend(n1_1, &mut arena).unwrap();
+    /// n1.prepend(n1_1, &mut arena);
     /// let n1_2 = arena.new_node("1_2");
-    /// n1.prepend(n1_2, &mut arena).unwrap();
+    /// n1.prepend(n1_2, &mut arena);
     /// let n1_3 = arena.new_node("1_3");
-    /// n1.prepend(n1_3, &mut arena).unwrap();
+    /// n1.prepend(n1_3, &mut arena);
     ///
     /// // arena
     /// // `-- 1
@@ -571,7 +597,33 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_1));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) -> Result<(), NodeError> {
+    pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
+        self.checked_prepend(new_child, arena)
+            .expect("Preconditions not met: `self != new_child` should hold but not");
+    }
+
+    /// Prepends a new child to this node, before existing children.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new child is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// assert!(n1.checked_prepend(n1, &mut arena).is_err());
+    ///
+    /// let n1_1 = arena.new_node("1_1");
+    /// assert!(n1.checked_prepend(n1_1, &mut arena).is_ok());
+    /// ```
+    pub fn checked_prepend<T>(
+        self,
+        new_child: NodeId,
+        arena: &mut Arena<T>,
+    ) -> Result<(), NodeError> {
         if new_child == self {
             return Err(NodeError::PrependSelf);
         }
@@ -583,7 +635,7 @@ impl NodeId {
 
     /// Inserts a new sibling after this node.
     ///
-    /// # Failures
+    /// # Panics
     ///
     /// Returns an error if the given new sibling is `self`.
     ///
@@ -591,20 +643,20 @@ impl NodeId {
     ///
     /// ```
     /// # use indextree::Arena;
-    /// let mut arena = Arena::new();
-    /// let n1 = arena.new_node("1");
-    /// let n1_1 = arena.new_node("1_1");
-    /// n1.append(n1_1, &mut arena).unwrap();
-    /// let n1_2 = arena.new_node("1_2");
-    /// n1.append(n1_2, &mut arena).unwrap();
-    ///
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// #
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
     /// //     `-- 1_2
     ///
     /// let n1_3 = arena.new_node("1_3");
-    /// n1_1.insert_after(n1_3, &mut arena).unwrap();
+    /// n1_1.insert_after(n1_3, &mut arena);
     ///
     /// // arena
     /// // `-- 1
@@ -619,7 +671,29 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_2));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn insert_after<T>(
+    pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
+        self.checked_insert_after(new_sibling, arena)
+            .expect("Preconditions not met: `self != new_sibling` should hold but not");
+    }
+
+    /// Inserts a new sibling after this node.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new sibling is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// assert!(n1.checked_insert_after(n1, &mut arena).is_err());
+    ///
+    /// let n2 = arena.new_node("2");
+    /// assert!(n1.checked_insert_after(n2, &mut arena).is_ok());
+    /// ```
+    pub fn checked_insert_after<T>(
         self,
         new_sibling: NodeId,
         arena: &mut Arena<T>,
@@ -651,9 +725,9 @@ impl NodeId {
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n1_1 = arena.new_node("1_1");
-    /// n1.append(n1_1, &mut arena).unwrap();
+    /// n1.append(n1_1, &mut arena);
     /// let n1_2 = arena.new_node("1_2");
-    /// n1.append(n1_2, &mut arena).unwrap();
+    /// n1.append(n1_2, &mut arena);
     ///
     /// // arena
     /// // `-- 1
@@ -661,7 +735,7 @@ impl NodeId {
     /// //     `-- 1_2
     ///
     /// let n1_3 = arena.new_node("1_3");
-    /// n1_2.insert_before(n1_3, &mut arena).unwrap();
+    /// n1_2.insert_before(n1_3, &mut arena);
     ///
     /// // arena
     /// // `-- 1
@@ -676,7 +750,29 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_2));
     /// assert_eq!(iter.next(), None);
     /// ```
-    pub fn insert_before<T>(
+    pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
+        self.checked_insert_before(new_sibling, arena)
+            .expect("Preconditions not met: `self != new_sibling` should hold but not");
+    }
+
+    /// Inserts a new sibling before this node.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given new sibling is `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// assert!(n1.checked_insert_before(n1, &mut arena).is_err());
+    ///
+    /// let n2 = arena.new_node("2");
+    /// assert!(n1.checked_insert_before(n2, &mut arena).is_ok());
+    /// ```
+    pub fn checked_insert_before<T>(
         self,
         new_sibling: NodeId,
         arena: &mut Arena<T>,
@@ -713,15 +809,15 @@ impl NodeId {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena).unwrap();
+    /// # n1.append(n1_1, &mut arena);
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena).unwrap();
+    /// # n1.append(n1_2, &mut arena);
     /// # let n1_2_1 = arena.new_node("1_2_1");
-    /// # n1_2.append(n1_2_1, &mut arena).unwrap();
+    /// # n1_2.append(n1_2_1, &mut arena);
     /// # let n1_2_2 = arena.new_node("1_2_2");
-    /// # n1_2.append(n1_2_2, &mut arena).unwrap();
+    /// # n1_2.append(n1_2_2, &mut arena);
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena).unwrap();
+    /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
     /// // `-- 1

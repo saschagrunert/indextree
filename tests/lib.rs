@@ -14,17 +14,17 @@ fn success_create() {
     };
 
     let a = new!(); // 1
-    assert!(a.append(new!(), arena).is_ok()); // 2
-    assert!(a.append(new!(), arena).is_ok()); // 3
-    assert!(a.prepend(new!(), arena).is_ok()); // 4
+    assert!(a.checked_append(new!(), arena).is_ok()); // 2
+    assert!(a.checked_append(new!(), arena).is_ok()); // 3
+    assert!(a.checked_prepend(new!(), arena).is_ok()); // 4
     let b = new!(); // 5
-    assert!(b.append(a, arena).is_ok());
-    assert!(a.insert_before(new!(), arena).is_ok()); // 6
-    assert!(a.insert_before(new!(), arena).is_ok()); // 7
-    assert!(a.insert_after(new!(), arena).is_ok()); // 8
-    assert!(a.insert_after(new!(), arena).is_ok()); // 9
+    assert!(b.checked_append(a, arena).is_ok());
+    assert!(a.checked_insert_before(new!(), arena).is_ok()); // 6
+    assert!(a.checked_insert_before(new!(), arena).is_ok()); // 7
+    assert!(a.checked_insert_after(new!(), arena).is_ok()); // 8
+    assert!(a.checked_insert_after(new!(), arena).is_ok()); // 9
     let c = new!(); // 10
-    assert!(b.append(c, arena).is_ok());
+    assert!(b.checked_append(c, arena).is_ok());
 
     arena[c].previous_sibling().unwrap().detach(arena);
 
@@ -42,7 +42,7 @@ fn first_prepend() {
     let arena = &mut Arena::new();
     let a = arena.new_node(1);
     let b = arena.new_node(2);
-    assert!(a.prepend(b, arena).is_ok());
+    assert!(a.checked_prepend(b, arena).is_ok());
 }
 
 #[test]
@@ -50,7 +50,7 @@ fn success_detach() {
     let arena = &mut Arena::new();
     let a = arena.new_node(1);
     let b = arena.new_node(1);
-    assert!(a.append(b, arena).is_ok());
+    assert!(a.checked_append(b, arena).is_ok());
     assert_eq!(b.ancestors(arena).into_iter().count(), 2);
     b.detach(arena);
     assert_eq!(b.ancestors(arena).into_iter().count(), 1);
@@ -77,9 +77,9 @@ fn iter() {
     let b = arena.new_node(2);
     let c = arena.new_node(3);
     let d = arena.new_node(4);
-    assert!(a.append(b, arena).is_ok());
-    assert!(b.append(c, arena).is_ok());
-    assert!(a.append(d, arena).is_ok());
+    assert!(a.checked_append(b, arena).is_ok());
+    assert!(b.checked_append(c, arena).is_ok());
+    assert!(a.checked_append(d, arena).is_ok());
 
     let node_refs = arena.iter().collect::<Vec<_>>();
     assert_eq!(node_refs, vec![&arena[a], &arena[b], &arena[c], &arena[d]]);
@@ -93,9 +93,9 @@ fn par_iter() {
     let b = arena.new_node(2);
     let c = arena.new_node(3);
     let d = arena.new_node(4);
-    assert!(a.append(b, arena).is_ok());
-    assert!(b.append(c, arena).is_ok());
-    assert!(a.append(d, arena).is_ok());
+    assert!(a.checked_append(b, arena).is_ok());
+    assert!(b.checked_append(c, arena).is_ok());
+    assert!(a.checked_append(d, arena).is_ok());
 
     let node_refs = arena.par_iter().collect::<Vec<_>>();
     assert_eq!(node_refs, vec![&arena[a], &arena[b], &arena[c], &arena[d]]);
@@ -111,13 +111,13 @@ fn remove() {
     let n4 = arena.new_node(4);
     let n5 = arena.new_node(5);
     let n6 = arena.new_node(6);
-    assert!(n0.append(n1, arena).is_ok());
-    assert!(n0.append(n2, arena).is_ok());
-    assert!(n0.append(n3, arena).is_ok());
-    assert!(n2.append(n4, arena).is_ok());
-    assert!(n2.append(n5, arena).is_ok());
-    assert!(n2.append(n5, arena).is_ok());
-    assert!(n2.append(n6, arena).is_ok());
+    assert!(n0.checked_append(n1, arena).is_ok());
+    assert!(n0.checked_append(n2, arena).is_ok());
+    assert!(n0.checked_append(n3, arena).is_ok());
+    assert!(n2.checked_append(n4, arena).is_ok());
+    assert!(n2.checked_append(n5, arena).is_ok());
+    assert!(n2.checked_append(n5, arena).is_ok());
+    assert!(n2.checked_append(n6, arena).is_ok());
     n2.remove(arena);
 
     let node_refs = arena

@@ -17,7 +17,7 @@ fn toplevel_with_single_child() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     // arena
     // `-- 1 *
     //     `-- 1_1
@@ -36,9 +36,9 @@ fn toplevel_with_multiple_children() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     let n1_2 = arena.new_node("1_2");
-    n1.append(n1_2, &mut arena).unwrap();
+    n1.append(n1_2, &mut arena);
     // arena
     // `-- 1 *
     //     |-- 1_1
@@ -71,7 +71,7 @@ fn single_child_with_no_children() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     // arena
     // `-- 1
     //     `-- 1_1 *
@@ -94,9 +94,9 @@ fn single_child_with_single_child() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     let n1_1_1 = arena.new_node("1_1_1");
-    n1_1.append(n1_1_1, &mut arena).unwrap();
+    n1_1.append(n1_1_1, &mut arena);
     // arena
     // `-- 1
     //     `-- 1_1 *
@@ -130,11 +130,11 @@ fn first_child_with_no_children() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     let n1_2 = arena.new_node("1_2");
-    n1.append(n1_2, &mut arena).unwrap();
+    n1.append(n1_2, &mut arena);
     let n1_3 = arena.new_node("1_3");
-    n1.append(n1_3, &mut arena).unwrap();
+    n1.append(n1_3, &mut arena);
     // arena
     // `-- 1
     //     |-- 1_1 *
@@ -176,11 +176,11 @@ fn middle_child_with_no_children() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     let n1_2 = arena.new_node("1_2");
-    n1.append(n1_2, &mut arena).unwrap();
+    n1.append(n1_2, &mut arena);
     let n1_3 = arena.new_node("1_3");
-    n1.append(n1_3, &mut arena).unwrap();
+    n1.append(n1_3, &mut arena);
     // arena
     // `-- 1
     //     |-- 1_1
@@ -222,11 +222,11 @@ fn last_child_with_no_children() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     let n1_2 = arena.new_node("1_2");
-    n1.append(n1_2, &mut arena).unwrap();
+    n1.append(n1_2, &mut arena);
     let n1_3 = arena.new_node("1_3");
-    n1.append(n1_3, &mut arena).unwrap();
+    n1.append(n1_3, &mut arena);
     // arena
     // `-- 1
     //     |-- 1_1
@@ -268,13 +268,13 @@ fn middle_child_with_single_child() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     let n1_2 = arena.new_node("1_2");
-    n1.append(n1_2, &mut arena).unwrap();
+    n1.append(n1_2, &mut arena);
     let n1_2_1 = arena.new_node("1_2_1");
-    n1_2.append(n1_2_1, &mut arena).unwrap();
+    n1_2.append(n1_2_1, &mut arena);
     let n1_3 = arena.new_node("1_3");
-    n1.append(n1_3, &mut arena).unwrap();
+    n1.append(n1_3, &mut arena);
     // arena
     // `-- 1
     //     |-- 1_1
@@ -322,17 +322,17 @@ fn middle_child_with_multiple_children() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");
     let n1_1 = arena.new_node("1_1");
-    n1.append(n1_1, &mut arena).unwrap();
+    n1.append(n1_1, &mut arena);
     let n1_2 = arena.new_node("1_2");
-    n1.append(n1_2, &mut arena).unwrap();
+    n1.append(n1_2, &mut arena);
     let n1_2_1 = arena.new_node("1_2_1");
-    n1_2.append(n1_2_1, &mut arena).unwrap();
+    n1_2.append(n1_2_1, &mut arena);
     let n1_2_2 = arena.new_node("1_2_2");
-    n1_2.append(n1_2_2, &mut arena).unwrap();
+    n1_2.append(n1_2_2, &mut arena);
     let n1_2_3 = arena.new_node("1_2_3");
-    n1_2.append(n1_2_3, &mut arena).unwrap();
+    n1_2.append(n1_2_3, &mut arena);
     let n1_3 = arena.new_node("1_3");
-    n1.append(n1_3, &mut arena).unwrap();
+    n1.append(n1_3, &mut arena);
     // arena
     // `-- 1
     //     |-- 1_1

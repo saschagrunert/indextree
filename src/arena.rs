@@ -81,9 +81,8 @@ impl<T> Arena<T> {
     /// let _bar = arena.new_node("bar");
     /// assert_eq!(arena.count(), 2);
     ///
-    /// let _ = foo.remove(&mut arena)?;
+    /// foo.remove(&mut arena);
     /// assert_eq!(arena.count(), 2);
-    /// # Ok::<(), failure::Error>(())
     /// ```
     pub fn count(&self) -> usize {
         self.nodes.len()
@@ -101,9 +100,8 @@ impl<T> Arena<T> {
     /// let foo = arena.new_node("foo");
     /// assert!(!arena.is_empty());
     ///
-    /// foo.remove(&mut arena)?;
+    /// foo.remove(&mut arena);
     /// assert!(!arena.is_empty());
-    /// # Ok::<(), failure::Error>(())
     /// ```
     pub fn is_empty(&self) -> bool {
         self.count() == 0
@@ -189,13 +187,12 @@ impl<T> Arena<T> {
     /// let mut arena = Arena::new();
     /// let _foo = arena.new_node("foo");
     /// let bar = arena.new_node("bar");
-    /// bar.remove(&mut arena)?;
+    /// bar.remove(&mut arena);
     ///
     /// let mut iter = arena.iter();
     /// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), Some(("foo", false)));
     /// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), Some(("bar", true)));
     /// assert_eq!(iter.next().map(|node| (node.data, node.is_removed())), None);
-    /// # Ok::<(), failure::Error>(())
     /// ```
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed

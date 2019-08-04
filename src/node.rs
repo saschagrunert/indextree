@@ -156,14 +156,13 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1].previous_sibling(), None);
     /// assert_eq!(arena[n2].previous_sibling(), None);
     ///
-    /// n1.insert_after(n2, &mut arena)?;
+    /// n1.insert_after(n2, &mut arena).unwrap();
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
     /// //     `-- 2
     /// assert_eq!(arena[n1].previous_sibling(), None);
     /// assert_eq!(arena[n2].previous_sibling(), Some(n1));
-    /// # Ok::<(), failure::Error>(())
     /// ```
     pub fn previous_sibling(&self) -> Option<NodeId> {
         self.previous_sibling
@@ -211,14 +210,13 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1].next_sibling(), None);
     /// assert_eq!(arena[n2].next_sibling(), None);
     ///
-    /// n1.insert_after(n2, &mut arena)?;
+    /// n1.insert_after(n2, &mut arena).unwrap();
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
     /// //     `-- 2
     /// assert_eq!(arena[n1].next_sibling(), Some(n2));
     /// assert_eq!(arena[n2].next_sibling(), None);
-    /// # Ok::<(), failure::Error>(())
     /// ```
     pub fn next_sibling(&self) -> Option<NodeId> {
         self.next_sibling
@@ -233,11 +231,11 @@ impl<T> Node<T> {
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
+    /// # n1.append(n1_1, &mut arena).unwrap();
     /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
+    /// # n1.append(n1_2, &mut arena).unwrap();
     /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_3, &mut arena).unwrap();
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
@@ -248,7 +246,7 @@ impl<T> Node<T> {
     /// assert!(!arena[n1_2].is_removed());
     /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_2));
     ///
-    /// n1_2.remove(&mut arena)?;
+    /// n1_2.remove(&mut arena);
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
@@ -257,7 +255,6 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_2].parent(), None);
     /// assert!(arena[n1_2].is_removed());
     /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_1));
-    /// # Ok::<(), failure::Error>(())
     /// ```
     pub fn is_removed(&self) -> bool {
         self.removed

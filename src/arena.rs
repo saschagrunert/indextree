@@ -7,7 +7,6 @@ use alloc::vec::Vec;
 use core::{
     num::NonZeroUsize,
     ops::{Index, IndexMut},
-    slice::Iter,
 };
 
 #[cfg(feature = "par_iter")]
@@ -20,7 +19,6 @@ use serde::{Deserialize, Serialize};
 use std::{
     num::NonZeroUsize,
     ops::{Index, IndexMut},
-    slice::Iter,
 };
 
 use crate::{Node, NodeId};
@@ -196,7 +194,7 @@ impl<T> Arena<T> {
     /// ```
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed
-    pub fn iter(&self) -> Iter<'_, Node<T>> {
+    pub fn iter(&self) -> impl Iterator<Item = &Node<T>> {
         self.nodes.iter()
     }
 }

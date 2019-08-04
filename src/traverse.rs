@@ -118,18 +118,18 @@ impl<'a, T> Iterator for Descendants<'a, T> {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// Indicator if the node is at a start or endpoint of the tree
-pub enum NodeEdge<T> {
+pub enum NodeEdge {
     /// Indicates that start of a node that has children.
     ///
     /// Yielded by `Traverse::next()` before the node’s descendants. In HTML or
     /// XML, this corresponds to an opening tag like `<div>`.
-    Start(T),
+    Start(NodeId),
 
     /// Indicates that end of a node that has children.
     ///
     /// Yielded by `Traverse::next()` after the node’s descendants. In HTML or
     /// XML, this corresponds to a closing tag like `</div>`
-    End(T),
+    End(NodeId),
 }
 
 /// An iterator of references to a given node and its descendants, in tree
@@ -137,7 +137,7 @@ pub enum NodeEdge<T> {
 pub struct Traverse<'a, T: 'a> {
     arena: &'a Arena<T>,
     root: NodeId,
-    next: Option<NodeEdge<NodeId>>,
+    next: Option<NodeEdge>,
 }
 
 impl<'a, T> Traverse<'a, T> {
@@ -150,7 +150,7 @@ impl<'a, T> Traverse<'a, T> {
     }
 
     /// Calculates the next node.
-    fn next_of_next(&self, next: NodeEdge<NodeId>) -> Option<NodeEdge<NodeId>> {
+    fn next_of_next(&self, next: NodeEdge) -> Option<NodeEdge> {
         match next {
             NodeEdge::Start(node) => match self.arena[node].first_child {
                 Some(first_child) => Some(NodeEdge::Start(first_child)),
@@ -174,9 +174,9 @@ impl<'a, T> Traverse<'a, T> {
 }
 
 impl<'a, T> Iterator for Traverse<'a, T> {
-    type Item = NodeEdge<NodeId>;
+    type Item = NodeEdge;
 
-    fn next(&mut self) -> Option<NodeEdge<NodeId>> {
+    fn next(&mut self) -> Option<NodeEdge> {
         let next = self.next.take()?;
         self.next = self.next_of_next(next);
         Some(next)
@@ -188,7 +188,7 @@ impl<'a, T> Iterator for Traverse<'a, T> {
 pub struct ReverseTraverse<'a, T: 'a> {
     arena: &'a Arena<T>,
     root: NodeId,
-    next: Option<NodeEdge<NodeId>>,
+    next: Option<NodeEdge>,
 }
 
 impl<'a, T> ReverseTraverse<'a, T> {
@@ -201,7 +201,7 @@ impl<'a, T> ReverseTraverse<'a, T> {
     }
 
     /// Calculates the next node.
-    fn next_of_next(&self, next: NodeEdge<NodeId>) -> Option<NodeEdge<NodeId>> {
+    fn next_of_next(&self, next: NodeEdge) -> Option<NodeEdge> {
         match next {
             NodeEdge::End(node) => match self.arena[node].last_child {
                 Some(last_child) => Some(NodeEdge::End(last_child)),
@@ -225,9 +225,9 @@ impl<'a, T> ReverseTraverse<'a, T> {
 }
 
 impl<'a, T> Iterator for ReverseTraverse<'a, T> {
-    type Item = NodeEdge<NodeId>;
+    type Item = NodeEdge;
 
-    fn next(&mut self) -> Option<NodeEdge<NodeId>> {
+    fn next(&mut self) -> Option<NodeEdge> {
         let next = self.next.take()?;
         self.next = self.next_of_next(next);
         Some(next)

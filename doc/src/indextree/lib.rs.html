@@ -73,7 +73,7 @@
 <span class="doccomment">//! a.append(b, arena);</span>
 <span class="doccomment">//! assert_eq!(b.ancestors(arena).into_iter().count(), 2);</span>
 <span class="doccomment">//! ```</span>
-
+<span class="attribute">#![<span class="ident">forbid</span>(<span class="ident">unsafe_code</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>), <span class="ident">no_std</span>)]</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>

@@ -22,7 +22,7 @@
 //! a.append(b, arena);
 //! assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 //! ```
-
+#![forbid(unsafe_code)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(not(feature = "std"))]

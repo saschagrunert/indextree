@@ -47,7 +47,7 @@ impl NodeId {
         NodeId { index1 }
     }
 
-    /// Returns an iterator of references to this node and its ancestors.
+    /// Returns an iterator of IDs of this node and its ancestors.
     ///
     /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
     /// the node itself.
@@ -89,7 +89,7 @@ impl NodeId {
         Ancestors::new(arena, self)
     }
 
-    /// Returns an iterator of references to this node and the siblings before
+    /// Returns an iterator of IDs of this node and the siblings before
     /// it.
     ///
     /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
@@ -128,7 +128,7 @@ impl NodeId {
         PrecedingSiblings::new(arena, self)
     }
 
-    /// Returns an iterator of references to this node and the siblings after
+    /// Returns an iterator of IDs of this node and the siblings after
     /// it.
     ///
     /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
@@ -167,7 +167,7 @@ impl NodeId {
         FollowingSiblings::new(arena, self)
     }
 
-    /// Returns an iterator of references to this node’s children.
+    /// Returns an iterator of IDs of this node’s children.
     ///
     /// # Examples
     ///
@@ -201,7 +201,7 @@ impl NodeId {
         Children::new(arena, self)
     }
 
-    /// Returns an iterator of references to this node’s children, in reverse
+    /// Returns an iterator of IDs of this node’s children, in reverse
     /// order.
     ///
     /// # Examples
@@ -236,8 +236,9 @@ impl NodeId {
         ReverseChildren::new(arena, self)
     }
 
-    /// Returns an iterator of references to this node and its descendants, in
-    /// tree order.
+    /// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.
+    ///
+    /// i.e. node -> first child -> second child
     ///
     /// Parent nodes appear before the descendants.
     /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
@@ -283,8 +284,10 @@ impl NodeId {
         Descendants::new(arena, self)
     }
 
-    /// Returns an iterator of references to this node and its descendants, in
-    /// tree order.
+    /// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
+    /// where node sides are visited start to end and children are visited in insertion order.
+    ///
+    /// i.e. node.start -> first child -> second child -> node.end
     ///
     /// # Examples
     ///
@@ -325,8 +328,10 @@ impl NodeId {
         Traverse::new(arena, self)
     }
 
-    /// Returns an iterator of references to this node and its descendants, in
-    /// reverse tree order.
+    /// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
+    /// where nodes are visited end to start and children are visited in reverse insertion order.
+    ///
+    /// i.e. node.end -> second child -> first child -> node.start
     ///
     /// # Examples
     ///

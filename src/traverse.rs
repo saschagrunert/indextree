@@ -17,7 +17,7 @@ macro_rules! impl_node_iterator {
 }
 
 #[derive(Clone)]
-/// An iterator of references to the ancestors a given node.
+/// An iterator of the IDs of the ancestors a given node.
 pub struct Ancestors<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
@@ -34,7 +34,7 @@ impl<'a, T> Ancestors<'a, T> {
 }
 
 #[derive(Clone)]
-/// An iterator of references to the siblings before a given node.
+/// An iterator of the IDs of the siblings before a given node.
 pub struct PrecedingSiblings<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
@@ -51,7 +51,7 @@ impl<'a, T> PrecedingSiblings<'a, T> {
 }
 
 #[derive(Clone)]
-/// An iterator of references to the siblings after a given node.
+/// An iterator of the IDs of the siblings after a given node.
 pub struct FollowingSiblings<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
@@ -68,7 +68,7 @@ impl<'a, T> FollowingSiblings<'a, T> {
 }
 
 #[derive(Clone)]
-/// An iterator of references to the children of a given node.
+/// An iterator of the IDs of the children of a given node, in insertion order.
 pub struct Children<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
@@ -85,7 +85,7 @@ impl<'a, T> Children<'a, T> {
 }
 
 #[derive(Clone)]
-/// An iterator of references to the children of a given node, in reverse order.
+/// An iterator of the IDs of the children of a given node, in reverse insertion order.
 pub struct ReverseChildren<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
@@ -102,7 +102,9 @@ impl<'a, T> ReverseChildren<'a, T> {
 }
 
 #[derive(Clone)]
-/// An iterator of references to a given node and its descendants, in tree order.
+/// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.
+///
+/// i.e. node -> first child -> second child
 pub struct Descendants<'a, T>(Traverse<'a, T>);
 
 impl<'a, T> Descendants<'a, T> {
@@ -139,8 +141,10 @@ pub enum NodeEdge {
 }
 
 #[derive(Clone)]
-/// An iterator of references to a given node and its descendants, in tree
-/// order.
+/// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
+/// where node sides are visited start to end and children are visited in insertion order.
+///
+/// i.e. node.start -> first child -> second child -> node.end
 pub struct Traverse<'a, T> {
     arena: &'a Arena<T>,
     root: NodeId,
@@ -191,8 +195,10 @@ impl<'a, T> Iterator for Traverse<'a, T> {
 }
 
 #[derive(Clone)]
-/// An iterator of references to a given node and its descendants, in reverse
-/// tree order.
+/// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
+/// where nodes are visited end to start and children are visited in reverse insertion order.
+///
+/// i.e. node.end -> second child -> first child -> node.start
 pub struct ReverseTraverse<'a, T> {
     arena: &'a Arena<T>,
     root: NodeId,

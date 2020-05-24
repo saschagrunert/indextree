@@ -34,6 +34,18 @@ impl fmt::Display for NodeId {
     }
 }
 
+impl Into<NonZeroUsize> for NodeId {
+    fn into(self) -> NonZeroUsize {
+        self.index1
+    }
+}
+
+impl Into<usize> for NodeId {
+    fn into(self) -> usize {
+        self.index1.get()
+    }
+}
+
 impl NodeId {
     /// Returns zero-based index.
     pub(crate) fn index0(self) -> usize {

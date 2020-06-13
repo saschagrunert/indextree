@@ -38,6 +38,24 @@ impl<T> Arena<T> {
         Self::default()
     }
 
+    /// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
+    /// Note that this method can only be used if the datatype of the `Node` implements
+    /// the `PartialEq` trait.
+    pub fn get_node_id(&self, node: &Node<T>) -> Option<NodeId>
+    where
+        T: PartialEq,
+    {
+        if let Some(node_id) = self.nodes.iter().position(|n| n.data == node.data) {
+            if let Some(node_id_non_zero) = NonZeroUsize::new(node_id.wrapping_add(1)) {
+                Some(NodeId::from_non_zero_usize(node_id_non_zero))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
     /// Creates a new node from its associated data.
     ///
     /// # Panics

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "std")]
 use std::fmt;
 
-use crate::NodeId;
+use crate::{id::NodeStamp, NodeId};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
@@ -22,20 +22,20 @@ pub struct Node<T> {
     pub(crate) next_sibling: Option<NodeId>,
     pub(crate) first_child: Option<NodeId>,
     pub(crate) last_child: Option<NodeId>,
-    pub(crate) removed: bool,
+    pub(crate) stamp: NodeStamp,
     /// The actual data which will be stored within the tree.
-    pub(crate) data: T,
+    pub(crate) data: Option<T>,
 }
 
 impl<T> Node<T> {
     /// Returns a reference to the node data.
     pub fn get(&self) -> &T {
-        &self.data
+        self.data.as_ref().expect("Try to access a freed node")
     }
 
     /// Returns a mutable reference to the node data.
     pub fn get_mut(&mut self) -> &mut T {
-        &mut self.data
+        self.data.as_mut().expect("Try to access a freed node")
     }
 
     /// Creates a new `Node` with the default state and the given data.
@@ -46,9 +46,22 @@ impl<T> Node<T> {
             next_sibling: None,
             first_child: None,
             last_child: None,
-            removed: false,
-            data,
+            stamp: NodeStamp::default(),
+            data: Some(data),
         }
+    }
+
+    /// Convert a removed `Node` to normal with default state and given data.
+    pub(crate) fn reuse(&mut self, data: T) {
+        debug_assert!(self.data.is_none());
+        debug_assert!(self.stamp.is_removed());
+        self.stamp.reuse();
+        self.parent = None;
+        self.previous_sibling = None;
+        self.next_sibling = None;
+        self.first_child = None;
+        self.last_child = None;
+        self.data = Some(data)
     }
 
     /// Returns the ID of the parent node, unless this node is the root of the
@@ -279,7 +292,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_1));
     /// ```
     pub fn is_removed(&self) -> bool {
-        self.removed
+        self.stamp.is_removed()
     }
 
     /// Checks if the node is detached.

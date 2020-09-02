@@ -26,6 +26,39 @@ use crate::{
 pub struct NodeId {
     /// One-based index.
     index1: NonZeroUsize,
+    stamp: NodeStamp,
+}
+
+/// A stamp for node reuse, use to detect if the node of a `NodeId` point to
+/// is still the same node.
+#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
+#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+pub(crate) struct NodeStamp(i16);
+
+impl NodeStamp {
+    pub fn is_removed(self) -> bool {
+        self.0.is_negative()
+    }
+
+    pub fn as_removed(&mut self) {
+        debug_assert!(!self.is_removed());
+        self.0 = if self.0 < i16::MAX {
+            -self.0 - 1
+        } else {
+            -self.0
+        };
+    }
+
+    pub fn reuseable(self) -> bool {
+        debug_assert!(self.is_removed());
+        self.0 > i16::MIN
+    }
+
+    pub fn reuse(&mut self) -> Self {
+        debug_assert!(self.reuseable());
+        self.0 = -self.0;
+        *self
+    }
 }
 
 impl fmt::Display for NodeId {
@@ -55,8 +88,13 @@ impl NodeId {
     }
 
     /// Creates a new `NodeId` from the given one-based index.
-    pub(crate) fn from_non_zero_usize(index1: NonZeroUsize) -> Self {
-        NodeId { index1 }
+    pub(crate) fn from_non_zero_usize(index1: NonZeroUsize, stamp: NodeStamp) -> Self {
+        NodeId { index1, stamp }
+    }
+
+    /// Return if the `Node` of NodeId point to is removed.
+    pub fn is_removed<T>(self, arena: &Arena<T>) -> bool {
+        arena[self].stamp == self.stamp
     }
 
     /// Returns an iterator of IDs of this node and its ancestors.
@@ -932,7 +970,7 @@ impl NodeId {
                 .transplant(arena, parent, previous_sibling, next_sibling)
                 .expect("Should never fail: neighbors and children must be consistent");
         }
-        arena[self].removed = true;
+        arena.free_node(self);
         debug_assert!(arena[self].is_detached());
     }
 }

@@ -30,6 +30,7 @@ use crate::{Node, NodeId};
 /// [`Node`]: struct.Node.html
 pub struct Arena<T> {
     nodes: Vec<Node<T>>,
+    free_slots: std::collections::VecDeque<usize>,
 }
 
 impl<T> Arena<T> {
@@ -47,7 +48,10 @@ impl<T> Arena<T> {
     {
         if let Some(node_id) = self.nodes.iter().position(|n| n.data == node.data) {
             if let Some(node_id_non_zero) = NonZeroUsize::new(node_id.wrapping_add(1)) {
-                Some(NodeId::from_non_zero_usize(node_id_non_zero))
+                Some(NodeId::from_non_zero_usize(
+                    node_id_non_zero,
+                    self.nodes[node_id].stamp,
+                ))
             } else {
                 None
             }
@@ -72,10 +76,20 @@ impl<T> Arena<T> {
     /// assert_eq!(*arena[foo].get(), "foo");
     /// ```
     pub fn new_node(&mut self, data: T) -> NodeId {
-        let next_index1 = NonZeroUsize::new(self.nodes.len().wrapping_add(1))
-            .expect("Too many nodes in the arena");
-        self.nodes.push(Node::new(data));
-        NodeId::from_non_zero_usize(next_index1)
+        let (index, stamp) = if let Some(index) = self.free_slots.pop_front() {
+            let node = &mut self.nodes[index];
+            node.reuse(data);
+            (index, node.stamp)
+        } else {
+            let index = self.nodes.len();
+            let node = Node::new(data);
+            let stamp = node.stamp;
+            self.nodes.push(node);
+            (index, stamp)
+        };
+        let next_index1 =
+            NonZeroUsize::new(index.wrapping_add(1)).expect("Too many nodes in the arena");
+        NodeId::from_non_zero_usize(next_index1, stamp)
     }
 
     /// Counts the number of nodes in arena and returns it.
@@ -195,13 +209,23 @@ impl<T> Arena<T> {
     ///
     /// let mut iter = arena.iter();
     /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some(("foo", false)));
-    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some(("bar", true)));
+    /// assert_eq!(iter.next().map_or(false, |node| node.is_removed()), true);
     /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);
     /// ```
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed
     pub fn iter(&self) -> impl Iterator<Item = &Node<T>> {
         self.nodes.iter()
+    }
+
+    pub(crate) fn free_node(&mut self, id: NodeId) {
+        let node = &mut self[id];
+        node.data.take();
+        node.stamp.as_removed();
+        let stamp = node.stamp;
+        if stamp.reuseable() {
+            self.free_slots.push_back(id.index0());
+        }
     }
 }
 
@@ -220,7 +244,10 @@ impl<T: Sync> Arena<T> {
 
 impl<T> Default for Arena<T> {
     fn default() -> Self {
-        Self { nodes: Vec::new() }
+        Self {
+            nodes: Vec::new(),
+            free_slots: <_>::default(),
+        }
     }
 }
 
@@ -236,4 +263,22 @@ impl<T> IndexMut<NodeId> for Arena<T> {
     fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {
         &mut self.nodes[node.index0()]
     }
+}
+
+#[test]
+fn reuse_node() {
+    let mut arena = Arena::new();
+    let n1_id = arena.new_node("1");
+    let n2_id = arena.new_node("2");
+    let n3_id = arena.new_node("3");
+    n1_id.remove(&mut arena);
+    n2_id.remove(&mut arena);
+    n3_id.remove(&mut arena);
+    let n1_id = arena.new_node("1");
+    let n2_id = arena.new_node("2");
+    let n3_id = arena.new_node("3");
+    assert_eq!(n1_id.index0(), 0);
+    assert_eq!(n2_id.index0(), 1);
+    assert_eq!(n3_id.index0(), 2);
+    assert_eq!(arena.nodes.len(), 3);
 }

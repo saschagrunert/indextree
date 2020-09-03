@@ -973,4 +973,45 @@ impl NodeId {
         arena.free_node(self);
         debug_assert!(arena[self].is_detached());
     }
+
+    /// Removes a node and its descendants from the arena.
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_2_1 = arena.new_node("1_2_1");
+    /// # n1_2.append(n1_2_1, &mut arena);
+    /// # let n1_2_2 = arena.new_node("1_2_2");
+    /// # n1_2.append(n1_2_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     |   |-- 1_2_1
+    /// //     |   `-- 1_2_2
+    /// //     `-- 1_3
+    ///
+    /// n1_2.remove_subtree(&mut arena);
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    pub fn remove_subtree<T>(self, arena: &mut Arena<T>) {
+        self.detach(arena);
+        let vec = self.descendants(arena).collect::<Vec<_>>();
+        vec.iter().for_each(move |id| arena.free_node(*id));
+    }
 }

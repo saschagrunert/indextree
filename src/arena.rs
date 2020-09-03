@@ -21,7 +21,7 @@ use std::{
     ops::{Index, IndexMut},
 };
 
-use crate::{Node, NodeId};
+use crate::{node::NodeData, Node, NodeId};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
@@ -30,7 +30,8 @@ use crate::{Node, NodeId};
 /// [`Node`]: struct.Node.html
 pub struct Arena<T> {
     nodes: Vec<Node<T>>,
-    free_slots: std::collections::VecDeque<usize>,
+    first_free_slot: Option<usize>,
+    last_free_slot: Option<usize>,
 }
 
 impl<T> Arena<T> {
@@ -76,7 +77,7 @@ impl<T> Arena<T> {
     /// assert_eq!(*arena[foo].get(), "foo");
     /// ```
     pub fn new_node(&mut self, data: T) -> NodeId {
-        let (index, stamp) = if let Some(index) = self.free_slots.pop_front() {
+        let (index, stamp) = if let Some(index) = self.pop_front_free_node() {
             let node = &mut self.nodes[index];
             node.reuse(data);
             (index, node.stamp)
@@ -220,12 +221,37 @@ impl<T> Arena<T> {
 
     pub(crate) fn free_node(&mut self, id: NodeId) {
         let node = &mut self[id];
-        node.data.take();
+        node.data = NodeData::NextFree(None);
         node.stamp.as_removed();
         let stamp = node.stamp;
         if stamp.reuseable() {
-            self.free_slots.push_back(id.index0());
+            if let Some(index) = self.last_free_slot {
+                let new_last = id.index0();
+                self.nodes[index].data = NodeData::NextFree(Some(new_last));
+                self.last_free_slot = Some(new_last);
+            } else {
+                debug_assert!(self.first_free_slot.is_none());
+                debug_assert!(self.last_free_slot.is_none());
+                self.first_free_slot = Some(id.index0());
+                self.last_free_slot = Some(id.index0());
+            }
         }
+    }
+
+    fn pop_front_free_node(&mut self) -> Option<usize> {
+        let first = self.first_free_slot.take();
+        if let Some(index) = first {
+            if let NodeData::NextFree(next_free) = self.nodes[index].data {
+                self.first_free_slot = next_free;
+            } else {
+                unreachable!("A data node consider as a freed node");
+            }
+            if self.first_free_slot.is_none() {
+                self.last_free_slot = None;
+            }
+        }
+
+        first
     }
 }
 
@@ -246,7 +272,8 @@ impl<T> Default for Arena<T> {
     fn default() -> Self {
         Self {
             nodes: Vec::new(),
-            free_slots: <_>::default(),
+            first_free_slot: None,
+            last_free_slot: None,
         }
     }
 }

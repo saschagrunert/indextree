@@ -13,6 +13,15 @@ use crate::{id::NodeStamp, NodeId};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+pub(crate) enum NodeData<T> {
+    /// The actual data store
+    Data(T),
+    /// The next free node position.
+    NextFree(Option<usize>),
+}
+
+#[derive(PartialEq, Eq, Clone, Debug)]
+#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// A node within a particular `Arena`.
 pub struct Node<T> {
     // Keep these private (with read-only accessors) so that we can keep them
@@ -24,18 +33,26 @@ pub struct Node<T> {
     pub(crate) last_child: Option<NodeId>,
     pub(crate) stamp: NodeStamp,
     /// The actual data which will be stored within the tree.
-    pub(crate) data: Option<T>,
+    pub(crate) data: NodeData<T>,
 }
 
 impl<T> Node<T> {
     /// Returns a reference to the node data.
     pub fn get(&self) -> &T {
-        self.data.as_ref().expect("Try to access a freed node")
+        if let NodeData::Data(ref data) = self.data {
+            data
+        } else {
+            unreachable!("Try to access a freed node")
+        }
     }
 
     /// Returns a mutable reference to the node data.
     pub fn get_mut(&mut self) -> &mut T {
-        self.data.as_mut().expect("Try to access a freed node")
+        if let NodeData::Data(ref mut data) = self.data {
+            data
+        } else {
+            unreachable!("Try to access a freed node")
+        }
     }
 
     /// Creates a new `Node` with the default state and the given data.
@@ -47,13 +64,13 @@ impl<T> Node<T> {
             first_child: None,
             last_child: None,
             stamp: NodeStamp::default(),
-            data: Some(data),
+            data: NodeData::Data(data),
         }
     }
 
     /// Convert a removed `Node` to normal with default state and given data.
     pub(crate) fn reuse(&mut self, data: T) {
-        debug_assert!(self.data.is_none());
+        debug_assert!(matches!(self.data, NodeData::NextFree(_)));
         debug_assert!(self.stamp.is_removed());
         self.stamp.reuse();
         self.parent = None;
@@ -61,7 +78,7 @@ impl<T> Node<T> {
         self.next_sibling = None;
         self.first_child = None;
         self.last_child = None;
-        self.data = Some(data)
+        self.data = NodeData::Data(data);
     }
 
     /// Returns the ID of the parent node, unless this node is the root of the

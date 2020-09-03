@@ -65,9 +65,6 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Errors.</span>
 
@@ -77,6 +74,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>, <span class="ident">fmt</span>};
 
+<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
 <span class="doccomment">/// Possible node failures.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NodeError</span> {
@@ -90,9 +88,6 @@
     <span class="ident">InsertAfterSelf</span>,
     <span class="doccomment">/// Attempt to insert a removed node, or insert to a removed node.</span>
     <span class="ident">Removed</span>,
-    <span class="comment">// See &lt;https://github.com/rust-lang/rfcs/blob/master/text/2008-non-exhaustive.md#how-we-do-this-today&gt;.</span>
-    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="ident">__Nonexhaustive</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">NodeError</span> {
@@ -103,7 +98,6 @@
             <span class="ident">NodeError</span>::<span class="ident">InsertBeforeSelf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Can not insert a node before itself&quot;</span>,
             <span class="ident">NodeError</span>::<span class="ident">InsertAfterSelf</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Can not insert a node after itself&quot;</span>,
             <span class="ident">NodeError</span>::<span class="ident">Removed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Removed node cannot have any parent, siblings, and children&quot;</span>,
-            <span class="ident">NodeError</span>::<span class="ident">__Nonexhaustive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;`__Nonexhaustive` should not be used&quot;</span>),
         }
     }
 }
@@ -140,4 +134,4 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ConsistencyError</span> {}
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "indextree";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "indextree";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

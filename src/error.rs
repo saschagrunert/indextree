@@ -6,6 +6,7 @@ use core::fmt;
 #[cfg(feature = "std")]
 use std::{error, fmt};
 
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy)]
 /// Possible node failures.
 pub enum NodeError {
@@ -19,9 +20,6 @@ pub enum NodeError {
     InsertAfterSelf,
     /// Attempt to insert a removed node, or insert to a removed node.
     Removed,
-    // See <https://github.com/rust-lang/rfcs/blob/master/text/2008-non-exhaustive.md#how-we-do-this-today>.
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl NodeError {
@@ -32,7 +30,6 @@ impl NodeError {
             NodeError::InsertBeforeSelf => "Can not insert a node before itself",
             NodeError::InsertAfterSelf => "Can not insert a node after itself",
             NodeError::Removed => "Removed node cannot have any parent, siblings, and children",
-            NodeError::__Nonexhaustive => panic!("`__Nonexhaustive` should not be used"),
         }
     }
 }

@@ -936,6 +936,44 @@
 <span id="936">936</span>
 <span id="937">937</span>
 <span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Node ID.</span>
 
@@ -965,6 +1003,39 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NodeId</span> {
     <span class="doccomment">/// One-based index.</span>
     <span class="ident">index1</span>: <span class="ident">NonZeroUsize</span>,
+    <span class="ident">stamp</span>: <span class="ident">NodeStamp</span>,
+}
+
+<span class="doccomment">/// A stamp for node reuse, use to detect if the node of a `NodeId` point to</span>
+<span class="doccomment">/// is still the same node.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>, <span class="ident">Default</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deser&quot;</span>, <span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>))]</span>
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">NodeStamp</span>(<span class="ident">i16</span>);
+
+<span class="kw">impl</span> <span class="ident">NodeStamp</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_removed</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_negative</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_removed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">is_removed</span>());
+        <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="ident">i16</span>::<span class="ident">MAX</span> {
+            <span class="op">-</span><span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="number">1</span>
+        } <span class="kw">else</span> {
+            <span class="op">-</span><span class="self">self</span>.<span class="number">0</span>
+        };
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reuseable</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">is_removed</span>());
+        <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="ident">i16</span>::<span class="ident">MIN</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reuse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">reuseable</span>());
+        <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="op">-</span><span class="self">self</span>.<span class="number">0</span>;
+        <span class="kw-2">*</span><span class="self">self</span>
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">NodeId</span> {
@@ -994,8 +1065,13 @@
     }
 
     <span class="doccomment">/// Creates a new `NodeId` from the given one-based index.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_non_zero_usize</span>(<span class="ident">index1</span>: <span class="ident">NonZeroUsize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">NodeId</span> { <span class="ident">index1</span> }
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_non_zero_usize</span>(<span class="ident">index1</span>: <span class="ident">NonZeroUsize</span>, <span class="ident">stamp</span>: <span class="ident">NodeStamp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">NodeId</span> { <span class="ident">index1</span>, <span class="ident">stamp</span> }
+    }
+
+    <span class="doccomment">/// Return if the `Node` of NodeId point to is removed.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_removed</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">stamp</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stamp</span>
     }
 
     <span class="doccomment">/// Returns an iterator of IDs of this node and its ancestors.</span>
@@ -1871,7 +1947,7 @@
                 .<span class="ident">transplant</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="ident">next_sibling</span>)
                 .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: neighbors and children must be consistent&quot;</span>);
         }
-        <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">removed</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="ident">arena</span>.<span class="ident">free_node</span>(<span class="self">self</span>);
         <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_detached</span>());
     }
 }

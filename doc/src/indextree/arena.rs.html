@@ -237,6 +237,78 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Arena.</span>
 
@@ -261,7 +333,7 @@
     <span class="ident">ops</span>::{<span class="ident">Index</span>, <span class="ident">IndexMut</span>},
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Node</span>, <span class="ident">NodeId</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">node</span>::<span class="ident">NodeData</span>, <span class="ident">Node</span>, <span class="ident">NodeId</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deser&quot;</span>, <span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>))]</span>
@@ -270,6 +342,8 @@
 <span class="doccomment">/// [`Node`]: struct.Node.html</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">first_free_slot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">last_free_slot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -287,7 +361,10 @@
     {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">node_id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">data</span> <span class="op">=</span><span class="op">=</span> <span class="ident">node</span>.<span class="ident">data</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">node_id_non_zero</span>) <span class="op">=</span> <span class="ident">NonZeroUsize</span>::<span class="ident">new</span>(<span class="ident">node_id</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>)) {
-                <span class="prelude-val">Some</span>(<span class="ident">NodeId</span>::<span class="ident">from_non_zero_usize</span>(<span class="ident">node_id_non_zero</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">NodeId</span>::<span class="ident">from_non_zero_usize</span>(
+                    <span class="ident">node_id_non_zero</span>,
+                    <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">node_id</span>].<span class="ident">stamp</span>,
+                ))
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             }
@@ -312,10 +389,20 @@
     <span class="doccomment">/// assert_eq!(*arena[foo].get(), &quot;foo&quot;);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_node</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">NodeId</span> {
-        <span class="kw">let</span> <span class="ident">next_index1</span> <span class="op">=</span> <span class="ident">NonZeroUsize</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>().<span class="ident">wrapping_add</span>(<span class="number">1</span>))
-            .<span class="ident">expect</span>(<span class="string">&quot;Too many nodes in the arena&quot;</span>);
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">Node</span>::<span class="ident">new</span>(<span class="ident">data</span>));
-        <span class="ident">NodeId</span>::<span class="ident">from_non_zero_usize</span>(<span class="ident">next_index1</span>)
+        <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">stamp</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop_front_free_node</span>() {
+            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">index</span>];
+            <span class="ident">node</span>.<span class="ident">reuse</span>(<span class="ident">data</span>);
+            (<span class="ident">index</span>, <span class="ident">node</span>.<span class="ident">stamp</span>)
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>();
+            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">Node</span>::<span class="ident">new</span>(<span class="ident">data</span>);
+            <span class="kw">let</span> <span class="ident">stamp</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">stamp</span>;
+            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">node</span>);
+            (<span class="ident">index</span>, <span class="ident">stamp</span>)
+        };
+        <span class="kw">let</span> <span class="ident">next_index1</span> <span class="op">=</span>
+            <span class="ident">NonZeroUsize</span>::<span class="ident">new</span>(<span class="ident">index</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>)).<span class="ident">expect</span>(<span class="string">&quot;Too many nodes in the arena&quot;</span>);
+        <span class="ident">NodeId</span>::<span class="ident">from_non_zero_usize</span>(<span class="ident">next_index1</span>, <span class="ident">stamp</span>)
     }
 
     <span class="doccomment">/// Counts the number of nodes in arena and returns it.</span>
@@ -435,13 +522,48 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let mut iter = arena.iter();</span>
     <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some((&quot;foo&quot;, false)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some((&quot;bar&quot;, true)));</span>
+    <span class="doccomment">/// assert_eq!(iter.next().map_or(false, |node| node.is_removed()), true);</span>
     <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`is_removed()`]: struct.Node.html#method.is_removed</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>()
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">free_node</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NodeId</span>) {
+        <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>[<span class="ident">id</span>];
+        <span class="ident">node</span>.<span class="ident">data</span> <span class="op">=</span> <span class="ident">NodeData</span>::<span class="ident">NextFree</span>(<span class="prelude-val">None</span>);
+        <span class="ident">node</span>.<span class="ident">stamp</span>.<span class="ident">as_removed</span>();
+        <span class="kw">let</span> <span class="ident">stamp</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">stamp</span>;
+        <span class="kw">if</span> <span class="ident">stamp</span>.<span class="ident">reuseable</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_free_slot</span> {
+                <span class="kw">let</span> <span class="ident">new_last</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">index0</span>();
+                <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">index</span>].<span class="ident">data</span> <span class="op">=</span> <span class="ident">NodeData</span>::<span class="ident">NextFree</span>(<span class="prelude-val">Some</span>(<span class="ident">new_last</span>));
+                <span class="self">self</span>.<span class="ident">last_free_slot</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_last</span>);
+            } <span class="kw">else</span> {
+                <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">first_free_slot</span>.<span class="ident">is_none</span>());
+                <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">last_free_slot</span>.<span class="ident">is_none</span>());
+                <span class="self">self</span>.<span class="ident">first_free_slot</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">index0</span>());
+                <span class="self">self</span>.<span class="ident">last_free_slot</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">index0</span>());
+            }
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">pop_front_free_node</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">first_free_slot</span>.<span class="ident">take</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="ident">first</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">NodeData</span>::<span class="ident">NextFree</span>(<span class="ident">next_free</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">index</span>].<span class="ident">data</span> {
+                <span class="self">self</span>.<span class="ident">first_free_slot</span> <span class="op">=</span> <span class="ident">next_free</span>;
+            } <span class="kw">else</span> {
+                <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;A data node consider as a freed node&quot;</span>);
+            }
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">first_free_slot</span>.<span class="ident">is_none</span>() {
+                <span class="self">self</span>.<span class="ident">last_free_slot</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            }
+        }
+
+        <span class="ident">first</span>
     }
 }
 
@@ -460,7 +582,11 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">nodes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() }
+        <span class="self">Self</span> {
+            <span class="ident">nodes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">first_free_slot</span>: <span class="prelude-val">None</span>,
+            <span class="ident">last_free_slot</span>: <span class="prelude-val">None</span>,
+        }
     }
 }
 
@@ -476,6 +602,24 @@
     <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="ident">NodeId</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">node</span>.<span class="ident">index0</span>()]
     }
+}
+
+<span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">fn</span> <span class="ident">reuse_node</span>() {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arena</span> <span class="op">=</span> <span class="ident">Arena</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="ident">n1_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1&quot;</span>);
+    <span class="kw">let</span> <span class="ident">n2_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;2&quot;</span>);
+    <span class="kw">let</span> <span class="ident">n3_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;3&quot;</span>);
+    <span class="ident">n1_id</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">arena</span>);
+    <span class="ident">n2_id</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">arena</span>);
+    <span class="ident">n3_id</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">arena</span>);
+    <span class="kw">let</span> <span class="ident">n1_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1&quot;</span>);
+    <span class="kw">let</span> <span class="ident">n2_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;2&quot;</span>);
+    <span class="kw">let</span> <span class="ident">n3_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;3&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">n1_id</span>.<span class="ident">index0</span>(), <span class="number">0</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">n2_id</span>.<span class="ident">index0</span>(), <span class="number">1</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">n3_id</span>.<span class="ident">index0</span>(), <span class="number">2</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">arena</span>.<span class="ident">nodes</span>.<span class="ident">len</span>(), <span class="number">3</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "indextree";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

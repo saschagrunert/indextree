@@ -1011,7 +1011,16 @@ impl NodeId {
     ///
     pub fn remove_subtree<T>(self, arena: &mut Arena<T>) {
         self.detach(arena);
-        let vec = self.descendants(arena).collect::<Vec<_>>();
-        vec.iter().for_each(move |id| arena.free_node(*id));
+
+        // use a preorder traversal to remove node.
+        let mut cursor = Some(self);
+        while let Some(id) = cursor {
+            arena.free_node(id);
+            let node = &arena[id];
+            cursor = node
+                .first_child
+                .or(node.next_sibling)
+                .or_else(|| node.parent.and_then(|p| arena[p].next_sibling));
+        }
     }
 }

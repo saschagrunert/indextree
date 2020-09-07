@@ -1121,7 +1121,7 @@
 
     <span class="doccomment">/// Return if the `Node` of NodeId point to is removed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_removed</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">stamp</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stamp</span>
+        <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">stamp</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stamp</span>
     }
 
     <span class="doccomment">/// Returns an iterator of IDs of this node and its ancestors.</span>

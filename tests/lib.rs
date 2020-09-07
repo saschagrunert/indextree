@@ -156,6 +156,14 @@ fn remove() {
 }
 
 #[test]
+fn is_removed() {
+    let arena = &mut Arena::new();
+    let n0 = arena.new_node(0);
+    n0.remove(arena);
+    assert!(n0.is_removed(arena));
+}
+
+#[test]
 fn insert_removed_node() {
     let mut arena = Arena::new();
     let n1 = arena.new_node("1");

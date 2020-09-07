@@ -94,7 +94,7 @@ impl NodeId {
 
     /// Return if the `Node` of NodeId point to is removed.
     pub fn is_removed<T>(self, arena: &Arena<T>) -> bool {
-        arena[self].stamp == self.stamp
+        arena[self].stamp != self.stamp
     }
 
     /// Returns an iterator of IDs of this node and its ancestors.

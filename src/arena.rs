@@ -41,16 +41,19 @@ impl<T> Arena<T> {
     }
 
     /// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
-    /// Note that this method can only be used if the datatype of the `Node` implements
-    /// the `PartialEq` trait.
-    pub fn get_node_id(&self, node: &Node<T>) -> Option<NodeId>
-    where
-        T: PartialEq,
-    {
-        if let Some(node_id) = self.nodes.iter().position(|n| n.data == node.data) {
-            NonZeroUsize::new(node_id.wrapping_add(1)).map(|node_id_non_zero| {
-                NodeId::from_non_zero_usize(node_id_non_zero, self.nodes[node_id].stamp)
-            })
+    pub fn get_node_id(&self, node: &Node<T>) -> Option<NodeId> {
+        let r = self.nodes.as_ptr_range();
+        let p = node as _;
+        if r.contains(&p) {
+            let node_id = (p as usize - r.start as usize) / std::mem::size_of::<Node<T>>();
+            if let Some(node_id_non_zero) = NonZeroUsize::new(node_id.wrapping_add(1)) {
+                Some(NodeId::from_non_zero_usize(
+                    node_id_non_zero,
+                    self.nodes[node_id].stamp,
+                ))
+            } else {
+                None
+            }
         } else {
             None
         }

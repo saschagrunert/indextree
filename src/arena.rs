@@ -41,6 +41,18 @@ impl<T> Arena<T> {
     }
 
     /// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let node = arena.get(foo).unwrap();
+    ///
+    /// let node_id = arena.get_node_id(node).unwrap();
+    /// assert_eq!(*arena[node_id].get(), "foo");
+    /// ```
     pub fn get_node_id(&self, node: &Node<T>) -> Option<NodeId> {
         // self.nodes.as_ptr_range() is not stable until rust 1.48
         let start = self.nodes.as_ptr() as usize;

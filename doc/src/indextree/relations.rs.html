@@ -235,7 +235,7 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">previous</span>) <span class="op">=</span> <span class="ident">previous</span> {
         <span class="comment">// `previous` ==&gt; `next`</span>
         <span class="ident">arena</span>[<span class="ident">previous</span>].<span class="ident">next_sibling</span> <span class="op">=</span> <span class="ident">next</span>;
-        <span class="ident">parent_first_child</span> <span class="op">=</span> <span class="ident">parent_first_child</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">previous</span>));
+        <span class="ident">parent_first_child</span> <span class="op">=</span> <span class="ident">parent_first_child</span>.<span class="ident">or</span>(<span class="prelude-val">Some</span>(<span class="ident">previous</span>));
     } <span class="kw">else</span> {
         <span class="comment">// `next` is the first child of the parent.</span>
         <span class="ident">parent_first_child</span> <span class="op">=</span> <span class="ident">next</span>;
@@ -243,7 +243,7 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>) <span class="op">=</span> <span class="ident">next</span> {
         <span class="comment">// `previous` &lt;== `next`</span>
         <span class="ident">arena</span>[<span class="ident">next</span>].<span class="ident">previous_sibling</span> <span class="op">=</span> <span class="ident">previous</span>;
-        <span class="ident">parent_last_child</span> <span class="op">=</span> <span class="ident">parent_last_child</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">next</span>));
+        <span class="ident">parent_last_child</span> <span class="op">=</span> <span class="ident">parent_last_child</span>.<span class="ident">or</span>(<span class="prelude-val">Some</span>(<span class="ident">next</span>));
     } <span class="kw">else</span> {
         <span class="comment">// `previous` is the last child of the parent.</span>
         <span class="ident">parent_last_child</span> <span class="op">=</span> <span class="ident">previous</span>;

@@ -1,7 +1,6 @@
 # indextree
 
-[![Build status](https://circleci.com/gh/saschagrunert/indextree.svg?style=shield)](https://circleci.com/gh/saschagrunert/indextree)
-[![Build Status](https://travis-ci.org/saschagrunert/indextree.svg)](https://travis-ci.org/saschagrunert/indextree)
+[![GitHub Actions](https://github.com/saschagrunert/indextree/actions/workflows/test.yml/badge.svg)](https://github.com/saschagrunert/indextree/actions/workflows/test.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/byraapuh9py02us0?svg=true)](https://ci.appveyor.com/project/saschagrunert/indextree)
 [![Coverage](https://codecov.io/gh/saschagrunert/indextree/branch/master/graph/badge.svg)](https://codecov.io/gh/saschagrunert/indextree)
 [![Dependency Status](https://deps.rs/repo/github/saschagrunert/indextree/status.svg)](https://deps.rs/repo/github/saschagrunert/indextree)

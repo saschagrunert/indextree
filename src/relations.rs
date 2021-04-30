@@ -81,7 +81,7 @@ pub(crate) fn connect_neighbors<T>(
     if let Some(previous) = previous {
         // `previous` ==> `next`
         arena[previous].next_sibling = next;
-        parent_first_child = parent_first_child.or_else(|| Some(previous));
+        parent_first_child = parent_first_child.or(Some(previous));
     } else {
         // `next` is the first child of the parent.
         parent_first_child = next;
@@ -89,7 +89,7 @@ pub(crate) fn connect_neighbors<T>(
     if let Some(next) = next {
         // `previous` <== `next`
         arena[next].previous_sibling = previous;
-        parent_last_child = parent_last_child.or_else(|| Some(next));
+        parent_last_child = parent_last_child.or(Some(next));
     } else {
         // `previous` is the last child of the parent.
         parent_last_child = previous;

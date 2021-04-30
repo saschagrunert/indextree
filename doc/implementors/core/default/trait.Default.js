@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["indextree"] = [{"text":"impl&lt;T&gt; Default for Arena&lt;T&gt;","synthetic":false,"types":[]}];
+implementors["indextree"] = [{"text":"impl&lt;T&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/default/trait.Default.html\" title=\"trait core::default::Default\">Default</a> for <a class=\"struct\" href=\"indextree/struct.Arena.html\" title=\"struct indextree::Arena\">Arena</a>&lt;T&gt;","synthetic":false,"types":["indextree::arena::Arena"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -3,9 +3,9 @@ GENERAL_ARGS = --release
 .PHONY: \
 	build \
 	build-doc \
-	coverage \
 	lint-rustfmt \
-	lint-clippy
+	lint-clippy \
+	test
 
 ifndef VERBOSE
 .SILENT:
@@ -21,12 +21,12 @@ build:
 build-doc:
 	cargo doc --all --no-deps
 
-coverage:
-	cargo kcov --features="par_iter"
-
 lint-clippy:
 	cargo clippy -- -D warnings
 
 lint-rustfmt:
 	cargo fmt
 	git diff --exit-code
+
+test:
+	cargo test --features="par_iter"

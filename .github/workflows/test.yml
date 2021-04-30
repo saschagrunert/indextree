@@ -1,0 +1,151 @@
+name: test
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: cargo generate-lockfile
+      - uses: actions/cache@v2
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+          key: rust-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-build-
+      - run: make
+
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt
+      - run: cargo generate-lockfile
+      - uses: actions/cache@v2
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+          key: rust-lint-rustfmt-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-lint-rustfmt-
+      - run: make lint-rustfmt
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: clippy
+      - run: cargo generate-lockfile
+      - uses: actions/cache@v2
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+          key: rust-lint-clippy-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-lint-clippy-
+      - run: make lint-clippy
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: cargo generate-lockfile
+      - uses: actions/cache@v2
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+          key: rust-test-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-test-
+      - run: make test
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Run cargo-tarpaulin
+        uses: actions-rs/tarpaulin@v0.1
+        with:
+          version: '0.15.0'
+          args: '-- --test-threads 1'
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v1.4.1
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage-report
+          path: cobertura.xml
+
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: cargo generate-lockfile
+      - uses: actions/cache@v2
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+          key: rust-doc-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-doc-
+      - run: make build-doc
+      - uses: actions/upload-artifact@v2
+        with:
+          name: docs
+          path: target/doc
+
+  doc-publish:
+    if: github.ref == 'refs/heads/master'
+    needs: doc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+      - uses: actions/download-artifact@v2
+        with:
+          name: docs
+          path: target/doc
+      - name: Update gh-pages branch
+        run: |
+          git config --global user.email mail@saschagrunert.de
+          git config --global user.name "CircleCI"
+          git fetch origin gh-pages
+          git checkout -f gh-pages
+          rm -rf doc
+          mv target/doc .
+          git add .
+          git diff-index --quiet HEAD || git commit -m 'Update documentation'
+          git push -f origin gh-pages

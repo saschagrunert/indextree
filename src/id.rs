@@ -67,12 +67,14 @@ impl fmt::Display for NodeId {
     }
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<NonZeroUsize> for NodeId {
     fn into(self) -> NonZeroUsize {
         self.index1
     }
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<usize> for NodeId {
     fn into(self) -> usize {
         self.index1.get()

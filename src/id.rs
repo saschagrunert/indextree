@@ -1019,10 +1019,58 @@ impl NodeId {
         while let Some(id) = cursor {
             arena.free_node(id);
             let node = &arena[id];
-            cursor = node
-                .first_child
-                .or(node.next_sibling)
-                .or_else(|| node.parent.and_then(|p| arena[p].next_sibling));
+            cursor = node.first_child.or(node.next_sibling).or_else(|| {
+                id.ancestors(&arena) // traverse ancestors upwards
+                    .skip(1) // skip the starting node itself
+                    .find(|n| arena[*n].next_sibling.is_some()) // first ancestor with a sibling
+                    .and_then(|n| arena[n].next_sibling) // the sibling is the new cursor
+            });
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_remove_subtree_complex() {
+        // arena
+        // `-- 1
+        //     |-- 1_1
+        //     |-- 1_2
+        //     |   |-- 1_2_1
+        //     |   |   `-- 1_2_1_1
+        //     |   |       `-- 1_2_1_1_1
+        //     |   `-- 1_2_2
+        //     `-- 1_3
+        let mut arena = Arena::new();
+        let n1 = arena.new_node("1");
+        let n1_1 = arena.new_node("1_1");
+        n1.append(n1_1, &mut arena);
+        let n1_2 = arena.new_node("1_2");
+        n1.append(n1_2, &mut arena);
+        let n1_2_1 = arena.new_node("1_2_1");
+        n1_2.append(n1_2_1, &mut arena);
+        let n1_2_1_1 = arena.new_node("1_2_1_1");
+        n1_2_1.append(n1_2_1_1, &mut arena);
+        let n1_2_1_1_1 = arena.new_node("1_2_1_1_1");
+        n1_2_1_1.append(n1_2_1_1_1, &mut arena);
+        let n1_2_2 = arena.new_node("1_2_2");
+        n1_2.append(n1_2_2, &mut arena);
+        let n1_3 = arena.new_node("1_3");
+        n1.append(n1_3, &mut arena);
+
+        n1_2.remove_subtree(&mut arena);
+
+        assert!(!n1.is_removed(&arena));
+        assert!(!n1_1.is_removed(&arena));
+        assert!(!n1_3.is_removed(&arena));
+
+        assert!(n1_2.is_removed(&arena));
+        assert!(n1_2_1.is_removed(&arena));
+        assert!(n1_2_1_1.is_removed(&arena));
+        assert!(n1_2_1_1_1.is_removed(&arena));
+        assert!(n1_2_2.is_removed(&arena));
     }
 }

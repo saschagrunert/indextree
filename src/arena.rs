@@ -41,13 +41,25 @@ impl<T> Arena<T> {
     }
 
     /// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
-    /// Note that this method can only be used if the datatype of the `Node` implements
-    /// the `PartialEq` trait.
-    pub fn get_node_id(&self, node: &Node<T>) -> Option<NodeId>
-    where
-        T: PartialEq,
-    {
-        if let Some(node_id) = self.nodes.iter().position(|n| n.data == node.data) {
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let node = arena.get(foo).unwrap();
+    ///
+    /// let node_id = arena.get_node_id(node).unwrap();
+    /// assert_eq!(*arena[node_id].get(), "foo");
+    /// ```
+    pub fn get_node_id(&self, node: &Node<T>) -> Option<NodeId> {
+        // self.nodes.as_ptr_range() is not stable until rust 1.48
+        let start = self.nodes.as_ptr() as usize;
+        let end = start + self.nodes.len() * core::mem::size_of::<Node<T>>();
+        let p = node as *const Node<T> as usize;
+        if (start..end).contains(&p) {
+            let node_id = (p - start) / core::mem::size_of::<Node<T>>();
             if let Some(node_id_non_zero) = NonZeroUsize::new(node_id.wrapping_add(1)) {
                 Some(NodeId::from_non_zero_usize(
                     node_id_non_zero,

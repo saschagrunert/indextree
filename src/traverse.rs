@@ -13,6 +13,8 @@ macro_rules! impl_node_iterator {
                 Some(node)
             }
         }
+
+        impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
     };
 }
 
@@ -124,6 +126,8 @@ impl<'a, T> Iterator for Descendants<'a, T> {
     }
 }
 
+impl<'a, T> core::iter::FusedIterator for Descendants<'a, T> {}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// Indicator if the node is at a start or endpoint of the tree
 pub enum NodeEdge {
@@ -194,6 +198,8 @@ impl<'a, T> Iterator for Traverse<'a, T> {
     }
 }
 
+impl<'a, T> core::iter::FusedIterator for Traverse<'a, T> {}
+
 #[derive(Clone)]
 /// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
 /// where nodes are visited end to start and children are visited in reverse insertion order.
@@ -247,3 +253,5 @@ impl<'a, T> Iterator for ReverseTraverse<'a, T> {
         Some(next)
     }
 }
+
+impl<'a, T> core::iter::FusedIterator for ReverseTraverse<'a, T> {}

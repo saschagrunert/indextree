@@ -250,6 +250,14 @@
 <span id="247">247</span>
 <span id="248">248</span>
 <span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Iterators.</span>
 
@@ -266,6 +274,8 @@
                 <span class="prelude-val">Some</span>(<span class="ident">node</span>)
             }
         }
+
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">FusedIterator</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
     };
 }
 
@@ -377,6 +387,8 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">FusedIterator</span> <span class="kw">for</span> <span class="ident">Descendants</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
 <span class="doccomment">/// Indicator if the node is at a start or endpoint of the tree</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NodeEdge</span> {
@@ -447,6 +459,8 @@
     }
 }
 
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">FusedIterator</span> <span class="kw">for</span> <span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,</span>
 <span class="doccomment">/// where nodes are visited end to start and children are visited in reverse insertion order.</span>
@@ -500,6 +514,8 @@
         <span class="prelude-val">Some</span>(<span class="ident">next</span>)
     }
 }
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core</span>::<span class="ident">iter</span>::<span class="ident">FusedIterator</span> <span class="kw">for</span> <span class="ident">ReverseTraverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-search-js="../../search-index.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

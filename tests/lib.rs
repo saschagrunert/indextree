@@ -11,7 +11,7 @@ fn success_create() {
             new_counter += 1;
             arena.new_node(new_counter)
         }};
-    };
+    }
 
     let a = new!(); // 1
     assert!(a.checked_append(new!(), arena).is_ok()); // 2

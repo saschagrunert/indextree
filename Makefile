@@ -25,6 +25,7 @@ lint-clippy:
 	cargo clippy -- -D warnings
 
 lint-rustfmt:
+	cargo fmt --version
 	cargo fmt
 	git diff --exit-code
 

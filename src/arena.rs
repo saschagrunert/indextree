@@ -214,6 +214,10 @@ impl<T> Arena<T> {
         self.nodes.iter()
     }
 
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Node<T>> {
+        self.nodes.iter_mut()
+    }
+
     pub(crate) fn free_node(&mut self, id: NodeId) {
         let node = &mut self[id];
         node.data = NodeData::NextFree(None);

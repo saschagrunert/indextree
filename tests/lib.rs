@@ -85,6 +85,26 @@ fn iter() {
     assert_eq!(node_refs, vec![&arena[a], &arena[b], &arena[c], &arena[d]]);
 }
 
+#[test]
+fn iter_mut() {
+    let arena: &mut Arena<i64> = &mut Arena::new();
+    let a = arena.new_node(1);
+    let b = arena.new_node(2);
+    let c = arena.new_node(3);
+    let d = arena.new_node(4);
+    assert!(a.checked_append(b, arena).is_ok());
+    assert!(b.checked_append(c, arena).is_ok());
+    assert!(a.checked_append(d, arena).is_ok());
+
+    for node in arena.iter_mut() {
+        let data = node.get_mut();
+        *data = data.wrapping_add(4);
+    }
+
+    let node_refs = arena.iter().map(|i| i.get().clone()).collect::<Vec<_>>();
+    assert_eq!(node_refs, vec![5, 6, 7, 8]);
+}
+
 #[cfg(feature = "par_iter")]
 #[test]
 fn par_iter() {

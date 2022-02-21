@@ -214,6 +214,29 @@ impl<T> Arena<T> {
         self.nodes.iter()
     }
 
+    /// Returns a mutable iterator of all nodes in the arena in storage-order.
+    ///
+    /// Note that this iterator returns also removed elements, which can be
+    /// tested with the [`is_removed()`] method on the node.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let arena: &mut Arena<i64> = &mut Arena::new();
+    /// let a = arena.new_node(1);
+    /// let b = arena.new_node(2);
+    /// assert!(a.checked_append(b, arena).is_ok());
+    ///
+    /// for node in arena.iter_mut() {
+    ///     let data = node.get_mut();
+    ///     *data = data.wrapping_add(4);
+    /// }
+    ///
+    /// let node_refs = arena.iter().map(|i| i.get().clone()).collect::<Vec<_>>();
+    /// assert_eq!(node_refs, vec![5, 6]);
+    /// ```
+    /// [`is_removed()`]: struct.Node.html#method.is_removed
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Node<T>> {
         self.nodes.iter_mut()
     }

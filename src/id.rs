@@ -516,6 +516,7 @@ impl NodeId {
     /// Panics if:
     ///
     /// * the given new child is `self`, or
+    /// * the given new child is an ancestor of `self`, or
     /// * the current node or the given new child was already [`remove`]d.
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`].
@@ -560,6 +561,8 @@ impl NodeId {
     ///
     /// * Returns [`NodeError::AppendSelf`] error if the given new child is
     ///   `self`.
+    /// * Returns [`NodeError::AppendAncestor`] error if the given new child is
+    ///   an ancestor of `self`.
     /// * Returns [`NodeError::Removed`] error if the given new child or `self`
     ///   is [`remove`]d.
     ///
@@ -592,6 +595,9 @@ impl NodeId {
         if arena[self].is_removed() || arena[new_child].is_removed() {
             return Err(NodeError::Removed);
         }
+        if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
+            return Err(NodeError::AppendAncestor);
+        }
         new_child.detach(arena);
         insert_with_neighbors(arena, new_child, Some(self), arena[self].last_child, None)
             .expect("Should never fail: `new_child` is not `self` and they are not removed");
@@ -606,6 +612,7 @@ impl NodeId {
     /// Panics if:
     ///
     /// * the given new child is `self`, or
+    /// * the given new child is an ancestor of `self`, or
     /// * the current node or the given new child was already [`remove`]d.
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`].
@@ -650,6 +657,8 @@ impl NodeId {
     ///
     /// * Returns [`NodeError::PrependSelf`] error if the given new child is
     ///   `self`.
+    /// * Returns [`NodeError::PrependAncestor`] error if the given new child is
+    ///   an ancestor of `self`.
     /// * Returns [`NodeError::Removed`] error if the given new child or `self`
     ///   is [`remove`]d.
     ///
@@ -681,6 +690,9 @@ impl NodeId {
         }
         if arena[self].is_removed() || arena[new_child].is_removed() {
             return Err(NodeError::Removed);
+        }
+        if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
+            return Err(NodeError::PrependAncestor);
         }
         insert_with_neighbors(arena, new_child, Some(self), None, arena[self].first_child)
             .expect("Should never fail: `new_child` is not `self` and they are not removed");

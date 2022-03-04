@@ -20,6 +20,10 @@ pub enum NodeError {
     InsertAfterSelf,
     /// Attempt to insert a removed node, or insert to a removed node.
     Removed,
+    /// Attempt to append an ancestor node to a descendant.
+    AppendAncestor,
+    /// Attempt to prepend an ancestor node to a descendant.
+    PrependAncestor,
 }
 
 impl NodeError {
@@ -30,6 +34,8 @@ impl NodeError {
             NodeError::InsertBeforeSelf => "Can not insert a node before itself",
             NodeError::InsertAfterSelf => "Can not insert a node after itself",
             NodeError::Removed => "Removed node cannot have any parent, siblings, and children",
+            NodeError::AppendAncestor => "Can not append a node to its descendant",
+            NodeError::PrependAncestor => "Can not prepend a node to its descendant",
         }
     }
 }

@@ -48,14 +48,9 @@ impl<T> Arena<T> {
         T: PartialEq,
     {
         if let Some(node_id) = self.nodes.iter().position(|n| n.data == node.data) {
-            if let Some(node_id_non_zero) = NonZeroUsize::new(node_id.wrapping_add(1)) {
-                Some(NodeId::from_non_zero_usize(
-                    node_id_non_zero,
-                    self.nodes[node_id].stamp,
-                ))
-            } else {
-                None
-            }
+            NonZeroUsize::new(node_id.wrapping_add(1)).map(|node_id_non_zero| {
+                NodeId::from_non_zero_usize(node_id_non_zero, self.nodes[node_id].stamp)
+            })
         } else {
             None
         }

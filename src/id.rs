@@ -1020,7 +1020,7 @@ impl NodeId {
             arena.free_node(id);
             let node = &arena[id];
             cursor = node.first_child.or(node.next_sibling).or_else(|| {
-                id.ancestors(&arena) // traverse ancestors upwards
+                id.ancestors(arena) // traverse ancestors upwards
                     .skip(1) // skip the starting node itself
                     .find(|n| arena[*n].next_sibling.is_some()) // first ancestor with a sibling
                     .and_then(|n| arena[n].next_sibling) // the sibling is the new cursor

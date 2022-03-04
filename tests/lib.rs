@@ -1,4 +1,4 @@
-use indextree::Arena;
+use indextree::{Arena, NodeError};
 #[cfg(feature = "par_iter")]
 use rayon::prelude::*;
 
@@ -195,4 +195,48 @@ fn retrieve_node_id() {
     assert_eq!(retrieved_n1_id, n1_id);
     assert_eq!(retrieved_n2_id, n2_id);
     assert_eq!(retrieved_n3_id, n3_id);
+}
+
+#[test]
+// Issue #78.
+fn append_ancestor() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = arena.new_node("child");
+    root.append(child, &mut arena);
+    let grandchild = arena.new_node("grandchild");
+    child.append(grandchild, &mut arena);
+    // root
+    // `-- child
+    //     `-- grandchild
+    assert!(matches!(
+        grandchild.checked_append(root, &mut arena),
+        Err(NodeError::AppendAncestor)
+    ));
+    assert!(matches!(
+        grandchild.checked_append(child, &mut arena),
+        Err(NodeError::AppendAncestor)
+    ));
+}
+
+#[test]
+// Issue #78.
+fn prepend_ancestor() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = arena.new_node("child");
+    root.append(child, &mut arena);
+    let grandchild = arena.new_node("grandchild");
+    child.append(grandchild, &mut arena);
+    // root
+    // `-- child
+    //     `-- grandchild
+    assert!(matches!(
+        grandchild.checked_prepend(root, &mut arena),
+        Err(NodeError::PrependAncestor)
+    ));
+    assert!(matches!(
+        grandchild.checked_prepend(child, &mut arena),
+        Err(NodeError::PrependAncestor)
+    ));
 }

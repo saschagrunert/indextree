@@ -88,20 +88,26 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: nightly
           override: true
-      - name: Run cargo-tarpaulin
-        uses: actions-rs/tarpaulin@v0.1
+      - name: Install rustfmt
+        shell: bash
+        run: rustup component add rustfmt
+      - name: Unit tests
+        uses: actions-rs/cargo@v1
         with:
-          version: '0.15.0'
-          args: '-- --test-threads 1'
+          command: test
+          args: --no-fail-fast
+        env:
+          CARGO_INCREMENTAL: '0'
+          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
+          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
+      - name: Coverage
+        uses: actions-rs/grcov@v0.1
+        with:
+          config: .github/grcov.yml
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@v1.4.1
-      - name: Archive code coverage results
-        uses: actions/upload-artifact@v1
-        with:
-          name: code-coverage-report
-          path: cobertura.xml
+        uses: codecov/codecov-action@v2
 
   doc:
     runs-on: ubuntu-latest

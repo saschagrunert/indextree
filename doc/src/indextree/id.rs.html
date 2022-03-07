@@ -1076,6 +1076,18 @@
 <span id="1074">1074</span>
 <span id="1075">1075</span>
 <span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Node ID.</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
@@ -1594,6 +1606,7 @@
     <span class="doccomment">/// Panics if:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// * the given new child is `self`, or</span>
+    <span class="doccomment">/// * the given new child is an ancestor of `self`, or</span>
     <span class="doccomment">/// * the current node or the given new child was already [`remove`]d.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
@@ -1638,6 +1651,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// * Returns [`NodeError::AppendSelf`] error if the given new child is</span>
     <span class="doccomment">///   `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::AppendAncestor`] error if the given new child is</span>
+    <span class="doccomment">///   an ancestor of `self`.</span>
     <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new child or `self`</span>
     <span class="doccomment">///   is [`remove`]d.</span>
     <span class="doccomment">///</span>
@@ -1670,6 +1685,9 @@
         <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">new_child</span>].<span class="ident">is_removed</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::Removed</span>);
         }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ancestors</span>(<span class="ident">arena</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">ancestor</span><span class="op">|</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="ident">ancestor</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::AppendAncestor</span>);
+        }
         <span class="ident">new_child</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
         <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_child</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">last_child</span>, <span class="prelude-val">None</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);
@@ -1684,6 +1702,7 @@
     <span class="doccomment">/// Panics if:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// * the given new child is `self`, or</span>
+    <span class="doccomment">/// * the given new child is an ancestor of `self`, or</span>
     <span class="doccomment">/// * the current node or the given new child was already [`remove`]d.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
@@ -1728,6 +1747,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// * Returns [`NodeError::PrependSelf`] error if the given new child is</span>
     <span class="doccomment">///   `self`.</span>
+    <span class="doccomment">/// * Returns [`NodeError::PrependAncestor`] error if the given new child is</span>
+    <span class="doccomment">///   an ancestor of `self`.</span>
     <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new child or `self`</span>
     <span class="doccomment">///   is [`remove`]d.</span>
     <span class="doccomment">///</span>
@@ -1759,6 +1780,9 @@
         }
         <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">new_child</span>].<span class="ident">is_removed</span>() {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::Removed</span>);
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ancestors</span>(<span class="ident">arena</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">ancestor</span><span class="op">|</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="ident">ancestor</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::PrependAncestor</span>);
         }
         <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_child</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="prelude-val">None</span>, <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">first_child</span>)
             .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);

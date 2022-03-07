@@ -67,6 +67,12 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Errors.</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
@@ -89,6 +95,10 @@
     <span class="ident">InsertAfterSelf</span>,
     <span class="doccomment">/// Attempt to insert a removed node, or insert to a removed node.</span>
     <span class="ident">Removed</span>,
+    <span class="doccomment">/// Attempt to append an ancestor node to a descendant.</span>
+    <span class="ident">AppendAncestor</span>,
+    <span class="doccomment">/// Attempt to prepend an ancestor node to a descendant.</span>
+    <span class="ident">PrependAncestor</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">NodeError</span> {
@@ -99,6 +109,8 @@
             <span class="ident">NodeError::InsertBeforeSelf</span> =&gt; <span class="string">&quot;Can not insert a node before itself&quot;</span>,
             <span class="ident">NodeError::InsertAfterSelf</span> =&gt; <span class="string">&quot;Can not insert a node after itself&quot;</span>,
             <span class="ident">NodeError::Removed</span> =&gt; <span class="string">&quot;Removed node cannot have any parent, siblings, and children&quot;</span>,
+            <span class="ident">NodeError::AppendAncestor</span> =&gt; <span class="string">&quot;Can not append a node to its descendant&quot;</span>,
+            <span class="ident">NodeError::PrependAncestor</span> =&gt; <span class="string">&quot;Can not prepend a node to its descendant&quot;</span>,
         }
     }
 }

@@ -13,8 +13,8 @@ categories = ["data-structures"]
 edition = "2018"
 
 [badges]
-travis-ci = { repository = "saschagrunert/indextree", branch = "master" }
-appveyor = { repository = "saschagrunert/indextree", branch = "master", service = "github" }
+travis-ci = { repository = "saschagrunert/indextree", branch = "main" }
+appveyor = { repository = "saschagrunert/indextree", branch = "main", service = "github" }
 
 [features]
 default = ["std"]

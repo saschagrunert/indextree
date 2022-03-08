@@ -2,10 +2,10 @@
 
 [![GitHub Actions](https://github.com/saschagrunert/indextree/actions/workflows/test.yml/badge.svg)](https://github.com/saschagrunert/indextree/actions/workflows/test.yml)
 [![Build status](https://ci.appveyor.com/api/projects/status/byraapuh9py02us0?svg=true)](https://ci.appveyor.com/project/saschagrunert/indextree)
-[![Coverage](https://codecov.io/gh/saschagrunert/indextree/branch/master/graph/badge.svg)](https://codecov.io/gh/saschagrunert/indextree)
+[![Coverage](https://codecov.io/gh/saschagrunert/indextree/branch/main/graph/badge.svg)](https://codecov.io/gh/saschagrunert/indextree)
 [![Dependency Status](https://deps.rs/repo/github/saschagrunert/indextree/status.svg)](https://deps.rs/repo/github/saschagrunert/indextree)
-[![Doc indextree](https://img.shields.io/badge/master_doc-indextree-blue.svg)](https://saschagrunert.github.io/indextree/doc/indextree)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/saschagrunert/indextree/blob/master/LICENSE)
+[![Doc indextree](https://img.shields.io/badge/main-indextree-blue.svg)](https://saschagrunert.github.io/indextree/doc/indextree)
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/saschagrunert/indextree/blob/main/LICENSE)
 [![Crates.io](https://img.shields.io/crates/v/indextree.svg)](https://crates.io/crates/indextree)
 [![doc.rs](https://docs.rs/indextree/badge.svg)](https://docs.rs/indextree)
 

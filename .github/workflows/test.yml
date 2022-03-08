@@ -4,7 +4,7 @@ on:
     tags:
       - v*
     branches:
-      - master
+      - main
   pull_request:
 jobs:
   build:
@@ -132,7 +132,7 @@ jobs:
           path: target/doc
 
   doc-publish:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: doc
     runs-on: ubuntu-latest
     steps:

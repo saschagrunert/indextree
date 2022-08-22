@@ -260,3 +260,24 @@ fn prepend_ancestor() {
         Err(NodeError::PrependAncestor)
     ));
 }
+
+#[test]
+fn reserve() {
+    let mut arena = Arena::new();
+    arena.new_node(1);
+    arena.reserve(5);
+    assert!(arena.capacity() >= 5);
+}
+
+#[test]
+#[should_panic(expected = "index out of bounds")]
+fn inaccessible_node() {
+    let mut arena = Arena::new();
+    let n1_id = arena.new_node("1");
+    let n2_id = arena.new_node("2");
+    arena.clear();
+    assert!(arena.get(n1_id).is_none());
+    let n1_id = arena.new_node("1");
+    assert_eq!(*arena[n1_id].get(), "1");
+    n2_id.is_removed(&arena);
+}

@@ -39,14 +39,30 @@ impl<T> Arena<T> {
     pub fn new() -> Arena<T> {
         Self::default()
     }
-    
+
     /// Creates a new empty `Arena` with enough capacity to store `n` nodes.
     pub fn with_capacity(n: usize) -> Self {
-         Self {
+        Self {
             nodes: Vec::with_capacity(n),
             first_free_slot: None,
             last_free_slot: None,
-        }  
+        }
+    }
+
+    /// Returns the number of nodes the arena can hold without reallocating.
+    pub fn capacity(&self) -> usize {
+        self.nodes.capacity()
+    }
+
+    /// Reserves capacity for `additional` more nodes to be inserted.
+    ///
+    /// The arena may reserve more space to avoid frequent reallocations.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the new capacity exceeds isize::MAX bytes.
+    pub fn reserve(&mut self, additional: usize) {
+        self.nodes.reserve(additional);
     }
 
     /// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
@@ -261,15 +277,15 @@ impl<T> Arena<T> {
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Node<T>> {
         self.nodes.iter_mut()
     }
-    
+
     /// Clears all the nodes in the arena, but retains its allocated capacity.
     ///
     /// Note that this does not marks all nodes as removed, but completely
     /// removes them from the arena storage, thus invalidating all the node ids
     /// that were previously created.
     ///
-    /// Any attempt to call the [`is_removed()`] method on the node id will result
-    /// in panic behavior.
+    /// Any attempt to call the [`is_removed()`] method on the node id will
+    /// result in panic behavior.
     ///
     /// [`is_removed()`]: struct.NodeId.html#method.is_removed
     pub fn clear(&mut self) {
@@ -367,4 +383,24 @@ fn reuse_node() {
     assert_eq!(n2_id.index0(), 1);
     assert_eq!(n3_id.index0(), 2);
     assert_eq!(arena.nodes.len(), 3);
+}
+
+#[test]
+fn conserve_capacity() {
+    let mut arena = Arena::with_capacity(5);
+    let cap = arena.capacity();
+    assert!(cap >= 5);
+    for i in 0..cap {
+        arena.new_node(i);
+    }
+    arena.clear();
+    assert!(arena.is_empty());
+    let n1_id = arena.new_node(1);
+    let n2_id = arena.new_node(2);
+    let n3_id = arena.new_node(3);
+    assert_eq!(n1_id.index0(), 0);
+    assert_eq!(n2_id.index0(), 1);
+    assert_eq!(n3_id.index0(), 2);
+    assert_eq!(arena.count(), 3);
+    assert_eq!(arena.capacity(), cap);
 }

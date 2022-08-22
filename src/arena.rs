@@ -39,6 +39,15 @@ impl<T> Arena<T> {
     pub fn new() -> Arena<T> {
         Self::default()
     }
+    
+    /// Creates a new empty `Arena` with enough capacity to store `n` nodes.
+    pub fn with_capacity(n: usize) -> Self {
+         Self {
+            nodes: Vec::with_capacity(n),
+            first_free_slot: None,
+            last_free_slot: None,
+        }  
+    }
 
     /// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
     ///
@@ -251,6 +260,22 @@ impl<T> Arena<T> {
     /// [`is_removed()`]: struct.Node.html#method.is_removed
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Node<T>> {
         self.nodes.iter_mut()
+    }
+    
+    /// Clears all the nodes in the arena, but retains its allocated capacity.
+    ///
+    /// Note that this does not marks all nodes as removed, but completely
+    /// removes them from the arena storage, thus invalidating all the node ids
+    /// that were previously created.
+    ///
+    /// Any attempt to call the [`is_removed()`] method on the node id will result
+    /// in panic behavior.
+    ///
+    /// [`is_removed()`]: struct.NodeId.html#method.is_removed
+    pub fn clear(&mut self) {
+        self.nodes.clear();
+        self.first_free_slot = None;
+        self.last_free_slot = None;
     }
 
     pub(crate) fn free_node(&mut self, id: NodeId) {

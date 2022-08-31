@@ -30,6 +30,7 @@ extern crate alloc;
 
 pub use crate::{
     arena::Arena,
+    debug_pretty_print::DebugPrettyPrint,
     error::NodeError,
     id::NodeId,
     node::Node,
@@ -43,6 +44,7 @@ pub use crate::{
 pub(crate) mod relations;
 
 mod arena;
+mod debug_pretty_print;
 pub(crate) mod error;
 mod id;
 mod node;

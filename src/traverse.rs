@@ -186,6 +186,13 @@ impl<'a, T> Traverse<'a, T> {
             }
         }
     }
+
+    /// Returns a reference to the arena.
+    #[inline]
+    #[must_use]
+    pub(crate) fn arena(&self) -> &Arena<T> {
+        self.arena
+    }
 }
 
 impl<'a, T> Iterator for Traverse<'a, T> {

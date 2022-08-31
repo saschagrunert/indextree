@@ -10,9 +10,9 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, num::NonZeroUsize};
 
 use crate::{
-    relations::insert_with_neighbors, siblings_range::SiblingsRange, Ancestors, Arena, Children,
-    Descendants, FollowingSiblings, NodeError, PrecedingSiblings, ReverseChildren, ReverseTraverse,
-    Traverse,
+    debug_pretty_print::DebugPrettyPrint, relations::insert_with_neighbors,
+    siblings_range::SiblingsRange, Ancestors, Arena, Children, Descendants, FollowingSiblings,
+    NodeError, PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
@@ -1038,6 +1038,111 @@ impl NodeId {
                     .and_then(|n| arena[n].next_sibling) // the sibling is the new cursor
             });
         }
+    }
+
+    /// Returns the pretty-printable proxy object to the node and descendants.
+    ///
+    /// # (No) guarantees
+    ///
+    /// This is provided mainly for debugging purpose. Node that the output
+    /// format is not guaranteed to be stable, and any format changes won't be
+    /// considered as breaking changes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// #
+    /// # let mut arena = Arena::new();
+    /// # let root = arena.new_node("root");
+    /// # let n0 = arena.new_node("0");
+    /// # root.append(n0, &mut arena);
+    /// # let n0_0 = arena.new_node("0\n0");
+    /// # n0.append(n0_0, &mut arena);
+    /// # let n0_1 = arena.new_node("0\n1");
+    /// # n0.append(n0_1, &mut arena);
+    /// # let n1 = arena.new_node("1");
+    /// # root.append(n1, &mut arena);
+    /// # let n2 = arena.new_node("2");
+    /// # root.append(n2, &mut arena);
+    /// # let n2_0 = arena.new_node("2\n0");
+    /// # n2.append(n2_0, &mut arena);
+    /// # let n2_0_0 = arena.new_node("2\n0\n0");
+    /// # n2_0.append(n2_0_0, &mut arena);
+    ///
+    /// //  arena
+    /// //  `-- "root"
+    /// //      |-- "0"
+    /// //      |   |-- "0\n0"
+    /// //      |   `-- "0\n1"
+    /// //      |-- "1"
+    /// //      `-- "2"
+    /// //          `-- "2\n0"
+    /// //              `-- "2\n0\n0"
+    ///
+    /// let printable = root.debug_pretty_print(&arena);
+    ///
+    /// let expected_debug = r#""root"
+    /// |-- "0"
+    /// |   |-- "0\n0"
+    /// |   `-- "0\n1"
+    /// |-- "1"
+    /// `-- "2"
+    ///     `-- "2\n0"
+    ///         `-- "2\n0\n0""#;
+    /// assert_eq!(format!("{:?}", printable), expected_debug);
+    ///
+    /// let expected_display = r#"root
+    /// |-- 0
+    /// |   |-- 0
+    /// |   |   0
+    /// |   `-- 0
+    /// |       1
+    /// |-- 1
+    /// `-- 2
+    ///     `-- 2
+    ///         0
+    ///         `-- 2
+    ///             0
+    ///             0"#;
+    /// assert_eq!(printable.to_string(), expected_display);
+    /// ```
+    ///
+    /// Alternate styles (`{:#?}` and `{:#}`) are also supported.
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// #
+    /// # let mut arena = Arena::new();
+    /// # let root = arena.new_node(Ok(42));
+    /// # let child = arena.new_node(Err("err"));
+    /// # root.append(child, &mut arena);
+    ///
+    /// //  arena
+    /// //  `-- Ok(42)
+    /// //      `-- Err("err")
+    ///
+    /// let printable = root.debug_pretty_print(&arena);
+    ///
+    /// let expected_debug = r#"Ok(42)
+    /// `-- Err("err")"#;
+    /// assert_eq!(format!("{:?}", printable), expected_debug);
+    ///
+    /// let expected_debug_alternate = r#"Ok(
+    ///     42,
+    /// )
+    /// `-- Err(
+    ///         "err",
+    ///     )"#;
+    /// assert_eq!(format!("{:#?}", printable), expected_debug_alternate);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn debug_pretty_print<'a, T: fmt::Debug>(
+        &'a self,
+        arena: &'a Arena<T>,
+    ) -> DebugPrettyPrint<'a, T> {
+        DebugPrettyPrint::new(self, arena)
     }
 }
 

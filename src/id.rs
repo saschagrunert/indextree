@@ -1138,10 +1138,7 @@ impl NodeId {
     /// ```
     #[inline]
     #[must_use]
-    pub fn debug_pretty_print<'a, T: fmt::Debug>(
-        &'a self,
-        arena: &'a Arena<T>,
-    ) -> DebugPrettyPrint<'a, T> {
+    pub fn debug_pretty_print<'a, T>(&'a self, arena: &'a Arena<T>) -> DebugPrettyPrint<'a, T> {
         DebugPrettyPrint::new(self, arena)
     }
 }

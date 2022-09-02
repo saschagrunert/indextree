@@ -199,3 +199,22 @@ fn display_alternate() {
     let (arena, root) = sample_tree();
     assert_eq!(format!("{:#}", root.debug_pretty_print(&arena)), EXPECTED);
 }
+
+#[test]
+fn non_debug_printable_type() {
+    #[derive(Clone)]
+    struct NonDebug(i32);
+    impl fmt::Display for NonDebug {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            self.0.fmt(f)
+        }
+    }
+
+    let mut arena = Arena::new();
+    let root = arena.new_node(NonDebug(0));
+    let child = arena.new_node(NonDebug(1));
+    root.append(child, &mut arena);
+
+    const EXPECTED: &str = "0\n`-- 1";
+    assert_eq!(root.debug_pretty_print(&arena).to_string(), EXPECTED);
+}

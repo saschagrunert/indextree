@@ -146,6 +146,86 @@ pub enum NodeEdge {
 
 impl NodeEdge {
     /// Returns the next `NodeEdge` to be returned by forward depth-first traversal.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let steps = std::iter::successors(
+    ///     Some(NodeEdge::Start(n1)),
+    ///     |current| current.next_traverse(&arena)
+    /// )
+    ///     .collect::<Vec<_>>();
+    /// let traversed_by_iter = n1.traverse(&arena).collect::<Vec<_>>();
+    /// assert_eq!(
+    ///     steps,
+    ///     traversed_by_iter,
+    ///     "repeated `.next_traverse()`s emit same events as `NodeId::traverse()` iterator"
+    /// );
+    /// ```
+    ///
+    /// `NodeEdge` itself does not borrow an arena, so you can modify the nodes
+    /// being traversed.
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1".to_owned());
+    /// # let n1_1 = arena.new_node("1_1".to_owned());
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1".to_owned());
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2".to_owned());
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3".to_owned());
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena: Arena<String>
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// assert_eq!(*arena[n1].get(), "1");
+    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1");
+    /// assert_eq!(*arena[n1_3].get(), "1_3");
+    ///
+    /// let mut next = Some(NodeEdge::Start(n1));
+    /// let mut count = 0;
+    /// while let Some(current) = next {
+    ///     next = current.next_traverse(&arena);
+    ///     let current = match current {
+    ///         NodeEdge::Start(id) => id,
+    ///         NodeEdge::End(_) => continue,
+    ///     };
+    ///
+    ///     arena[current].get_mut().push_str(&format!(" (count={})", count));
+    ///     count += 1;
+    /// }
+    ///
+    /// assert_eq!(*arena[n1].get(), "1 (count=0)");
+    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1 (count=2)");
+    /// assert_eq!(*arena[n1_3].get(), "1_3 (count=4)");
+    /// ```
     #[must_use]
     pub fn next_traverse<T>(self, arena: &Arena<T>) -> Option<Self> {
         match self {
@@ -167,6 +247,88 @@ impl NodeEdge {
     }
 
     /// Returns the previous `NodeEdge` to be returned by forward depth-first traversal.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let steps = std::iter::successors(
+    ///     Some(NodeEdge::End(n1)),
+    ///     |current| current.prev_traverse(&arena)
+    /// )
+    ///     .collect::<Vec<_>>();
+    /// let traversed_by_iter = n1.reverse_traverse(&arena).collect::<Vec<_>>();
+    /// assert_eq!(
+    ///     steps,
+    ///     traversed_by_iter,
+    ///     "repeated `.prev_traverse()`s emit same events as \
+    ///      `NodeId::reverse_traverse()` iterator"
+    /// );
+    /// ```
+    ///
+    /// `NodeEdge` itself does not borrow an arena, so you can modify the nodes
+    /// being traversed.
+    ///
+    /// ```
+    /// use indextree::{Arena, NodeEdge};
+    ///
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1".to_owned());
+    /// # let n1_1 = arena.new_node("1_1".to_owned());
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1".to_owned());
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2".to_owned());
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3".to_owned());
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena: Arena<String>
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// assert_eq!(*arena[n1_3].get(), "1_3");
+    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1");
+    /// assert_eq!(*arena[n1].get(), "1");
+    ///
+    /// let mut next = Some(NodeEdge::End(n1_3));
+    /// let mut count = 0;
+    /// while let Some(current) = next {
+    ///     next = current.prev_traverse(&arena);
+    ///     let current = match current {
+    ///         NodeEdge::Start(id) => id,
+    ///         NodeEdge::End(_) => continue,
+    ///     };
+    ///
+    ///     arena[current].get_mut().push_str(&format!(" (count={})", count));
+    ///     count += 1;
+    /// }
+    ///
+    /// assert_eq!(*arena[n1_3].get(), "1_3 (count=0)");
+    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1 (count=2)");
+    /// assert_eq!(*arena[n1].get(), "1 (count=4)");
+    /// ```
     #[must_use]
     pub fn prev_traverse<T>(self, arena: &Arena<T>) -> Option<Self> {
         match self {

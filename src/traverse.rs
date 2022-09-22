@@ -144,6 +144,50 @@ pub enum NodeEdge {
     End(NodeId),
 }
 
+impl NodeEdge {
+    /// Returns the next `NodeEdge` to be returned by forward depth-first traversal.
+    #[must_use]
+    pub fn next_traverse<T>(self, arena: &Arena<T>) -> Option<Self> {
+        match self {
+            NodeEdge::Start(node) => match arena[node].first_child {
+                Some(first_child) => Some(NodeEdge::Start(first_child)),
+                None => Some(NodeEdge::End(node)),
+            },
+            NodeEdge::End(node) => {
+                let node = &arena[node];
+                match node.next_sibling {
+                    Some(next_sibling) => Some(NodeEdge::Start(next_sibling)),
+                    // `node.parent()` here can only be `None` if the tree has
+                    // been modified during iteration, but silently stoping
+                    // iteration seems a more sensible behavior than panicking.
+                    None => node.parent.map(NodeEdge::End),
+                }
+            }
+        }
+    }
+
+    /// Returns the previous `NodeEdge` to be returned by forward depth-first traversal.
+    #[must_use]
+    pub fn prev_traverse<T>(self, arena: &Arena<T>) -> Option<Self> {
+        match self {
+            NodeEdge::End(node) => match arena[node].last_child {
+                Some(last_child) => Some(NodeEdge::End(last_child)),
+                None => Some(NodeEdge::Start(node)),
+            },
+            NodeEdge::Start(node) => {
+                let node = &arena[node];
+                match node.previous_sibling {
+                    Some(previous_sibling) => Some(NodeEdge::End(previous_sibling)),
+                    // `node.parent()` here can only be `None` if the tree has
+                    // been modified during iteration, but silently stoping
+                    // iteration seems a more sensible behavior than panicking.
+                    None => node.parent.map(NodeEdge::Start),
+                }
+            }
+        }
+    }
+}
+
 #[derive(Clone)]
 /// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
 /// where node sides are visited start to end and children are visited in insertion order.
@@ -166,25 +210,10 @@ impl<'a, T> Traverse<'a, T> {
 
     /// Calculates the next node.
     fn next_of_next(&self, next: NodeEdge) -> Option<NodeEdge> {
-        match next {
-            NodeEdge::Start(node) => match self.arena[node].first_child {
-                Some(first_child) => Some(NodeEdge::Start(first_child)),
-                None => Some(NodeEdge::End(node)),
-            },
-            NodeEdge::End(node) => {
-                if node == self.root {
-                    return None;
-                }
-                let node = &self.arena[node];
-                match node.next_sibling {
-                    Some(next_sibling) => Some(NodeEdge::Start(next_sibling)),
-                    // `node.parent()` here can only be `None` if the tree has
-                    // been modified during iteration, but silently stoping
-                    // iteration seems a more sensible behavior than panicking.
-                    None => node.parent.map(NodeEdge::End),
-                }
-            }
+        if next == NodeEdge::End(self.root) {
+            return None;
         }
+        next.next_traverse(self.arena)
     }
 
     /// Returns a reference to the arena.
@@ -229,25 +258,10 @@ impl<'a, T> ReverseTraverse<'a, T> {
 
     /// Calculates the next node.
     fn next_of_next(&self, next: NodeEdge) -> Option<NodeEdge> {
-        match next {
-            NodeEdge::End(node) => match self.arena[node].last_child {
-                Some(last_child) => Some(NodeEdge::End(last_child)),
-                None => Some(NodeEdge::Start(node)),
-            },
-            NodeEdge::Start(node) => {
-                if node == self.root {
-                    return None;
-                }
-                let node = &self.arena[node];
-                match node.previous_sibling {
-                    Some(previous_sibling) => Some(NodeEdge::End(previous_sibling)),
-                    // `node.parent()` here can only be `None` if the tree has
-                    // been modified during iteration, but silently stoping
-                    // iteration seems a more sensible behavior than panicking.
-                    None => node.parent.map(NodeEdge::Start),
-                }
-            }
+        if next == NodeEdge::Start(self.root) {
+            return None;
         }
+        next.prev_traverse(self.arena)
     }
 }
 

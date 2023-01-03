@@ -19,7 +19,7 @@ macro_rules! impl_node_iterator {
 }
 
 #[derive(Clone)]
-/// An iterator of the IDs of the ancestors a given node.
+/// An iterator of the IDs of the ancestors of a given node.
 pub struct Ancestors<'a, T> {
     arena: &'a Arena<T>,
     node: Option<NodeId>,
@@ -27,6 +27,25 @@ pub struct Ancestors<'a, T> {
 impl_node_iterator!(Ancestors, |node: &Node<T>| node.parent);
 
 impl<'a, T> Ancestors<'a, T> {
+    pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
+        Self {
+            arena,
+            node: Some(current),
+        }
+    }
+}
+
+#[derive(Clone)]
+/// An iterator of the IDs of the predecessors of a given node.
+pub struct Predecessors<'a, T> {
+    arena: &'a Arena<T>,
+    node: Option<NodeId>,
+}
+impl_node_iterator!(Predecessors, |node: &Node<T>| {
+    node.previous_sibling.or(node.parent)
+});
+
+impl<'a, T> Predecessors<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
         Self {
             arena,

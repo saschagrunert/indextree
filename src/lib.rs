@@ -36,7 +36,7 @@ pub use crate::{
     node::Node,
     traverse::{
         Ancestors, Children, Descendants, FollowingSiblings, NodeEdge, PrecedingSiblings,
-        ReverseChildren, ReverseTraverse, Traverse,
+        Predecessors, ReverseChildren, ReverseTraverse, Traverse,
     },
 };
 

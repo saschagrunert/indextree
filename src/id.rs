@@ -12,7 +12,7 @@ use std::{fmt, num::NonZeroUsize};
 use crate::{
     debug_pretty_print::DebugPrettyPrint, relations::insert_with_neighbors,
     siblings_range::SiblingsRange, Ancestors, Arena, Children, Descendants, FollowingSiblings,
-    NodeError, PrecedingSiblings, ReverseChildren, ReverseTraverse, Traverse,
+    NodeError, PrecedingSiblings, Predecessors, ReverseChildren, ReverseTraverse, Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
@@ -122,17 +122,17 @@ impl NodeId {
     /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
-    /// // `-- 1
-    /// //     |-- 1_1
-    /// //     |   `-- 1_1_1
+    /// // `-- 1                                                // #3
+    /// //     |-- 1_1                                          // #2
+    /// //     |   `-- 1_1_1 *                                  // #1
     /// //     |       `-- 1_1_1_1
     /// //     _-- 1_2
     /// //     `-- 1_3
     ///
     /// let mut iter = n1_1_1.ancestors(&arena);
-    /// assert_eq!(iter.next(), Some(n1_1_1));
-    /// assert_eq!(iter.next(), Some(n1_1));
-    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1_1));                  // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
+    /// assert_eq!(iter.next(), Some(n1));                      // #3
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
@@ -141,8 +141,83 @@ impl NodeId {
         Ancestors::new(arena, self)
     }
 
-    /// Returns an iterator of IDs of this node and the siblings before
-    /// it.
+    /// Returns an iterator of IDs of this node and its predecessors.
+    ///
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_1_1 = arena.new_node("1_1_1");
+    /// # n1_1.append(n1_1_1, &mut arena);
+    /// # let n1_1_1_1 = arena.new_node("1_1_1_1");
+    /// # n1_1_1.append(n1_1_1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #3
+    /// //     |-- 1_1                                          // #2
+    /// //     |   `-- 1_1_1 *                                  // #1
+    /// //     |       `-- 1_1_1_1
+    /// //     _-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1_1_1.predecessors(&arena);
+    /// assert_eq!(iter.next(), Some(n1_1_1));                  // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
+    /// assert_eq!(iter.next(), Some(n1));                      // #3
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_2_1 = arena.new_node("1_2_1");
+    /// # n1_2.append(n1_2_1, &mut arena);
+    /// # let n1_2_1_1 = arena.new_node("1_2_1_1");
+    /// # n1_2_1.append(n1_2_1_1, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// # let n1_4 = arena.new_node("1_4");
+    /// # n1.append(n1_4, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #4
+    /// //     |-- 1_1                                          // #3
+    /// //     |-- 1_2                                          // #2
+    /// //     |   `-- 1_2_1 *                                  // #1
+    /// //     |       `-- 1_2_1_1
+    /// //     _-- 1_3
+    /// //     `-- 1_4
+    ///
+    /// let mut iter = n1_2_1.predecessors(&arena);
+    /// assert_eq!(iter.next(), Some(n1_2_1));                  // #1
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #3
+    /// assert_eq!(iter.next(), Some(n1));                      // #4
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    pub fn predecessors<T>(self, arena: &Arena<T>) -> Predecessors<'_, T> {
+        Predecessors::new(arena, self)
+    }
+
+    /// Returns an iterator of IDs of this node and the siblings before it.
     ///
     /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
     /// the node itself.
@@ -164,14 +239,14 @@ impl NodeId {
     /// #
     /// // arena
     /// // `-- 1
-    /// //     |-- 1_1
+    /// //     |-- 1_1                                          // #2
     /// //     |   `-- 1_1_1
-    /// //     |-- 1_2
+    /// //     |-- 1_2                                          // #1
     /// //     `-- 1_3
     ///
     /// let mut iter = n1_2.preceding_siblings(&arena);
-    /// assert_eq!(iter.next(), Some(n1_2));
-    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
@@ -205,12 +280,12 @@ impl NodeId {
     /// // `-- 1
     /// //     |-- 1_1
     /// //     |   `-- 1_1_1
-    /// //     |-- 1_2
-    /// //     `-- 1_3
+    /// //     |-- 1_2                                          // #1
+    /// //     `-- 1_3                                          // #2
     ///
     /// let mut iter = n1_2.following_siblings(&arena);
-    /// assert_eq!(iter.next(), Some(n1_2));
-    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #2
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
@@ -238,15 +313,15 @@ impl NodeId {
     /// #
     /// // arena
     /// // `-- 1
-    /// //     |-- 1_1
+    /// //     |-- 1_1                                          // #1
     /// //     |   `-- 1_1_1
-    /// //     |-- 1_2
-    /// //     `-- 1_3
+    /// //     |-- 1_2                                          // #2
+    /// //     `-- 1_3                                          // #3
     ///
     /// let mut iter = n1.children(&arena);
-    /// assert_eq!(iter.next(), Some(n1_1));
-    /// assert_eq!(iter.next(), Some(n1_2));
-    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #3
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn children<T>(self, arena: &Arena<T>) -> Children<'_, T> {
@@ -273,15 +348,15 @@ impl NodeId {
     /// #
     /// // arena
     /// // `-- 1
-    /// //     |-- 1_1
+    /// //     |-- 1_1                                          // #3
     /// //     |   `-- 1_1_1
-    /// //     |-- 1_2
-    /// //     `-- 1_3
+    /// //     |-- 1_2                                          // #2
+    /// //     `-- 1_3                                          // #1
     ///
     /// let mut iter = n1.reverse_children(&arena);
-    /// assert_eq!(iter.next(), Some(n1_3));
-    /// assert_eq!(iter.next(), Some(n1_2));
-    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #3
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<'_, T> {
@@ -314,20 +389,20 @@ impl NodeId {
     /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
-    /// // `-- 1
-    /// //     |-- 1_1
-    /// //     |   `-- 1_1_1
-    /// //     |       `-- 1_1_1_1
-    /// //     |-- 1_2
-    /// //     `-- 1_3
+    /// // `-- 1                                                // #1
+    /// //     |-- 1_1                                          // #2
+    /// //     |   `-- 1_1_1                                    // #3
+    /// //     |       `-- 1_1_1_1                              // #4
+    /// //     |-- 1_2                                          // #5
+    /// //     `-- 1_3                                          // #6
     ///
     /// let mut iter = n1.descendants(&arena);
-    /// assert_eq!(iter.next(), Some(n1));
-    /// assert_eq!(iter.next(), Some(n1_1));
-    /// assert_eq!(iter.next(), Some(n1_1_1));
-    /// assert_eq!(iter.next(), Some(n1_1_1_1));
-    /// assert_eq!(iter.next(), Some(n1_2));
-    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1));                      // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_1_1));                  // #3
+    /// assert_eq!(iter.next(), Some(n1_1_1_1));                // #4
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #5
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #6
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
@@ -357,23 +432,23 @@ impl NodeId {
     /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
-    /// // `-- 1
-    /// //     |-- 1_1
-    /// //     |   `-- 1_1_1
-    /// //     |-- 1_2
-    /// //     `-- 1_3
+    /// // `-- 1                                                // #1, #10
+    /// //     |-- 1_1                                          // #2, #5
+    /// //     |   `-- 1_1_1                                    // #3, #4
+    /// //     |-- 1_2                                          // #6, #7
+    /// //     `-- 1_3                                          // #8, #9
     ///
     /// let mut iter = n1.traverse(&arena);
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));     // #1
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));   // #2
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1))); // #3
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));   // #4
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));     // #5
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));   // #6
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));     // #7
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));   // #8
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));     // #9
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));       // #10
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn traverse<T>(self, arena: &Arena<T>) -> Traverse<'_, T> {
@@ -401,23 +476,23 @@ impl NodeId {
     /// # n1.append(n1_3, &mut arena);
     /// #
     /// // arena
-    /// // `-- 1
-    /// //     |-- 1_1
-    /// //     |   `-- 1_1_1
-    /// //     |-- 1_2
-    /// //     `-- 1_3
+    /// // `-- 1                                                // #1, #10
+    /// //     |-- 1_1                                          // #6, #9
+    /// //     |   `-- 1_1_1                                    // #7, #8
+    /// //     |-- 1_2                                          // #4, #5
+    /// //     `-- 1_3                                          // #2, #3
     ///
     /// let mut iter = n1.reverse_traverse(&arena);
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));
-    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));       // #1
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));     // #2
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));   // #3
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));     // #4
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));   // #5
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));     // #6
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));   // #7
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1))); // #8
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));   // #9
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));     // #10
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
@@ -434,13 +509,12 @@ impl NodeId {
     /// # let n1_3 = arena.new_node("1_3");
     /// # n1.append(n1_3, &mut arena);
     /// #
-    /// # // arena
-    /// # // `-- 1
-    /// # //     |-- 1_1
-    /// # //     |   `-- 1_1_1
-    /// # //     |-- 1_2
-    /// # //     `-- 1_3
-    /// #
+    /// // arena
+    /// // `-- 1                                                // #1, #10
+    /// //     |-- 1_1                                          // #6, #9
+    /// //     |   `-- 1_1_1                                    // #7, #8
+    /// //     |-- 1_2                                          // #4, #5
+    /// //     `-- 1_3                                          // #2, #3
     /// let traverse = n1.traverse(&arena).collect::<Vec<_>>();
     /// let mut reverse = n1.reverse_traverse(&arena).collect::<Vec<_>>();
     /// reverse.reverse();
@@ -483,7 +557,7 @@ impl NodeId {
     /// // |       |   `-- 1_1_1
     /// // |       `-- 1_3
     /// // `-- (implicit)
-    /// //     `-- 1_2
+    /// //     `-- 1_2 *
     ///
     /// assert!(arena[n1_2].parent().is_none());
     /// assert!(arena[n1_2].previous_sibling().is_none());
@@ -724,7 +798,7 @@ impl NodeId {
     /// #
     /// // arena
     /// // `-- 1
-    /// //     |-- 1_1
+    /// //     |-- 1_1 *
     /// //     `-- 1_2
     ///
     /// let n1_3 = arena.new_node("1_3");
@@ -733,7 +807,7 @@ impl NodeId {
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
-    /// //     |-- 1_3
+    /// //     |-- 1_3 *
     /// //     `-- 1_2
     ///
     /// let mut iter = n1.descendants(&arena);
@@ -825,7 +899,7 @@ impl NodeId {
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
-    /// //     `-- 1_2
+    /// //     `-- 1_2 *
     ///
     /// let n1_3 = arena.new_node("1_3");
     /// n1_2.insert_before(n1_3, &mut arena);
@@ -833,7 +907,7 @@ impl NodeId {
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
-    /// //     |-- 1_3
+    /// //     |-- 1_3 *
     /// //     `-- 1_2
     ///
     /// let mut iter = n1.descendants(&arena);
@@ -931,12 +1005,19 @@ impl NodeId {
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
-    /// //     |-- 1_2
+    /// //     |-- 1_2 *
     /// //     |   |-- 1_2_1
     /// //     |   `-- 1_2_2
     /// //     `-- 1_3
     ///
     /// n1_2.remove(&mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2_1
+    /// //     |-- 1_2_2
+    /// //     `-- 1_3
     ///
     /// let mut iter = n1.descendants(&arena);
     /// assert_eq!(iter.next(), Some(n1));
@@ -1009,12 +1090,17 @@ impl NodeId {
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
-    /// //     |-- 1_2
+    /// //     |-- 1_2 *
     /// //     |   |-- 1_2_1
     /// //     |   `-- 1_2_2
     /// //     `-- 1_3
     ///
     /// n1_2.remove_subtree(&mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     `-- 1_3
     ///
     /// let mut iter = n1.descendants(&arena);
     /// assert_eq!(iter.next(), Some(n1));

@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/id.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>id.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/id.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>id.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1194,1196 +1188,1367 @@
 <span id="1188">1188</span>
 <span id="1189">1189</span>
 <span id="1190">1190</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Node ID.</span>
+<span id="1191">1191</span>
+<span id="1192">1192</span>
+<span id="1193">1193</span>
+<span id="1194">1194</span>
+<span id="1195">1195</span>
+<span id="1196">1196</span>
+<span id="1197">1197</span>
+<span id="1198">1198</span>
+<span id="1199">1199</span>
+<span id="1200">1200</span>
+<span id="1201">1201</span>
+<span id="1202">1202</span>
+<span id="1203">1203</span>
+<span id="1204">1204</span>
+<span id="1205">1205</span>
+<span id="1206">1206</span>
+<span id="1207">1207</span>
+<span id="1208">1208</span>
+<span id="1209">1209</span>
+<span id="1210">1210</span>
+<span id="1211">1211</span>
+<span id="1212">1212</span>
+<span id="1213">1213</span>
+<span id="1214">1214</span>
+<span id="1215">1215</span>
+<span id="1216">1216</span>
+<span id="1217">1217</span>
+<span id="1218">1218</span>
+<span id="1219">1219</span>
+<span id="1220">1220</span>
+<span id="1221">1221</span>
+<span id="1222">1222</span>
+<span id="1223">1223</span>
+<span id="1224">1224</span>
+<span id="1225">1225</span>
+<span id="1226">1226</span>
+<span id="1227">1227</span>
+<span id="1228">1228</span>
+<span id="1229">1229</span>
+<span id="1230">1230</span>
+<span id="1231">1231</span>
+<span id="1232">1232</span>
+<span id="1233">1233</span>
+<span id="1234">1234</span>
+<span id="1235">1235</span>
+<span id="1236">1236</span>
+<span id="1237">1237</span>
+<span id="1238">1238</span>
+<span id="1239">1239</span>
+<span id="1240">1240</span>
+<span id="1241">1241</span>
+<span id="1242">1242</span>
+<span id="1243">1243</span>
+<span id="1244">1244</span>
+<span id="1245">1245</span>
+<span id="1246">1246</span>
+<span id="1247">1247</span>
+<span id="1248">1248</span>
+<span id="1249">1249</span>
+<span id="1250">1250</span>
+<span id="1251">1251</span>
+<span id="1252">1252</span>
+<span id="1253">1253</span>
+<span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Node ID.
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">core</span>::{<span class="ident">fmt</span>, <span class="ident">num::NonZeroUsize</span>};
+</span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">use </span>core::{fmt, num::NonZeroUsize};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deser&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;deser&quot;</span>)]
+</span><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">num::NonZeroUsize</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::{fmt, num::NonZeroUsize};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">debug_pretty_print::DebugPrettyPrint</span>, <span class="ident">relations::insert_with_neighbors</span>,
-    <span class="ident">siblings_range::SiblingsRange</span>, <span class="ident">Ancestors</span>, <span class="ident">Arena</span>, <span class="ident">Children</span>, <span class="ident">Descendants</span>, <span class="ident">FollowingSiblings</span>,
-    <span class="ident">NodeError</span>, <span class="ident">PrecedingSiblings</span>, <span class="ident">ReverseChildren</span>, <span class="ident">ReverseTraverse</span>, <span class="ident">Traverse</span>,
+<span class="kw">use crate</span>::{
+    debug_pretty_print::DebugPrettyPrint, relations::insert_with_neighbors,
+    siblings_range::SiblingsRange, Ancestors, Arena, Children, Descendants, FollowingSiblings,
+    NodeError, PrecedingSiblings, Predecessors, ReverseChildren, ReverseTraverse, Traverse,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deser&quot;</span>, <span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>))]</span>
-<span class="doccomment">/// A node identifier within a particular [`Arena`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This ID is used to get [`Node`] references from an [`Arena`].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`Arena`]: struct.Arena.html</span>
-<span class="doccomment">/// [`Node`]: struct.Node.html</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NodeId</span> {
-    <span class="doccomment">/// One-based index.</span>
-    <span class="ident">index1</span>: <span class="ident">NonZeroUsize</span>,
-    <span class="ident">stamp</span>: <span class="ident">NodeStamp</span>,
+<span class="attribute">#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
+#[cfg_attr(feature = <span class="string">&quot;deser&quot;</span>, derive(Deserialize, Serialize))]
+</span><span class="doccomment">/// A node identifier within a particular [`Arena`].
+///
+/// This ID is used to get [`Node`] references from an [`Arena`].
+///
+/// [`Arena`]: struct.Arena.html
+/// [`Node`]: struct.Node.html
+</span><span class="kw">pub struct </span>NodeId {
+    <span class="doccomment">/// One-based index.
+    </span>index1: NonZeroUsize,
+    stamp: NodeStamp,
 }
 
-<span class="doccomment">/// A stamp for node reuse, use to detect if the node of a `NodeId` point to</span>
-<span class="doccomment">/// is still the same node.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>, <span class="ident">Default</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deser&quot;</span>, <span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>))]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">NodeStamp</span>(<span class="ident">i16</span>);
+<span class="doccomment">/// A stamp for node reuse, use to detect if the node of a `NodeId` point to
+/// is still the same node.
+</span><span class="attribute">#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
+#[cfg_attr(feature = <span class="string">&quot;deser&quot;</span>, derive(Deserialize, Serialize))]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>NodeStamp(i16);
 
-<span class="kw">impl</span> <span class="ident">NodeStamp</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_removed</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_negative</span>()
+<span class="kw">impl </span>NodeStamp {
+    <span class="kw">pub fn </span>is_removed(<span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0</span>.is_negative()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_removed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="macro">debug_assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">is_removed</span>());
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="ident">i16::MAX</span> {
-            <span class="op">-</span><span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="number">1</span>
-        } <span class="kw">else</span> {
-            <span class="op">-</span><span class="self">self</span>.<span class="number">0</span>
+    <span class="kw">pub fn </span>as_removed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="macro">debug_assert!</span>(!<span class="self">self</span>.is_removed());
+        <span class="self">self</span>.<span class="number">0 </span>= <span class="kw">if </span><span class="self">self</span>.<span class="number">0 </span>&lt; i16::MAX {
+            -<span class="self">self</span>.<span class="number">0 </span>- <span class="number">1
+        </span>} <span class="kw">else </span>{
+            -<span class="self">self</span>.<span class="number">0
+        </span>};
+    }
+
+    <span class="kw">pub fn </span>reuseable(<span class="self">self</span>) -&gt; bool {
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_removed());
+        <span class="self">self</span>.<span class="number">0 </span>&gt; i16::MIN
+    }
+
+    <span class="kw">pub fn </span>reuse(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">debug_assert!</span>(<span class="self">self</span>.reuseable());
+        <span class="self">self</span>.<span class="number">0 </span>= -<span class="self">self</span>.<span class="number">0</span>;
+        <span class="kw-2">*</span><span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>NodeId {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.index1)
+    }
+}
+
+<span class="attribute">#[allow(clippy::from_over_into)]
+</span><span class="kw">impl </span>Into&lt;NonZeroUsize&gt; <span class="kw">for </span>NodeId {
+    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; NonZeroUsize {
+        <span class="self">self</span>.index1
+    }
+}
+
+<span class="attribute">#[allow(clippy::from_over_into)]
+</span><span class="kw">impl </span>Into&lt;usize&gt; <span class="kw">for </span>NodeId {
+    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.index1.get()
+    }
+}
+
+<span class="kw">impl </span>NodeId {
+    <span class="doccomment">/// Returns zero-based index.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>index0(<span class="self">self</span>) -&gt; usize {
+        <span class="comment">// This is totally safe because `self.index1 &gt;= 1` is guaranteed by
+        // `NonZeroUsize` type.
+        </span><span class="self">self</span>.index1.get() - <span class="number">1
+    </span>}
+
+    <span class="doccomment">/// Creates a new `NodeId` from the given one-based index.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_non_zero_usize(index1: NonZeroUsize, stamp: NodeStamp) -&gt; <span class="self">Self </span>{
+        NodeId { index1, stamp }
+    }
+
+    <span class="doccomment">/// Return if the `Node` of NodeId point to is removed.
+    </span><span class="kw">pub fn </span>is_removed&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; bool {
+        arena[<span class="self">self</span>].stamp != <span class="self">self</span>.stamp
+    }
+
+    <span class="doccomment">/// Returns an iterator of IDs of this node and its ancestors.
+    ///
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_1_1_1 = arena.new_node(&quot;1_1_1_1&quot;);
+    /// # n1_1_1.append(n1_1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #3
+    /// //     |-- 1_1                                          // #2
+    /// //     |   `-- 1_1_1 *                                  // #1
+    /// //     |       `-- 1_1_1_1
+    /// //     _-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1_1_1.ancestors(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1_1_1));                  // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
+    /// assert_eq!(iter.next(), Some(n1));                      // #3
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    </span><span class="kw">pub fn </span>ancestors&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; Ancestors&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        Ancestors::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator of IDs of this node and its predecessors.
+    ///
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_1_1_1 = arena.new_node(&quot;1_1_1_1&quot;);
+    /// # n1_1_1.append(n1_1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #3
+    /// //     |-- 1_1                                          // #2
+    /// //     |   `-- 1_1_1 *                                  // #1
+    /// //     |       `-- 1_1_1_1
+    /// //     _-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1_1_1.predecessors(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1_1_1));                  // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
+    /// assert_eq!(iter.next(), Some(n1));                      // #3
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_2_1 = arena.new_node(&quot;1_2_1&quot;);
+    /// # n1_2.append(n1_2_1, &amp;mut arena);
+    /// # let n1_2_1_1 = arena.new_node(&quot;1_2_1_1&quot;);
+    /// # n1_2_1.append(n1_2_1_1, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// # let n1_4 = arena.new_node(&quot;1_4&quot;);
+    /// # n1.append(n1_4, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #4
+    /// //     |-- 1_1                                          // #3
+    /// //     |-- 1_2                                          // #2
+    /// //     |   `-- 1_2_1 *                                  // #1
+    /// //     |       `-- 1_2_1_1
+    /// //     _-- 1_3
+    /// //     `-- 1_4
+    ///
+    /// let mut iter = n1_2_1.predecessors(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1_2_1));                  // #1
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #3
+    /// assert_eq!(iter.next(), Some(n1));                      // #4
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    </span><span class="kw">pub fn </span>predecessors&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; Predecessors&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        Predecessors::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator of IDs of this node and the siblings before it.
+    ///
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1                                          // #2
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2                                          // #1
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1_2.preceding_siblings(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    </span><span class="kw">pub fn </span>preceding_siblings&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; PrecedingSiblings&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        PrecedingSiblings::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator of IDs of this node and the siblings after
+    /// it.
+    ///
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2                                          // #1
+    /// //     `-- 1_3                                          // #2
+    ///
+    /// let mut iter = n1_2.following_siblings(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #2
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    </span><span class="kw">pub fn </span>following_siblings&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; FollowingSiblings&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        FollowingSiblings::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator of IDs of this node’s children.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1                                          // #1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2                                          // #2
+    /// //     `-- 1_3                                          // #3
+    ///
+    /// let mut iter = n1.children(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #3
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    </span><span class="kw">pub fn </span>children&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; Children&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        Children::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator of IDs of this node’s children, in reverse
+    /// order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1                                          // #3
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2                                          // #2
+    /// //     `-- 1_3                                          // #1
+    ///
+    /// let mut iter = n1.reverse_children(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #1
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #3
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    </span><span class="kw">pub fn </span>reverse_children&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; ReverseChildren&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        ReverseChildren::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.
+    ///
+    /// i.e. node -&gt; first child -&gt; second child
+    ///
+    /// Parent nodes appear before the descendants.
+    /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip
+    /// the node itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_1_1_1 = arena.new_node(&quot;1_1_1_1&quot;);
+    /// # n1_1_1.append(n1_1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #1
+    /// //     |-- 1_1                                          // #2
+    /// //     |   `-- 1_1_1                                    // #3
+    /// //     |       `-- 1_1_1_1                              // #4
+    /// //     |-- 1_2                                          // #5
+    /// //     `-- 1_3                                          // #6
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));                      // #1
+    /// assert_eq!(iter.next(), Some(n1_1));                    // #2
+    /// assert_eq!(iter.next(), Some(n1_1_1));                  // #3
+    /// assert_eq!(iter.next(), Some(n1_1_1_1));                // #4
+    /// assert_eq!(iter.next(), Some(n1_2));                    // #5
+    /// assert_eq!(iter.next(), Some(n1_3));                    // #6
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip
+    </span><span class="kw">pub fn </span>descendants&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; Descendants&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        Descendants::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,
+    /// where node sides are visited start to end and children are visited in insertion order.
+    ///
+    /// i.e. node.start -&gt; first child -&gt; second child -&gt; node.end
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #1, #10
+    /// //     |-- 1_1                                          // #2, #5
+    /// //     |   `-- 1_1_1                                    // #3, #4
+    /// //     |-- 1_2                                          // #6, #7
+    /// //     `-- 1_3                                          // #8, #9
+    ///
+    /// let mut iter = n1.traverse(&amp;arena);
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));     // #1
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));   // #2
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1))); // #3
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));   // #4
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));     // #5
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));   // #6
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));     // #7
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));   // #8
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));     // #9
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));       // #10
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    </span><span class="kw">pub fn </span>traverse&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; Traverse&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        Traverse::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,
+    /// where nodes are visited end to start and children are visited in reverse insertion order.
+    ///
+    /// i.e. node.end -&gt; second child -&gt; first child -&gt; node.start
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #1, #10
+    /// //     |-- 1_1                                          // #6, #9
+    /// //     |   `-- 1_1_1                                    // #7, #8
+    /// //     |-- 1_2                                          // #4, #5
+    /// //     `-- 1_3                                          // #2, #3
+    ///
+    /// let mut iter = n1.reverse_traverse(&amp;arena);
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));       // #1
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));     // #2
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));   // #3
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));     // #4
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));   // #5
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));     // #6
+    /// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));   // #7
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1))); // #8
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));   // #9
+    /// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));     // #10
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1                                                // #1, #10
+    /// //     |-- 1_1                                          // #6, #9
+    /// //     |   `-- 1_1_1                                    // #7, #8
+    /// //     |-- 1_2                                          // #4, #5
+    /// //     `-- 1_3                                          // #2, #3
+    /// let traverse = n1.traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();
+    /// let mut reverse = n1.reverse_traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();
+    /// reverse.reverse();
+    /// assert_eq!(traverse, reverse);
+    /// ```
+    </span><span class="kw">pub fn </span>reverse_traverse&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; ReverseTraverse&lt;<span class="lifetime">&#39;_</span>, T&gt; {
+        ReverseTraverse::new(arena, <span class="self">self</span>)
+    }
+
+    <span class="doccomment">/// Detaches a node from its parent and siblings. Children are not affected.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- (implicit)
+    /// //     `-- 1
+    /// //         |-- 1_1
+    /// //         |   `-- 1_1_1
+    /// //         |-- 1_2 *
+    /// //         `-- 1_3
+    ///
+    /// n1_2.detach(&amp;mut arena);
+    /// // arena
+    /// // |-- (implicit)
+    /// // |   `-- 1
+    /// // |       |-- 1_1
+    /// // |       |   `-- 1_1_1
+    /// // |       `-- 1_3
+    /// // `-- (implicit)
+    /// //     `-- 1_2 *
+    ///
+    /// assert!(arena[n1_2].parent().is_none());
+    /// assert!(arena[n1_2].previous_sibling().is_none());
+    /// assert!(arena[n1_2].next_sibling().is_none());
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    </span><span class="kw">pub fn </span>detach&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) {
+        <span class="kw">let </span>range = SiblingsRange::new(<span class="self">self</span>, <span class="self">self</span>).detach_from_siblings(arena);
+        range
+            .rewrite_parents(arena, <span class="prelude-val">None</span>)
+            .expect(<span class="string">&quot;Should never happen: `None` as parent is always valid&quot;</span>);
+
+        <span class="comment">// Ensure the node is surely detached.
+        </span><span class="macro">debug_assert!</span>(
+            arena[<span class="self">self</span>].is_detached(),
+            <span class="string">&quot;The node should be successfully detached&quot;
+        </span>);
+    }
+
+    <span class="doccomment">/// Appends a new child to this node, after existing children.
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    ///
+    /// * the given new child is `self`, or
+    /// * the given new child is an ancestor of `self`, or
+    /// * the current node or the given new child was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node(&quot;1&quot;);
+    /// let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// n1.append(n1_1, &amp;mut arena);
+    /// let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// n1.append(n1_2, &amp;mut arena);
+    /// let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// n1.append(n1_3, &amp;mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>append&lt;T&gt;(<span class="self">self</span>, new_child: NodeId, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) {
+        <span class="self">self</span>.checked_append(new_child, arena)
+            .expect(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
+    }
+
+    <span class="doccomment">/// Appends a new child to this node, after existing children.
+    ///
+    /// # Failures
+    ///
+    /// * Returns [`NodeError::AppendSelf`] error if the given new child is
+    ///   `self`.
+    /// * Returns [`NodeError::AppendAncestor`] error if the given new child is
+    ///   an ancestor of `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new child or `self`
+    ///   is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node(&quot;1&quot;);
+    /// assert!(n1.checked_append(n1, &amp;mut arena).is_err());
+    ///
+    /// let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// assert!(n1.checked_append(n1_1, &amp;mut arena).is_ok());
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::AppendSelf`]: enum.NodeError.html#variant.AppendSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>checked_append&lt;T&gt;(
+        <span class="self">self</span>,
+        new_child: NodeId,
+        arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NodeError&gt; {
+        <span class="kw">if </span>new_child == <span class="self">self </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::AppendSelf);
+        }
+        <span class="kw">if </span>arena[<span class="self">self</span>].is_removed() || arena[new_child].is_removed() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::Removed);
+        }
+        <span class="kw">if </span><span class="self">self</span>.ancestors(arena).any(|ancestor| new_child == ancestor) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::AppendAncestor);
+        }
+        new_child.detach(arena);
+        insert_with_neighbors(arena, new_child, <span class="prelude-val">Some</span>(<span class="self">self</span>), arena[<span class="self">self</span>].last_child, <span class="prelude-val">None</span>)
+            .expect(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Prepends a new child to this node, before existing children.
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    ///
+    /// * the given new child is `self`, or
+    /// * the given new child is an ancestor of `self`, or
+    /// * the current node or the given new child was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node(&quot;1&quot;);
+    /// let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// n1.prepend(n1_1, &amp;mut arena);
+    /// let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// n1.prepend(n1_2, &amp;mut arena);
+    /// let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// n1.prepend(n1_3, &amp;mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_3
+    /// //     |-- 1_2
+    /// //     `-- 1_1
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>prepend&lt;T&gt;(<span class="self">self</span>, new_child: NodeId, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) {
+        <span class="self">self</span>.checked_prepend(new_child, arena)
+            .expect(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
+    }
+
+    <span class="doccomment">/// Prepends a new child to this node, before existing children.
+    ///
+    /// # Failures
+    ///
+    /// * Returns [`NodeError::PrependSelf`] error if the given new child is
+    ///   `self`.
+    /// * Returns [`NodeError::PrependAncestor`] error if the given new child is
+    ///   an ancestor of `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new child or `self`
+    ///   is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node(&quot;1&quot;);
+    /// assert!(n1.checked_prepend(n1, &amp;mut arena).is_err());
+    ///
+    /// let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// assert!(n1.checked_prepend(n1_1, &amp;mut arena).is_ok());
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::PrependSelf`]: enum.NodeError.html#variant.PrependSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>checked_prepend&lt;T&gt;(
+        <span class="self">self</span>,
+        new_child: NodeId,
+        arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NodeError&gt; {
+        <span class="kw">if </span>new_child == <span class="self">self </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::PrependSelf);
+        }
+        <span class="kw">if </span>arena[<span class="self">self</span>].is_removed() || arena[new_child].is_removed() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::Removed);
+        }
+        <span class="kw">if </span><span class="self">self</span>.ancestors(arena).any(|ancestor| new_child == ancestor) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::PrependAncestor);
+        }
+        insert_with_neighbors(arena, new_child, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="prelude-val">None</span>, arena[<span class="self">self</span>].first_child)
+            .expect(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Inserts a new sibling after this node.
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    ///
+    /// * the given new sibling is `self`, or
+    /// * the current node or the given new sibling was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1 *
+    /// //     `-- 1_2
+    ///
+    /// let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// n1_1.insert_after(n1_3, &amp;mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_3 *
+    /// //     `-- 1_2
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>insert_after&lt;T&gt;(<span class="self">self</span>, new_sibling: NodeId, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) {
+        <span class="self">self</span>.checked_insert_after(new_sibling, arena)
+            .expect(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
+    }
+
+    <span class="doccomment">/// Inserts a new sibling after this node.
+    ///
+    /// # Failures
+    ///
+    /// * Returns [`NodeError::InsertAfterSelf`] error if the given new sibling
+    ///   is `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new sibling or
+    ///   `self` is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node(&quot;1&quot;);
+    /// assert!(n1.checked_insert_after(n1, &amp;mut arena).is_err());
+    ///
+    /// let n2 = arena.new_node(&quot;2&quot;);
+    /// assert!(n1.checked_insert_after(n2, &amp;mut arena).is_ok());
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::InsertAfterSelf`]: enum.NodeError.html#variant.InsertAfterSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>checked_insert_after&lt;T&gt;(
+        <span class="self">self</span>,
+        new_sibling: NodeId,
+        arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NodeError&gt; {
+        <span class="kw">if </span>new_sibling == <span class="self">self </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::InsertAfterSelf);
+        }
+        <span class="kw">if </span>arena[<span class="self">self</span>].is_removed() || arena[new_sibling].is_removed() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::Removed);
+        }
+        new_sibling.detach(arena);
+        <span class="kw">let </span>(next_sibling, parent) = {
+            <span class="kw">let </span>current = <span class="kw-2">&amp;</span>arena[<span class="self">self</span>];
+            (current.next_sibling, current.parent)
         };
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reuseable</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">is_removed</span>());
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="ident">i16::MIN</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reuse</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">reuseable</span>());
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">=</span> <span class="op">-</span><span class="self">self</span>.<span class="number">0</span>;
-        <span class="kw-2">*</span><span class="self">self</span>
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">NodeId</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">index1</span>)
-    }
-}
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::from_over_into</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">NonZeroUsize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">NodeId</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">NonZeroUsize</span> {
-        <span class="self">self</span>.<span class="ident">index1</span>
-    }
-}
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::from_over_into</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">NodeId</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">index1</span>.<span class="ident">get</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">NodeId</span> {
-    <span class="doccomment">/// Returns zero-based index.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">index0</span>(<span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="comment">// This is totally safe because `self.index1 &gt;= 1` is guaranteed by</span>
-        <span class="comment">// `NonZeroUsize` type.</span>
-        <span class="self">self</span>.<span class="ident">index1</span>.<span class="ident">get</span>() <span class="op">-</span> <span class="number">1</span>
-    }
-
-    <span class="doccomment">/// Creates a new `NodeId` from the given one-based index.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_non_zero_usize</span>(<span class="ident">index1</span>: <span class="ident">NonZeroUsize</span>, <span class="ident">stamp</span>: <span class="ident">NodeStamp</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">NodeId</span> { <span class="ident">index1</span>, <span class="ident">stamp</span> }
-    }
-
-    <span class="doccomment">/// Return if the `Node` of NodeId point to is removed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_removed</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">stamp</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stamp</span>
-    }
-
-    <span class="doccomment">/// Returns an iterator of IDs of this node and its ancestors.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip</span>
-    <span class="doccomment">/// the node itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1_1 = arena.new_node(&quot;1_1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1_1.append(n1_1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |       `-- 1_1_1_1</span>
-    <span class="doccomment">/// //     _-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1_1_1.ancestors(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ancestors</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">Ancestors</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Ancestors::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Returns an iterator of IDs of this node and the siblings before</span>
-    <span class="doccomment">/// it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip</span>
-    <span class="doccomment">/// the node itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1_2.preceding_siblings(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preceding_siblings</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">PrecedingSiblings</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">PrecedingSiblings::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Returns an iterator of IDs of this node and the siblings after</span>
-    <span class="doccomment">/// it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip</span>
-    <span class="doccomment">/// the node itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1_2.following_siblings(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">following_siblings</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">FollowingSiblings</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">FollowingSiblings::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Returns an iterator of IDs of this node’s children.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.children(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">children</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">Children</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Children::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Returns an iterator of IDs of this node’s children, in reverse</span>
-    <span class="doccomment">/// order.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.reverse_children(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reverse_children</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">ReverseChildren</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">ReverseChildren::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// i.e. node -&gt; first child -&gt; second child</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Parent nodes appear before the descendants.</span>
-    <span class="doccomment">/// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip</span>
-    <span class="doccomment">/// the node itself.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1_1 = arena.new_node(&quot;1_1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1_1.append(n1_1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |       `-- 1_1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1_1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`skip`]: https://doc.rust-lang.org/stable/std/iter/trait.Iterator.html#method.skip</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">descendants</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">Descendants</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Descendants::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,</span>
-    <span class="doccomment">/// where node sides are visited start to end and children are visited in insertion order.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// i.e. node.start -&gt; first child -&gt; second child -&gt; node.end</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.traverse(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">traverse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Traverse::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,</span>
-    <span class="doccomment">/// where nodes are visited end to start and children are visited in reverse insertion order.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// i.e. node.end -&gt; second child -&gt; first child -&gt; node.start</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.reverse_traverse(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_3)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_3)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_2)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_2)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::End(n1_1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1_1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(NodeEdge::Start(n1)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # // arena</span>
-    <span class="doccomment">/// # // `-- 1</span>
-    <span class="doccomment">/// # //     |-- 1_1</span>
-    <span class="doccomment">/// # //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// # //     |-- 1_2</span>
-    <span class="doccomment">/// # //     `-- 1_3</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// let traverse = n1.traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// let mut reverse = n1.reverse_traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// reverse.reverse();</span>
-    <span class="doccomment">/// assert_eq!(traverse, reverse);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reverse_traverse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">ReverseTraverse</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">ReverseTraverse::new</span>(<span class="ident">arena</span>, <span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Detaches a node from its parent and siblings. Children are not affected.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- (implicit)</span>
-    <span class="doccomment">/// //     `-- 1</span>
-    <span class="doccomment">/// //         |-- 1_1</span>
-    <span class="doccomment">/// //         |   `-- 1_1_1</span>
-    <span class="doccomment">/// //         |-- 1_2 *</span>
-    <span class="doccomment">/// //         `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// n1_2.detach(&amp;mut arena);</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // |-- (implicit)</span>
-    <span class="doccomment">/// // |   `-- 1</span>
-    <span class="doccomment">/// // |       |-- 1_1</span>
-    <span class="doccomment">/// // |       |   `-- 1_1_1</span>
-    <span class="doccomment">/// // |       `-- 1_3</span>
-    <span class="doccomment">/// // `-- (implicit)</span>
-    <span class="doccomment">/// //     `-- 1_2</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert!(arena[n1_2].parent().is_none());</span>
-    <span class="doccomment">/// assert!(arena[n1_2].previous_sibling().is_none());</span>
-    <span class="doccomment">/// assert!(arena[n1_2].next_sibling().is_none());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">detach</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">SiblingsRange::new</span>(<span class="self">self</span>, <span class="self">self</span>).<span class="ident">detach_from_siblings</span>(<span class="ident">arena</span>);
-        <span class="ident">range</span>
-            .<span class="ident">rewrite_parents</span>(<span class="ident">arena</span>, <span class="prelude-val">None</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never happen: `None` as parent is always valid&quot;</span>);
-
-        <span class="comment">// Ensure the node is surely detached.</span>
-        <span class="macro">debug_assert!</span>(
-            <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_detached</span>(),
-            <span class="string">&quot;The node should be successfully detached&quot;</span>
-        );
-    }
-
-    <span class="doccomment">/// Appends a new child to this node, after existing children.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * the given new child is `self`, or</span>
-    <span class="doccomment">/// * the given new child is an ancestor of `self`, or</span>
-    <span class="doccomment">/// * the current node or the given new child was already [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_child</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">checked_append</span>(<span class="ident">new_child</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
-    }
-
-    <span class="doccomment">/// Appends a new child to this node, after existing children.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Failures</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Returns [`NodeError::AppendSelf`] error if the given new child is</span>
-    <span class="doccomment">///   `self`.</span>
-    <span class="doccomment">/// * Returns [`NodeError::AppendAncestor`] error if the given new child is</span>
-    <span class="doccomment">///   an ancestor of `self`.</span>
-    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new child or `self`</span>
-    <span class="doccomment">///   is [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_append(n1, &amp;mut arena).is_err());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_append(n1_1, &amp;mut arena).is_ok());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`NodeError::AppendSelf`]: enum.NodeError.html#variant.AppendSelf</span>
-    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_append</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="self">self</span>,
-        <span class="ident">new_child</span>: <span class="ident">NodeId</span>,
-        <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NodeError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="self">self</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::AppendSelf</span>);
-        }
-        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">new_child</span>].<span class="ident">is_removed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::Removed</span>);
-        }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ancestors</span>(<span class="ident">arena</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">ancestor</span><span class="op">|</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="ident">ancestor</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::AppendAncestor</span>);
-        }
-        <span class="ident">new_child</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
-        <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_child</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">last_child</span>, <span class="prelude-val">None</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);
+        insert_with_neighbors(arena, new_sibling, parent, <span class="prelude-val">Some</span>(<span class="self">self</span>), next_sibling)
+            .expect(<span class="string">&quot;Should never fail: `new_sibling` is not `self` and they are not removed&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Prepends a new child to this node, before existing children.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * the given new child is `self`, or</span>
-    <span class="doccomment">/// * the given new child is an ancestor of `self`, or</span>
-    <span class="doccomment">/// * the current node or the given new child was already [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// n1.prepend(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// n1.prepend(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// n1.prepend(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_3</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_1</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prepend</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_child</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">checked_prepend</span>(<span class="ident">new_child</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
+    <span class="doccomment">/// Inserts a new sibling before this node.
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    ///
+    /// * the given new sibling is `self`, or
+    /// * the current node or the given new sibling was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node(&quot;1&quot;);
+    /// let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// n1.append(n1_1, &amp;mut arena);
+    /// let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// n1.append(n1_2, &amp;mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     `-- 1_2 *
+    ///
+    /// let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// n1_2.insert_before(n1_3, &amp;mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_3 *
+    /// //     `-- 1_2
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>insert_before&lt;T&gt;(<span class="self">self</span>, new_sibling: NodeId, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) {
+        <span class="self">self</span>.checked_insert_before(new_sibling, arena)
+            .expect(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
     }
 
-    <span class="doccomment">/// Prepends a new child to this node, before existing children.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Failures</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Returns [`NodeError::PrependSelf`] error if the given new child is</span>
-    <span class="doccomment">///   `self`.</span>
-    <span class="doccomment">/// * Returns [`NodeError::PrependAncestor`] error if the given new child is</span>
-    <span class="doccomment">///   an ancestor of `self`.</span>
-    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new child or `self`</span>
-    <span class="doccomment">///   is [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_prepend(n1, &amp;mut arena).is_err());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_prepend(n1_1, &amp;mut arena).is_ok());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`NodeError::PrependSelf`]: enum.NodeError.html#variant.PrependSelf</span>
-    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_prepend</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Inserts a new sibling before this node.
+    ///
+    /// # Failures
+    ///
+    /// * Returns [`NodeError::InsertBeforeSelf`] error if the given new sibling
+    ///   is `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new sibling or
+    ///   `self` is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node(&quot;1&quot;);
+    /// assert!(n1.checked_insert_before(n1, &amp;mut arena).is_err());
+    ///
+    /// let n2 = arena.new_node(&quot;2&quot;);
+    /// assert!(n1.checked_insert_before(n2, &amp;mut arena).is_ok());
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::InsertBeforeSelf`]: enum.NodeError.html#variant.InsertBeforeSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    </span><span class="kw">pub fn </span>checked_insert_before&lt;T&gt;(
         <span class="self">self</span>,
-        <span class="ident">new_child</span>: <span class="ident">NodeId</span>,
-        <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NodeError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="self">self</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::PrependSelf</span>);
+        new_sibling: NodeId,
+        arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), NodeError&gt; {
+        <span class="kw">if </span>new_sibling == <span class="self">self </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::InsertBeforeSelf);
         }
-        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">new_child</span>].<span class="ident">is_removed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::Removed</span>);
+        <span class="kw">if </span>arena[<span class="self">self</span>].is_removed() || arena[new_sibling].is_removed() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(NodeError::Removed);
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ancestors</span>(<span class="ident">arena</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">ancestor</span><span class="op">|</span> <span class="ident">new_child</span> <span class="op">==</span> <span class="ident">ancestor</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::PrependAncestor</span>);
-        }
-        <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_child</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="prelude-val">None</span>, <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">first_child</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_child` is not `self` and they are not removed&quot;</span>);
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Inserts a new sibling after this node.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * the given new sibling is `self`, or</span>
-    <span class="doccomment">/// * the current node or the given new sibling was already [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     `-- 1_2</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// n1_1.insert_after(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |-- 1_3</span>
-    <span class="doccomment">/// //     `-- 1_2</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_after</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">checked_insert_after</span>(<span class="ident">new_sibling</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
-    }
-
-    <span class="doccomment">/// Inserts a new sibling after this node.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Failures</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Returns [`NodeError::InsertAfterSelf`] error if the given new sibling</span>
-    <span class="doccomment">///   is `self`.</span>
-    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new sibling or</span>
-    <span class="doccomment">///   `self` is [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_insert_after(n1, &amp;mut arena).is_err());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let n2 = arena.new_node(&quot;2&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_insert_after(n2, &amp;mut arena).is_ok());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`NodeError::InsertAfterSelf`]: enum.NodeError.html#variant.InsertAfterSelf</span>
-    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_insert_after</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="self">self</span>,
-        <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>,
-        <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NodeError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">new_sibling</span> <span class="op">==</span> <span class="self">self</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::InsertAfterSelf</span>);
-        }
-        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">new_sibling</span>].<span class="ident">is_removed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::Removed</span>);
-        }
-        <span class="ident">new_sibling</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
-        <span class="kw">let</span> (<span class="ident">next_sibling</span>, <span class="ident">parent</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="self">self</span>];
-            (<span class="ident">current</span>.<span class="ident">next_sibling</span>, <span class="ident">current</span>.<span class="ident">parent</span>)
+        new_sibling.detach(arena);
+        <span class="kw">let </span>(previous_sibling, parent) = {
+            <span class="kw">let </span>current = <span class="kw-2">&amp;</span>arena[<span class="self">self</span>];
+            (current.previous_sibling, current.parent)
         };
-        <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_sibling</span>, <span class="ident">parent</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="ident">next_sibling</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_sibling` is not `self` and they are not removed&quot;</span>);
+        insert_with_neighbors(arena, new_sibling, parent, previous_sibling, <span class="prelude-val">Some</span>(<span class="self">self</span>))
+            .expect(<span class="string">&quot;Should never fail: `new_sibling` is not `self` and they are not removed&quot;</span>);
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Inserts a new sibling before this node.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * the given new sibling is `self`, or</span>
-    <span class="doccomment">/// * the current node or the given new sibling was already [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     `-- 1_2</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// n1_2.insert_before(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |-- 1_3</span>
-    <span class="doccomment">/// //     `-- 1_2</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert_before</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">checked_insert_before</span>(<span class="ident">new_sibling</span>, <span class="ident">arena</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Preconditions not met: invalid argument&quot;</span>);
-    }
-
-    <span class="doccomment">/// Inserts a new sibling before this node.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Failures</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// * Returns [`NodeError::InsertBeforeSelf`] error if the given new sibling</span>
-    <span class="doccomment">///   is `self`.</span>
-    <span class="doccomment">/// * Returns [`NodeError::Removed`] error if the given new sibling or</span>
-    <span class="doccomment">///   `self` is [`remove`]d.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_insert_before(n1, &amp;mut arena).is_err());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let n2 = arena.new_node(&quot;2&quot;);</span>
-    <span class="doccomment">/// assert!(n1.checked_insert_before(n2, &amp;mut arena).is_ok());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="doccomment">/// [`NodeError::InsertBeforeSelf`]: enum.NodeError.html#variant.InsertBeforeSelf</span>
-    <span class="doccomment">/// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed</span>
-    <span class="doccomment">/// [`remove`]: struct.NodeId.html#method.remove</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checked_insert_before</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="self">self</span>,
-        <span class="ident">new_sibling</span>: <span class="ident">NodeId</span>,
-        <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">NodeError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">new_sibling</span> <span class="op">==</span> <span class="self">self</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::InsertBeforeSelf</span>);
-        }
-        <span class="kw">if</span> <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_removed</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">new_sibling</span>].<span class="ident">is_removed</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">NodeError::Removed</span>);
-        }
-        <span class="ident">new_sibling</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
-        <span class="kw">let</span> (<span class="ident">previous_sibling</span>, <span class="ident">parent</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="self">self</span>];
-            (<span class="ident">current</span>.<span class="ident">previous_sibling</span>, <span class="ident">current</span>.<span class="ident">parent</span>)
-        };
-        <span class="ident">insert_with_neighbors</span>(<span class="ident">arena</span>, <span class="ident">new_sibling</span>, <span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>))
-            .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: `new_sibling` is not `self` and they are not removed&quot;</span>);
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
-    <span class="doccomment">/// Removes a node from the arena.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Children of the removed node will be inserted to the place where the</span>
-    <span class="doccomment">/// removed node was.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Please note that the node will not be removed from the internal arena</span>
-    <span class="doccomment">/// storage, but marked as `removed`. Traversing the arena returns a</span>
-    <span class="doccomment">/// plain iterator and contains removed elements too.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// To check if the node is removed or not, use [`Node::is_removed()`].</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2_1 = arena.new_node(&quot;1_2_1&quot;);</span>
-    <span class="doccomment">/// # n1_2.append(n1_2_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2_2 = arena.new_node(&quot;1_2_2&quot;);</span>
-    <span class="doccomment">/// # n1_2.append(n1_2_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     |   |-- 1_2_1</span>
-    <span class="doccomment">/// //     |   `-- 1_2_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// n1_2.remove(&amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_2_2));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`Node::is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
+    <span class="doccomment">/// Removes a node from the arena.
+    ///
+    /// Children of the removed node will be inserted to the place where the
+    /// removed node was.
+    ///
+    /// Please note that the node will not be removed from the internal arena
+    /// storage, but marked as `removed`. Traversing the arena returns a
+    /// plain iterator and contains removed elements too.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_2_1 = arena.new_node(&quot;1_2_1&quot;);
+    /// # n1_2.append(n1_2_1, &amp;mut arena);
+    /// # let n1_2_2 = arena.new_node(&quot;1_2_2&quot;);
+    /// # n1_2.append(n1_2_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2 *
+    /// //     |   |-- 1_2_1
+    /// //     |   `-- 1_2_2
+    /// //     `-- 1_3
+    ///
+    /// n1_2.remove(&amp;mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2_1
+    /// //     |-- 1_2_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2_1));
+    /// assert_eq!(iter.next(), Some(n1_2_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    </span><span class="kw">pub fn </span>remove&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) {
         <span class="macro">debug_assert_triangle_nodes!</span>(
-            <span class="ident">arena</span>,
-            <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">parent</span>,
-            <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">previous_sibling</span>,
+            arena,
+            arena[<span class="self">self</span>].parent,
+            arena[<span class="self">self</span>].previous_sibling,
             <span class="prelude-val">Some</span>(<span class="self">self</span>)
         );
         <span class="macro">debug_assert_triangle_nodes!</span>(
-            <span class="ident">arena</span>,
-            <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">parent</span>,
+            arena,
+            arena[<span class="self">self</span>].parent,
             <span class="prelude-val">Some</span>(<span class="self">self</span>),
-            <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">next_sibling</span>
+            arena[<span class="self">self</span>].next_sibling
         );
-        <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="prelude-val">None</span>, <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">first_child</span>);
-        <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">last_child</span>, <span class="prelude-val">None</span>);
+        <span class="macro">debug_assert_triangle_nodes!</span>(arena, <span class="prelude-val">Some</span>(<span class="self">self</span>), <span class="prelude-val">None</span>, arena[<span class="self">self</span>].first_child);
+        <span class="macro">debug_assert_triangle_nodes!</span>(arena, <span class="prelude-val">Some</span>(<span class="self">self</span>), arena[<span class="self">self</span>].last_child, <span class="prelude-val">None</span>);
 
-        <span class="comment">// Retrieve needed values.</span>
-        <span class="kw">let</span> (<span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="ident">next_sibling</span>, <span class="ident">first_child</span>, <span class="ident">last_child</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="self">self</span>];
+        <span class="comment">// Retrieve needed values.
+        </span><span class="kw">let </span>(parent, previous_sibling, next_sibling, first_child, last_child) = {
+            <span class="kw">let </span>node = <span class="kw-2">&amp;</span>arena[<span class="self">self</span>];
             (
-                <span class="ident">node</span>.<span class="ident">parent</span>,
-                <span class="ident">node</span>.<span class="ident">previous_sibling</span>,
-                <span class="ident">node</span>.<span class="ident">next_sibling</span>,
-                <span class="ident">node</span>.<span class="ident">first_child</span>,
-                <span class="ident">node</span>.<span class="ident">last_child</span>,
+                node.parent,
+                node.previous_sibling,
+                node.next_sibling,
+                node.first_child,
+                node.last_child,
             )
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">first_child</span>.<span class="ident">is_some</span>(), <span class="ident">last_child</span>.<span class="ident">is_some</span>());
-        <span class="self">self</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
-        <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">first_child</span>), <span class="prelude-val">Some</span>(<span class="ident">last_child</span>)) <span class="op">=</span> (<span class="ident">first_child</span>, <span class="ident">last_child</span>) {
-            <span class="kw">let</span> <span class="ident">range</span> <span class="op">=</span> <span class="ident">SiblingsRange::new</span>(<span class="ident">first_child</span>, <span class="ident">last_child</span>).<span class="ident">detach_from_siblings</span>(<span class="ident">arena</span>);
-            <span class="ident">range</span>
-                .<span class="ident">transplant</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="ident">next_sibling</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;Should never fail: neighbors and children must be consistent&quot;</span>);
+        <span class="macro">assert_eq!</span>(first_child.is_some(), last_child.is_some());
+        <span class="self">self</span>.detach(arena);
+        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(first_child), <span class="prelude-val">Some</span>(last_child)) = (first_child, last_child) {
+            <span class="kw">let </span>range = SiblingsRange::new(first_child, last_child).detach_from_siblings(arena);
+            range
+                .transplant(arena, parent, previous_sibling, next_sibling)
+                .expect(<span class="string">&quot;Should never fail: neighbors and children must be consistent&quot;</span>);
         }
-        <span class="ident">arena</span>.<span class="ident">free_node</span>(<span class="self">self</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">arena</span>[<span class="self">self</span>].<span class="ident">is_detached</span>());
+        arena.free_node(<span class="self">self</span>);
+        <span class="macro">debug_assert!</span>(arena[<span class="self">self</span>].is_detached());
     }
 
-    <span class="doccomment">/// Removes a node and its descendants from the arena.</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2_1 = arena.new_node(&quot;1_2_1&quot;);</span>
-    <span class="doccomment">/// # n1_2.append(n1_2_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2_2 = arena.new_node(&quot;1_2_2&quot;);</span>
-    <span class="doccomment">/// # n1_2.append(n1_2_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     |   |-- 1_2_1</span>
-    <span class="doccomment">/// //     |   `-- 1_2_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// n1_2.remove_subtree(&amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = n1.descendants(&amp;arena);</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_1));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), Some(n1_3));</span>
-    <span class="doccomment">/// assert_eq!(iter.next(), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_subtree</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">detach</span>(<span class="ident">arena</span>);
+    <span class="doccomment">/// Removes a node and its descendants from the arena.
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_2_1 = arena.new_node(&quot;1_2_1&quot;);
+    /// # n1_2.append(n1_2_1, &amp;mut arena);
+    /// # let n1_2_2 = arena.new_node(&quot;1_2_2&quot;);
+    /// # n1_2.append(n1_2_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2 *
+    /// //     |   |-- 1_2_1
+    /// //     |   `-- 1_2_2
+    /// //     `-- 1_3
+    ///
+    /// n1_2.remove_subtree(&amp;mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.descendants(&amp;arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    </span><span class="kw">pub fn </span>remove_subtree&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) {
+        <span class="self">self</span>.detach(arena);
 
-        <span class="comment">// use a preorder traversal to remove node.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>);
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">cursor</span> {
-            <span class="ident">arena</span>.<span class="ident">free_node</span>(<span class="ident">id</span>);
-            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="ident">id</span>];
-            <span class="ident">cursor</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">first_child</span>.<span class="ident">or</span>(<span class="ident">node</span>.<span class="ident">next_sibling</span>).<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">id</span>.<span class="ident">ancestors</span>(<span class="ident">arena</span>) <span class="comment">// traverse ancestors upwards</span>
-                    .<span class="ident">skip</span>(<span class="number">1</span>) <span class="comment">// skip the starting node itself</span>
-                    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">arena</span>[<span class="kw-2">*</span><span class="ident">n</span>].<span class="ident">next_sibling</span>.<span class="ident">is_some</span>()) <span class="comment">// first ancestor with a sibling</span>
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">arena</span>[<span class="ident">n</span>].<span class="ident">next_sibling</span>) <span class="comment">// the sibling is the new cursor</span>
-            });
+        <span class="comment">// use a preorder traversal to remove node.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>cursor = <span class="prelude-val">Some</span>(<span class="self">self</span>);
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(id) = cursor {
+            arena.free_node(id);
+            <span class="kw">let </span>node = <span class="kw-2">&amp;</span>arena[id];
+            cursor = node.first_child.or(node.next_sibling).or_else(|| {
+                id.ancestors(arena) <span class="comment">// traverse ancestors upwards
+                    </span>.skip(<span class="number">1</span>) <span class="comment">// skip the starting node itself
+                    </span>.find(|n| arena[<span class="kw-2">*</span>n].next_sibling.is_some()) <span class="comment">// first ancestor with a sibling
+                    </span>.and_then(|n| arena[n].next_sibling) <span class="comment">// the sibling is the new cursor
+            </span>});
         }
     }
 
-    <span class="doccomment">/// Returns the pretty-printable proxy object to the node and descendants.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # (No) guarantees</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is provided mainly for debugging purpose. Node that the output</span>
-    <span class="doccomment">/// format is not guaranteed to be stable, and any format changes won&#39;t be</span>
-    <span class="doccomment">/// considered as breaking changes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let root = arena.new_node(&quot;root&quot;);</span>
-    <span class="doccomment">/// # let n0 = arena.new_node(&quot;0&quot;);</span>
-    <span class="doccomment">/// # root.append(n0, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n0_0 = arena.new_node(&quot;0\n0&quot;);</span>
-    <span class="doccomment">/// # n0.append(n0_0, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n0_1 = arena.new_node(&quot;0\n1&quot;);</span>
-    <span class="doccomment">/// # n0.append(n0_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # root.append(n1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n2 = arena.new_node(&quot;2&quot;);</span>
-    <span class="doccomment">/// # root.append(n2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n2_0 = arena.new_node(&quot;2\n0&quot;);</span>
-    <span class="doccomment">/// # n2.append(n2_0, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n2_0_0 = arena.new_node(&quot;2\n0\n0&quot;);</span>
-    <span class="doccomment">/// # n2_0.append(n2_0_0, &amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// //  arena</span>
-    <span class="doccomment">/// //  `-- &quot;root&quot;</span>
-    <span class="doccomment">/// //      |-- &quot;0&quot;</span>
-    <span class="doccomment">/// //      |   |-- &quot;0\n0&quot;</span>
-    <span class="doccomment">/// //      |   `-- &quot;0\n1&quot;</span>
-    <span class="doccomment">/// //      |-- &quot;1&quot;</span>
-    <span class="doccomment">/// //      `-- &quot;2&quot;</span>
-    <span class="doccomment">/// //          `-- &quot;2\n0&quot;</span>
-    <span class="doccomment">/// //              `-- &quot;2\n0\n0&quot;</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let printable = root.debug_pretty_print(&amp;arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let expected_debug = r#&quot;&quot;root&quot;</span>
-    <span class="doccomment">/// |-- &quot;0&quot;</span>
-    <span class="doccomment">/// |   |-- &quot;0\n0&quot;</span>
-    <span class="doccomment">/// |   `-- &quot;0\n1&quot;</span>
-    <span class="doccomment">/// |-- &quot;1&quot;</span>
-    <span class="doccomment">/// `-- &quot;2&quot;</span>
-    <span class="doccomment">///     `-- &quot;2\n0&quot;</span>
-    <span class="doccomment">///         `-- &quot;2\n0\n0&quot;&quot;#;</span>
-    <span class="doccomment">/// assert_eq!(format!(&quot;{:?}&quot;, printable), expected_debug);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let expected_display = r#&quot;root</span>
-    <span class="doccomment">/// |-- 0</span>
-    <span class="doccomment">/// |   |-- 0</span>
-    <span class="doccomment">/// |   |   0</span>
-    <span class="doccomment">/// |   `-- 0</span>
-    <span class="doccomment">/// |       1</span>
-    <span class="doccomment">/// |-- 1</span>
-    <span class="doccomment">/// `-- 2</span>
-    <span class="doccomment">///     `-- 2</span>
-    <span class="doccomment">///         0</span>
-    <span class="doccomment">///         `-- 2</span>
-    <span class="doccomment">///             0</span>
-    <span class="doccomment">///             0&quot;#;</span>
-    <span class="doccomment">/// assert_eq!(printable.to_string(), expected_display);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Alternate styles (`{:#?}` and `{:#}`) are also supported.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let root = arena.new_node(Ok(42));</span>
-    <span class="doccomment">/// # let child = arena.new_node(Err(&quot;err&quot;));</span>
-    <span class="doccomment">/// # root.append(child, &amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// //  arena</span>
-    <span class="doccomment">/// //  `-- Ok(42)</span>
-    <span class="doccomment">/// //      `-- Err(&quot;err&quot;)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let printable = root.debug_pretty_print(&amp;arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let expected_debug = r#&quot;Ok(42)</span>
-    <span class="doccomment">/// `-- Err(&quot;err&quot;)&quot;#;</span>
-    <span class="doccomment">/// assert_eq!(format!(&quot;{:?}&quot;, printable), expected_debug);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let expected_debug_alternate = r#&quot;Ok(</span>
-    <span class="doccomment">///     42,</span>
-    <span class="doccomment">/// )</span>
-    <span class="doccomment">/// `-- Err(</span>
-    <span class="doccomment">///         &quot;err&quot;,</span>
-    <span class="doccomment">///     )&quot;#;</span>
-    <span class="doccomment">/// assert_eq!(format!(&quot;{:#?}&quot;, printable), expected_debug_alternate);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_pretty_print</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">DebugPrettyPrint</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">DebugPrettyPrint::new</span>(<span class="self">self</span>, <span class="ident">arena</span>)
+    <span class="doccomment">/// Returns the pretty-printable proxy object to the node and descendants.
+    ///
+    /// # (No) guarantees
+    ///
+    /// This is provided mainly for debugging purpose. Node that the output
+    /// format is not guaranteed to be stable, and any format changes won&#39;t be
+    /// considered as breaking changes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// #
+    /// # let mut arena = Arena::new();
+    /// # let root = arena.new_node(&quot;root&quot;);
+    /// # let n0 = arena.new_node(&quot;0&quot;);
+    /// # root.append(n0, &amp;mut arena);
+    /// # let n0_0 = arena.new_node(&quot;0\n0&quot;);
+    /// # n0.append(n0_0, &amp;mut arena);
+    /// # let n0_1 = arena.new_node(&quot;0\n1&quot;);
+    /// # n0.append(n0_1, &amp;mut arena);
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # root.append(n1, &amp;mut arena);
+    /// # let n2 = arena.new_node(&quot;2&quot;);
+    /// # root.append(n2, &amp;mut arena);
+    /// # let n2_0 = arena.new_node(&quot;2\n0&quot;);
+    /// # n2.append(n2_0, &amp;mut arena);
+    /// # let n2_0_0 = arena.new_node(&quot;2\n0\n0&quot;);
+    /// # n2_0.append(n2_0_0, &amp;mut arena);
+    ///
+    /// //  arena
+    /// //  `-- &quot;root&quot;
+    /// //      |-- &quot;0&quot;
+    /// //      |   |-- &quot;0\n0&quot;
+    /// //      |   `-- &quot;0\n1&quot;
+    /// //      |-- &quot;1&quot;
+    /// //      `-- &quot;2&quot;
+    /// //          `-- &quot;2\n0&quot;
+    /// //              `-- &quot;2\n0\n0&quot;
+    ///
+    /// let printable = root.debug_pretty_print(&amp;arena);
+    ///
+    /// let expected_debug = r#&quot;&quot;root&quot;
+    /// |-- &quot;0&quot;
+    /// |   |-- &quot;0\n0&quot;
+    /// |   `-- &quot;0\n1&quot;
+    /// |-- &quot;1&quot;
+    /// `-- &quot;2&quot;
+    ///     `-- &quot;2\n0&quot;
+    ///         `-- &quot;2\n0\n0&quot;&quot;#;
+    /// assert_eq!(format!(&quot;{:?}&quot;, printable), expected_debug);
+    ///
+    /// let expected_display = r#&quot;root
+    /// |-- 0
+    /// |   |-- 0
+    /// |   |   0
+    /// |   `-- 0
+    /// |       1
+    /// |-- 1
+    /// `-- 2
+    ///     `-- 2
+    ///         0
+    ///         `-- 2
+    ///             0
+    ///             0&quot;#;
+    /// assert_eq!(printable.to_string(), expected_display);
+    /// ```
+    ///
+    /// Alternate styles (`{:#?}` and `{:#}`) are also supported.
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// #
+    /// # let mut arena = Arena::new();
+    /// # let root = arena.new_node(Ok(42));
+    /// # let child = arena.new_node(Err(&quot;err&quot;));
+    /// # root.append(child, &amp;mut arena);
+    ///
+    /// //  arena
+    /// //  `-- Ok(42)
+    /// //      `-- Err(&quot;err&quot;)
+    ///
+    /// let printable = root.debug_pretty_print(&amp;arena);
+    ///
+    /// let expected_debug = r#&quot;Ok(42)
+    /// `-- Err(&quot;err&quot;)&quot;#;
+    /// assert_eq!(format!(&quot;{:?}&quot;, printable), expected_debug);
+    ///
+    /// let expected_debug_alternate = r#&quot;Ok(
+    ///     42,
+    /// )
+    /// `-- Err(
+    ///         &quot;err&quot;,
+    ///     )&quot;#;
+    /// assert_eq!(format!(&quot;{:#?}&quot;, printable), expected_debug_alternate);
+    /// ```
+    </span><span class="attribute">#[inline]
+    #[must_use]
+    </span><span class="kw">pub fn </span>debug_pretty_print&lt;<span class="lifetime">&#39;a</span>, T&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;) -&gt; DebugPrettyPrint&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+        DebugPrettyPrint::new(<span class="self">self</span>, arena)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_remove_subtree_complex</span>() {
-        <span class="comment">// arena</span>
-        <span class="comment">// `-- 1</span>
-        <span class="comment">//     |-- 1_1</span>
-        <span class="comment">//     |-- 1_2</span>
-        <span class="comment">//     |   |-- 1_2_1</span>
-        <span class="comment">//     |   |   `-- 1_2_1_1</span>
-        <span class="comment">//     |   |       `-- 1_2_1_1_1</span>
-        <span class="comment">//     |   `-- 1_2_2</span>
-        <span class="comment">//     `-- 1_3</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arena</span> <span class="op">=</span> <span class="ident">Arena::new</span>();
-        <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1&quot;</span>);
-        <span class="kw">let</span> <span class="ident">n1_1</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1_1&quot;</span>);
-        <span class="ident">n1</span>.<span class="ident">append</span>(<span class="ident">n1_1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-        <span class="kw">let</span> <span class="ident">n1_2</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1_2&quot;</span>);
-        <span class="ident">n1</span>.<span class="ident">append</span>(<span class="ident">n1_2</span>, <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-        <span class="kw">let</span> <span class="ident">n1_2_1</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1_2_1&quot;</span>);
-        <span class="ident">n1_2</span>.<span class="ident">append</span>(<span class="ident">n1_2_1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-        <span class="kw">let</span> <span class="ident">n1_2_1_1</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1_2_1_1&quot;</span>);
-        <span class="ident">n1_2_1</span>.<span class="ident">append</span>(<span class="ident">n1_2_1_1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-        <span class="kw">let</span> <span class="ident">n1_2_1_1_1</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1_2_1_1_1&quot;</span>);
-        <span class="ident">n1_2_1_1</span>.<span class="ident">append</span>(<span class="ident">n1_2_1_1_1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-        <span class="kw">let</span> <span class="ident">n1_2_2</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1_2_2&quot;</span>);
-        <span class="ident">n1_2</span>.<span class="ident">append</span>(<span class="ident">n1_2_2</span>, <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-        <span class="kw">let</span> <span class="ident">n1_3</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1_3&quot;</span>);
-        <span class="ident">n1</span>.<span class="ident">append</span>(<span class="ident">n1_3</span>, <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_remove_subtree_complex() {
+        <span class="comment">// arena
+        // `-- 1
+        //     |-- 1_1
+        //     |-- 1_2
+        //     |   |-- 1_2_1
+        //     |   |   `-- 1_2_1_1
+        //     |   |       `-- 1_2_1_1_1
+        //     |   `-- 1_2_2
+        //     `-- 1_3
+        </span><span class="kw">let </span><span class="kw-2">mut </span>arena = Arena::new();
+        <span class="kw">let </span>n1 = arena.new_node(<span class="string">&quot;1&quot;</span>);
+        <span class="kw">let </span>n1_1 = arena.new_node(<span class="string">&quot;1_1&quot;</span>);
+        n1.append(n1_1, <span class="kw-2">&amp;mut </span>arena);
+        <span class="kw">let </span>n1_2 = arena.new_node(<span class="string">&quot;1_2&quot;</span>);
+        n1.append(n1_2, <span class="kw-2">&amp;mut </span>arena);
+        <span class="kw">let </span>n1_2_1 = arena.new_node(<span class="string">&quot;1_2_1&quot;</span>);
+        n1_2.append(n1_2_1, <span class="kw-2">&amp;mut </span>arena);
+        <span class="kw">let </span>n1_2_1_1 = arena.new_node(<span class="string">&quot;1_2_1_1&quot;</span>);
+        n1_2_1.append(n1_2_1_1, <span class="kw-2">&amp;mut </span>arena);
+        <span class="kw">let </span>n1_2_1_1_1 = arena.new_node(<span class="string">&quot;1_2_1_1_1&quot;</span>);
+        n1_2_1_1.append(n1_2_1_1_1, <span class="kw-2">&amp;mut </span>arena);
+        <span class="kw">let </span>n1_2_2 = arena.new_node(<span class="string">&quot;1_2_2&quot;</span>);
+        n1_2.append(n1_2_2, <span class="kw-2">&amp;mut </span>arena);
+        <span class="kw">let </span>n1_3 = arena.new_node(<span class="string">&quot;1_3&quot;</span>);
+        n1.append(n1_3, <span class="kw-2">&amp;mut </span>arena);
 
-        <span class="ident">n1_2</span>.<span class="ident">remove_subtree</span>(<span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
+        n1_2.remove_subtree(<span class="kw-2">&amp;mut </span>arena);
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">n1</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">n1_1</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">n1_3</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
+        <span class="macro">assert!</span>(!n1.is_removed(<span class="kw-2">&amp;</span>arena));
+        <span class="macro">assert!</span>(!n1_1.is_removed(<span class="kw-2">&amp;</span>arena));
+        <span class="macro">assert!</span>(!n1_3.is_removed(<span class="kw-2">&amp;</span>arena));
 
-        <span class="macro">assert!</span>(<span class="ident">n1_2</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
-        <span class="macro">assert!</span>(<span class="ident">n1_2_1</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
-        <span class="macro">assert!</span>(<span class="ident">n1_2_1_1</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
-        <span class="macro">assert!</span>(<span class="ident">n1_2_1_1_1</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
-        <span class="macro">assert!</span>(<span class="ident">n1_2_2</span>.<span class="ident">is_removed</span>(<span class="kw-2">&amp;</span><span class="ident">arena</span>));
+        <span class="macro">assert!</span>(n1_2.is_removed(<span class="kw-2">&amp;</span>arena));
+        <span class="macro">assert!</span>(n1_2_1.is_removed(<span class="kw-2">&amp;</span>arena));
+        <span class="macro">assert!</span>(n1_2_1_1.is_removed(<span class="kw-2">&amp;</span>arena));
+        <span class="macro">assert!</span>(n1_2_1_1_1.is_removed(<span class="kw-2">&amp;</span>arena));
+        <span class="macro">assert!</span>(n1_2_2.is_removed(<span class="kw-2">&amp;</span>arena));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

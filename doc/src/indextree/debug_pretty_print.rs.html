@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/debug_pretty_print.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>debug_pretty_print.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/debug_pretty_print.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>debug_pretty_print.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -341,38 +335,38 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Debug printer.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Debug printer.
 
-<span class="kw">use</span> <span class="ident">core::fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span> <span class="kw">as</span> <span class="kw">_</span>};
+</span><span class="kw">use </span>core::fmt::{<span class="self">self</span>, Write <span class="kw">as _</span>};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">alloc::vec::Vec</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std::vec::Vec</span>;
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">use </span>alloc::vec::Vec;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::vec::Vec;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">arena::Arena</span>,
-    <span class="ident">id::NodeId</span>,
-    <span class="ident">traverse</span>::{<span class="ident">NodeEdge</span>, <span class="ident">Traverse</span>},
+<span class="kw">use crate</span>::{
+    arena::Arena,
+    id::NodeId,
+    traverse::{NodeEdge, Traverse},
 };
 
-<span class="comment">//use crate::dynamic::hierarchy::traverse::{DepthFirstTraverser, DftEvent};</span>
-<span class="comment">//use crate::dynamic::hierarchy::Hierarchy;</span>
+<span class="comment">//use crate::dynamic::hierarchy::traverse::{DepthFirstTraverser, DftEvent};
+//use crate::dynamic::hierarchy::Hierarchy;
 
-<span class="doccomment">/// State of an indent block.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">struct</span> <span class="ident">IndentedBlockState</span> {
-    <span class="doccomment">/// Whether this is the last item.</span>
-    <span class="ident">is_last_item</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Whether the line is the first line.</span>
-    <span class="ident">is_first_line</span>: <span class="ident">bool</span>,
+</span><span class="doccomment">/// State of an indent block.
+</span><span class="attribute">#[derive(Clone, Copy)]
+</span><span class="kw">struct </span>IndentedBlockState {
+    <span class="doccomment">/// Whether this is the last item.
+    </span>is_last_item: bool,
+    <span class="doccomment">/// Whether the line is the first line.
+    </span>is_first_line: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">IndentedBlockState</span> {
-    <span class="doccomment">/// Returns the indent string for the indent type.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_last_item</span>, <span class="self">self</span>.<span class="ident">is_first_line</span>) {
+<span class="kw">impl </span>IndentedBlockState {
+    <span class="doccomment">/// Returns the indent string for the indent type.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_str(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span>(<span class="self">self</span>.is_last_item, <span class="self">self</span>.is_first_line) {
             (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;|-- &quot;</span>,
             (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;|   &quot;</span>,
             (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;`-- &quot;</span>,
@@ -380,10 +374,10 @@
         }
     }
 
-    <span class="doccomment">/// Returns the leading part of the indent string.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_str_leading</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_last_item</span>, <span class="self">self</span>.<span class="ident">is_first_line</span>) {
+    <span class="doccomment">/// Returns the leading part of the indent string.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_str_leading(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span>(<span class="self">self</span>.is_last_item, <span class="self">self</span>.is_first_line) {
             (<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;|--&quot;</span>,
             (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;|&quot;</span>,
             (<span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot;`--&quot;</span>,
@@ -391,293 +385,292 @@
         }
     }
 
-    <span class="doccomment">/// Returns the trailing whitespaces part of the indent string.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">as_str_trailing_spaces</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_last_item</span>, <span class="self">self</span>.<span class="ident">is_first_line</span>) {
+    <span class="doccomment">/// Returns the trailing whitespaces part of the indent string.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>as_str_trailing_spaces(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span>(<span class="self">self</span>.is_last_item, <span class="self">self</span>.is_first_line) {
             (<span class="kw">_</span>, <span class="bool-val">true</span>) =&gt; <span class="string">&quot; &quot;</span>,
             (<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;   &quot;</span>,
             (<span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="string">&quot;    &quot;</span>,
         }
     }
 
-    <span class="doccomment">/// Returns whether the indent string consists of only whitespaces.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_all_whitespace</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_last_item</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_first_line</span>
+    <span class="doccomment">/// Returns whether the indent string consists of only whitespaces.
+    </span><span class="attribute">#[inline]
+    #[must_use]
+    </span><span class="kw">fn </span>is_all_whitespace(<span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_last_item &amp;&amp; !<span class="self">self</span>.is_first_line
     }
 }
 
-<span class="doccomment">/// State of the line writing.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">LineState</span> {
-    <span class="doccomment">/// Before any character of the indent is written to the current line.</span>
-    <span class="ident">BeforeIndent</span>,
-    <span class="doccomment">/// Indents are partially written.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// More precisely, trailing whitespaces are not yet written.</span>
-    <span class="ident">PartialIndent</span>,
-    <span class="doccomment">/// Writing content.</span>
-    <span class="ident">Content</span>,
+<span class="doccomment">/// State of the line writing.
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">enum </span>LineState {
+    <span class="doccomment">/// Before any character of the indent is written to the current line.
+    </span>BeforeIndent,
+    <span class="doccomment">/// Indents are partially written.
+    ///
+    /// More precisely, trailing whitespaces are not yet written.
+    </span>PartialIndent,
+    <span class="doccomment">/// Writing content.
+    </span>Content,
 }
 
-<span class="doccomment">/// Indent writer for the debug printer.</span>
-<span class="kw">struct</span> <span class="ident">IndentWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Backend formatter.</span>
-    <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// State of the line writing.</span>
-    <span class="ident">line_state</span>: <span class="ident">LineState</span>,
-    <span class="doccomment">/// Indents.</span>
-    <span class="ident">indents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IndentedBlockState</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The number of pending whitespace-only indents.</span>
-    <span class="ident">pending_ws_only_indent_level</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// Indent writer for the debug printer.
+</span><span class="kw">struct </span>IndentWriter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+    <span class="doccomment">/// Backend formatter.
+    </span>fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="doccomment">/// State of the line writing.
+    </span>line_state: LineState,
+    <span class="doccomment">/// Indents.
+    </span>indents: Vec&lt;IndentedBlockState&gt;,
+    <span class="doccomment">/// The number of pending whitespace-only indents.
+    </span>pending_ws_only_indent_level: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="ident">IndentWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new `PadAdapter`.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">fmt</span>,
-            <span class="ident">line_state</span>: <span class="ident">LineState::BeforeIndent</span>,
-            <span class="ident">indents</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">pending_ws_only_indent_level</span>: <span class="number">0</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; IndentWriter&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span>&gt; {
+    <span class="doccomment">/// Creates a new `PadAdapter`.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>new(fmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b </span><span class="kw-2">mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            fmt,
+            line_state: LineState::BeforeIndent,
+            indents: Vec::new(),
+            pending_ws_only_indent_level: <span class="number">0</span>,
         }
     }
 
-    <span class="doccomment">/// Opens the next item.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Writes a newline if necessary and prepares to write the next item.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should **not** be called for the root item.</span>
-    <span class="kw">fn</span> <span class="ident">open_item</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">is_last_item</span>: <span class="ident">bool</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">line_state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LineState::BeforeIndent</span> {
-            <span class="self">self</span>.<span class="ident">fmt</span>.<span class="ident">write_char</span>(<span class="string">&#39;\n&#39;</span>)<span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">line_state</span> <span class="op">=</span> <span class="ident">LineState::BeforeIndent</span>;
-            <span class="self">self</span>.<span class="ident">pending_ws_only_indent_level</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Opens the next item.
+    ///
+    /// Writes a newline if necessary and prepares to write the next item.
+    ///
+    /// This should **not** be called for the root item.
+    </span><span class="kw">fn </span>open_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, is_last_item: bool) -&gt; fmt::Result {
+        <span class="kw">if </span><span class="self">self</span>.line_state != LineState::BeforeIndent {
+            <span class="self">self</span>.fmt.write_char(<span class="string">&#39;\n&#39;</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.line_state = LineState::BeforeIndent;
+            <span class="self">self</span>.pending_ws_only_indent_level = <span class="number">0</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">indent</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">indents</span>.<span class="ident">last_mut</span>() {
-            <span class="ident">indent</span>.<span class="ident">is_first_line</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(indent) = <span class="self">self</span>.indents.last_mut() {
+            indent.is_first_line = <span class="bool-val">false</span>;
         }
-        <span class="self">self</span>.<span class="ident">indents</span>.<span class="ident">push</span>(<span class="ident">IndentedBlockState</span> {
-            <span class="ident">is_last_item</span>,
-            <span class="ident">is_first_line</span>: <span class="bool-val">true</span>,
+        <span class="self">self</span>.indents.push(IndentedBlockState {
+            is_last_item,
+            is_first_line: <span class="bool-val">true</span>,
         });
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Closes the current item.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `Ok(())` if an item is successfully closed.</span>
-    <span class="doccomment">/// Returns `Err(())` if there are no items that can be closed, i.e. the</span>
-    <span class="doccomment">/// current item is the root.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">close_item</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), ()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">indents</span>.<span class="ident">pop</span>() {
+    <span class="doccomment">/// Closes the current item.
+    ///
+    /// Returns `Ok(())` if an item is successfully closed.
+    /// Returns `Err(())` if there are no items that can be closed, i.e. the
+    /// current item is the root.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">fn </span>close_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), ()&gt; {
+        <span class="kw">match </span><span class="self">self</span>.indents.pop() {
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(()),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(()),
         }
     }
 
-    <span class="doccomment">/// Writes the indent except for the trailing whitespaces.</span>
-    <span class="kw">fn</span> <span class="ident">write_indent_partial</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="self">self</span>.<span class="ident">pending_ws_only_indent_level</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">indents</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">rev</span>()
-            .<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">is_all_whitespace</span>())
-            .<span class="ident">count</span>();
+    <span class="doccomment">/// Writes the indent except for the trailing whitespaces.
+    </span><span class="kw">fn </span>write_indent_partial(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
+        <span class="self">self</span>.pending_ws_only_indent_level = <span class="self">self
+            </span>.indents
+            .iter()
+            .rev()
+            .take_while(|i| i.is_all_whitespace())
+            .count();
 
-        <span class="kw">let</span> <span class="ident">ws_indent_first_level</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">indents</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">pending_ws_only_indent_level</span>;
-        <span class="kw">let</span> <span class="ident">indents_to_print</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">indents</span>[..<span class="ident">ws_indent_first_level</span>];
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last</span>) <span class="op">=</span> <span class="ident">indents_to_print</span>.<span class="ident">last</span>() {
-            <span class="kw">for</span> <span class="ident">indent</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">indents_to_print</span>[..(<span class="ident">indents_to_print</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)] {
-                <span class="self">self</span>.<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="ident">indent</span>.<span class="ident">as_str</span>())<span class="question-mark">?</span>;
+        <span class="kw">let </span>ws_indent_first_level = <span class="self">self</span>.indents.len() - <span class="self">self</span>.pending_ws_only_indent_level;
+        <span class="kw">let </span>indents_to_print = <span class="kw-2">&amp;</span><span class="self">self</span>.indents[..ws_indent_first_level];
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(last) = indents_to_print.last() {
+            <span class="kw">for </span>indent <span class="kw">in </span><span class="kw-2">&amp;</span>indents_to_print[..(indents_to_print.len() - <span class="number">1</span>)] {
+                <span class="self">self</span>.fmt.write_str(indent.as_str())<span class="question-mark">?</span>;
             }
-            <span class="self">self</span>.<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="ident">last</span>.<span class="ident">as_str_leading</span>())<span class="question-mark">?</span>;
+            <span class="self">self</span>.fmt.write_str(last.as_str_leading())<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Writes the rest of the indents which are partially written.</span>
-    <span class="kw">fn</span> <span class="ident">complete_partial_indent</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.<span class="ident">line_state</span>, <span class="ident">LineState::PartialIndent</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last_non_ws_indent_level</span>) <span class="op">=</span>
-            (<span class="self">self</span>.<span class="ident">indents</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">pending_ws_only_indent_level</span>).<span class="ident">checked_sub</span>(<span class="number">1</span>)
+    <span class="doccomment">/// Writes the rest of the indents which are partially written.
+    </span><span class="kw">fn </span>complete_partial_indent(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; fmt::Result {
+        <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.line_state, LineState::PartialIndent);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(last_non_ws_indent_level) =
+            (<span class="self">self</span>.indents.len() - <span class="self">self</span>.pending_ws_only_indent_level).checked_sub(<span class="number">1</span>)
         {
-            <span class="self">self</span>.<span class="ident">fmt</span>
-                .<span class="ident">write_str</span>(<span class="self">self</span>.<span class="ident">indents</span>[<span class="ident">last_non_ws_indent_level</span>].<span class="ident">as_str_trailing_spaces</span>())<span class="question-mark">?</span>;
+            <span class="self">self</span>.fmt
+                .write_str(<span class="self">self</span>.indents[last_non_ws_indent_level].as_str_trailing_spaces())<span class="question-mark">?</span>;
         }
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">pending_ws_only_indent_level</span> {
-            <span class="self">self</span>.<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;    &quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="self">self</span>.pending_ws_only_indent_level {
+            <span class="self">self</span>.fmt.write_str(<span class="string">&quot;    &quot;</span>)<span class="question-mark">?</span>;
         }
-        <span class="self">self</span>.<span class="ident">pending_ws_only_indent_level</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="self">self</span>.pending_ws_only_indent_level = <span class="number">0</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Write</span> <span class="kw">for</span> <span class="ident">IndentWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">write_str</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">while</span> <span class="op">!</span><span class="ident">s</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// There remains something to print.</span>
+<span class="kw">impl </span>fmt::Write <span class="kw">for </span>IndentWriter&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>write_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span>str) -&gt; fmt::Result {
+        <span class="kw">while </span>!s.is_empty() {
+            <span class="comment">// There remains something to print.
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">line_state</span> <span class="op">==</span> <span class="ident">LineState::BeforeIndent</span> {
-                <span class="self">self</span>.<span class="ident">write_indent_partial</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">line_state</span> <span class="op">=</span> <span class="ident">LineState::PartialIndent</span>;
+            </span><span class="kw">if </span><span class="self">self</span>.line_state == LineState::BeforeIndent {
+                <span class="self">self</span>.write_indent_partial()<span class="question-mark">?</span>;
+                <span class="self">self</span>.line_state = LineState::PartialIndent;
             }
 
-            <span class="kw">let</span> (<span class="ident">line_end</span>, <span class="ident">ends_with_newline</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">find</span>(<span class="string">&#39;\n&#39;</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">pos</span>) =&gt; (<span class="ident">pos</span> <span class="op">+</span> <span class="number">1</span>, <span class="bool-val">true</span>),
-                <span class="prelude-val">None</span> =&gt; (<span class="ident">s</span>.<span class="ident">len</span>(), <span class="bool-val">false</span>),
+            <span class="kw">let </span>(line_end, ends_with_newline) = <span class="kw">match </span>s.find(<span class="string">&#39;\n&#39;</span>) {
+                <span class="prelude-val">Some</span>(pos) =&gt; (pos + <span class="number">1</span>, <span class="bool-val">true</span>),
+                <span class="prelude-val">None </span>=&gt; (s.len(), <span class="bool-val">false</span>),
             };
-            <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s</span>[..<span class="ident">line_end</span>];
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">content</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">let </span>content = <span class="kw-2">&amp;</span>s[..line_end];
+            <span class="kw">if </span>!content.is_empty() {
                 <span class="macro">debug_assert_ne!</span>(
-                    <span class="self">self</span>.<span class="ident">line_state</span>,
-                    <span class="ident">LineState::BeforeIndent</span>,
-                    <span class="string">&quot;[consistency] indent must be written since there are something to write&quot;</span>
-                );
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">line_state</span> <span class="op">==</span> <span class="ident">LineState::PartialIndent</span> {
-                    <span class="self">self</span>.<span class="ident">complete_partial_indent</span>()<span class="question-mark">?</span>;
+                    <span class="self">self</span>.line_state,
+                    LineState::BeforeIndent,
+                    <span class="string">&quot;[consistency] indent must be written since there are something to write&quot;
+                </span>);
+                <span class="kw">if </span><span class="self">self</span>.line_state == LineState::PartialIndent {
+                    <span class="self">self</span>.complete_partial_indent()<span class="question-mark">?</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">level</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">indents</span>.<span class="ident">last_mut</span>() {
-                    <span class="ident">level</span>.<span class="ident">is_first_line</span> <span class="op">=</span> <span class="ident">level</span>.<span class="ident">is_first_line</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ends_with_newline</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(level) = <span class="self">self</span>.indents.last_mut() {
+                    level.is_first_line = level.is_first_line &amp;&amp; !ends_with_newline;
                 }
-                <span class="self">self</span>.<span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="ident">content</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.fmt.write_str(content)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">line_state</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ends_with_newline</span> {
-                    <span class="ident">LineState::BeforeIndent</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">LineState::Content</span>
+                <span class="self">self</span>.line_state = <span class="kw">if </span>ends_with_newline {
+                    LineState::BeforeIndent
+                } <span class="kw">else </span>{
+                    LineState::Content
                 };
             }
-            <span class="ident">s</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">s</span>[<span class="ident">line_end</span>..];
+            s = <span class="kw-2">&amp;</span>s[line_end..];
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="doccomment">/// Tree printer for debugging.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This is provided mainly for debugging purpose. Node that the output format</span>
-<span class="doccomment">/// is not guaranteed to be stable, and any format changes won&#39;t be considered</span>
-<span class="doccomment">/// as breaking changes.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For usage and output examples, see</span>
-<span class="doccomment">/// [`NodeId::debug_pretty_print`][`crate::NodeId::debug_pretty_print`] method.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DebugPrettyPrint</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Root node ID of the (sub)tree to print.</span>
-    <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">NodeId</span>,
-    <span class="doccomment">/// Arena the node belongs to.</span>
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Tree printer for debugging.
+///
+/// This is provided mainly for debugging purpose. Node that the output format
+/// is not guaranteed to be stable, and any format changes won&#39;t be considered
+/// as breaking changes.
+///
+/// For usage and output examples, see
+/// [`NodeId::debug_pretty_print`][`crate::NodeId::debug_pretty_print`] method.
+</span><span class="attribute">#[derive(Clone, Copy)]
+</span><span class="kw">pub struct </span>DebugPrettyPrint&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="doccomment">/// Root node ID of the (sub)tree to print.
+    </span>id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeId,
+    <span class="doccomment">/// Arena the node belongs to.
+    </span>arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">DebugPrettyPrint</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new `DebugPrettyPrint` object for the node.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">NodeId</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">id</span>, <span class="ident">arena</span> }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; DebugPrettyPrint&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="doccomment">/// Creates a new `DebugPrettyPrint` object for the node.
+    </span><span class="attribute">#[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(id: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeId, arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ id, arena }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">DebugPrettyPrint</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="ident">is_alternate</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">alternate</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">IndentWriter::new</span>(<span class="ident">f</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">traverser</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">traverse</span>(<span class="self">self</span>.<span class="ident">arena</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: fmt::Display&gt; fmt::Display <span class="kw">for </span>DebugPrettyPrint&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span>is_alternate = f.alternate();
+        <span class="kw">let </span><span class="kw-2">mut </span>writer = IndentWriter::new(f);
+        <span class="kw">let </span><span class="kw-2">mut </span>traverser = <span class="self">self</span>.id.traverse(<span class="self">self</span>.arena);
 
-        <span class="comment">// Print the first (root) node.</span>
-        <span class="ident">traverser</span>.<span class="ident">next</span>();
+        <span class="comment">// Print the first (root) node.
+        </span>traverser.next();
         {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">arena</span>[<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">id</span>].<span class="ident">get</span>();
-            <span class="kw">if</span> <span class="ident">is_alternate</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:#}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            }
+            <span class="kw">let </span>data = <span class="self">self</span>.arena[<span class="kw-2">*</span><span class="self">self</span>.id].get();
+            <span class="kw">if </span>is_alternate {
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{:#}&quot;</span>, data)<span class="question-mark">?
+            </span>} <span class="kw">else </span>{
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{}&quot;</span>, data)<span class="question-mark">?
+            </span>}
         }
 
-        <span class="comment">// Print the descendants.</span>
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">prepare_next_node_printing</span>(<span class="kw-2">&amp;mut</span> <span class="ident">writer</span>, <span class="kw-2">&amp;mut</span> <span class="ident">traverser</span>)<span class="question-mark">?</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">traverser</span>.<span class="ident">arena</span>()[<span class="ident">id</span>].<span class="ident">get</span>();
-            <span class="kw">if</span> <span class="ident">is_alternate</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:#}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            }
+        <span class="comment">// Print the descendants.
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(id) = prepare_next_node_printing(<span class="kw-2">&amp;mut </span>writer, <span class="kw-2">&amp;mut </span>traverser)<span class="question-mark">? </span>{
+            <span class="kw">let </span>data = traverser.arena()[id].get();
+            <span class="kw">if </span>is_alternate {
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{:#}&quot;</span>, data)<span class="question-mark">?
+            </span>} <span class="kw">else </span>{
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{}&quot;</span>, data)<span class="question-mark">?
+            </span>}
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">fmt::Debug</span><span class="op">&gt;</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">DebugPrettyPrint</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="ident">is_alternate</span> <span class="op">=</span> <span class="ident">f</span>.<span class="ident">alternate</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">writer</span> <span class="op">=</span> <span class="ident">IndentWriter::new</span>(<span class="ident">f</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">traverser</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">traverse</span>(<span class="self">self</span>.<span class="ident">arena</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T: fmt::Debug&gt; fmt::Debug <span class="kw">for </span>DebugPrettyPrint&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span>is_alternate = f.alternate();
+        <span class="kw">let </span><span class="kw-2">mut </span>writer = IndentWriter::new(f);
+        <span class="kw">let </span><span class="kw-2">mut </span>traverser = <span class="self">self</span>.id.traverse(<span class="self">self</span>.arena);
 
-        <span class="comment">// Print the first (root) node.</span>
-        <span class="ident">traverser</span>.<span class="ident">next</span>();
+        <span class="comment">// Print the first (root) node.
+        </span>traverser.next();
         {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">arena</span>[<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">id</span>].<span class="ident">get</span>();
-            <span class="kw">if</span> <span class="ident">is_alternate</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:#?}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            }
+            <span class="kw">let </span>data = <span class="self">self</span>.arena[<span class="kw-2">*</span><span class="self">self</span>.id].get();
+            <span class="kw">if </span>is_alternate {
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{:#?}&quot;</span>, data)<span class="question-mark">?
+            </span>} <span class="kw">else </span>{
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{:?}&quot;</span>, data)<span class="question-mark">?
+            </span>}
         }
 
-        <span class="comment">// Print the descendants.</span>
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">prepare_next_node_printing</span>(<span class="kw-2">&amp;mut</span> <span class="ident">writer</span>, <span class="kw-2">&amp;mut</span> <span class="ident">traverser</span>)<span class="question-mark">?</span> {
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">traverser</span>.<span class="ident">arena</span>()[<span class="ident">id</span>].<span class="ident">get</span>();
-            <span class="kw">if</span> <span class="ident">is_alternate</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:#?}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            } <span class="kw">else</span> {
-                <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="ident">data</span>)<span class="question-mark">?</span>
-            }
+        <span class="comment">// Print the descendants.
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(id) = prepare_next_node_printing(<span class="kw-2">&amp;mut </span>writer, <span class="kw-2">&amp;mut </span>traverser)<span class="question-mark">? </span>{
+            <span class="kw">let </span>data = traverser.arena()[id].get();
+            <span class="kw">if </span>is_alternate {
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{:#?}&quot;</span>, data)<span class="question-mark">?
+            </span>} <span class="kw">else </span>{
+                <span class="macro">write!</span>(writer, <span class="string">&quot;{:?}&quot;</span>, data)<span class="question-mark">?
+            </span>}
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="doccomment">/// Prepares printing of next node.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Internally, this searches next node open and adjust indent level and prefix.</span>
-<span class="kw">fn</span> <span class="ident">prepare_next_node_printing</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-    <span class="ident">writer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">IndentWriter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    <span class="ident">traverser</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">T</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>, <span class="ident">fmt::Error</span><span class="op">&gt;</span> {
-    <span class="comment">// Not using `for ev in traverser` in order to access to `traverser`</span>
-    <span class="comment">// directly in the loop.</span>
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>) <span class="op">=</span> <span class="ident">traverser</span>.<span class="ident">next</span>() {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ev</span> {
-            <span class="ident">NodeEdge::Start</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
-            <span class="ident">NodeEdge::End</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">writer</span>.<span class="ident">close_item</span>().<span class="ident">is_ok</span>() {
-                    <span class="comment">// Closed a non-root node.</span>
-                    <span class="kw">continue</span>;
-                } <span class="kw">else</span> {
-                    <span class="comment">// Closed the root node.</span>
-                    <span class="kw">break</span>;
+<span class="doccomment">/// Prepares printing of next node.
+///
+/// Internally, this searches next node open and adjust indent level and prefix.
+</span><span class="kw">fn </span>prepare_next_node_printing&lt;T&gt;(
+    writer: <span class="kw-2">&amp;mut </span>IndentWriter&lt;<span class="lifetime">&#39;_</span>, <span class="lifetime">&#39;_</span>&gt;,
+    traverser: <span class="kw-2">&amp;mut </span>Traverse&lt;<span class="lifetime">&#39;_</span>, T&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;NodeId&gt;, fmt::Error&gt; {
+    <span class="comment">// Not using `for ev in traverser` in order to access to `traverser`
+    // directly in the loop.
+    </span><span class="kw">while let </span><span class="prelude-val">Some</span>(ev) = traverser.next() {
+        <span class="kw">let </span>id = <span class="kw">match </span>ev {
+            NodeEdge::Start(id) =&gt; id,
+            NodeEdge::End(<span class="kw">_</span>) =&gt; {
+                <span class="kw">if </span>writer.close_item().is_ok() {
+                    <span class="comment">// Closed a non-root node.
+                    </span><span class="kw">continue</span>;
+                } <span class="kw">else </span>{
+                    <span class="comment">// Closed the root node.
+                    </span><span class="kw">break</span>;
                 }
             }
         };
-        <span class="kw">let</span> <span class="ident">is_last_sibling</span> <span class="op">=</span> <span class="ident">traverser</span>.<span class="ident">arena</span>()[<span class="ident">id</span>].<span class="ident">next_sibling</span>().<span class="ident">is_none</span>();
-        <span class="ident">writer</span>.<span class="ident">open_item</span>(<span class="ident">is_last_sibling</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>is_last_sibling = traverser.arena()[id].next_sibling().is_none();
+        writer.open_item(is_last_sibling)<span class="question-mark">?</span>;
 
-        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">id</span>));
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(id));
     }
 
     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

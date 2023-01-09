@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/arena.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>arena.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/arena.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>arena.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -410,412 +404,411 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Arena.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Arena.
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">alloc::vec::Vec</span>;
+</span><span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">use </span>alloc::vec::Vec;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">core</span>::{
-    <span class="ident">num::NonZeroUsize</span>,
-    <span class="ident">ops</span>::{<span class="ident">Index</span>, <span class="ident">IndexMut</span>},
+<span class="attribute">#[cfg(not(feature = <span class="string">&quot;std&quot;</span>))]
+</span><span class="kw">use </span>core::{
+    num::NonZeroUsize,
+    ops::{Index, IndexMut},
 };
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;par_iter&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">rayon::prelude</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;par_iter&quot;</span>)]
+</span><span class="kw">use </span>rayon::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deser&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="attribute">#[cfg(feature = <span class="string">&quot;deser&quot;</span>)]
+</span><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">num::NonZeroUsize</span>,
-    <span class="ident">ops</span>::{<span class="ident">Index</span>, <span class="ident">IndexMut</span>},
+<span class="attribute">#[cfg(feature = <span class="string">&quot;std&quot;</span>)]
+</span><span class="kw">use </span>std::{
+    num::NonZeroUsize,
+    ops::{Index, IndexMut},
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">node::NodeData</span>, <span class="ident">Node</span>, <span class="ident">NodeId</span>};
+<span class="kw">use crate</span>::{node::NodeData, Node, NodeId};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;deser&quot;</span>, <span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>))]</span>
-<span class="doccomment">/// An `Arena` structure containing certain [`Node`]s.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [`Node`]: struct.Node.html</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">first_free_slot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">last_free_slot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(PartialEq, Eq, Clone, Debug)]
+#[cfg_attr(feature = <span class="string">&quot;deser&quot;</span>, derive(Deserialize, Serialize))]
+</span><span class="doccomment">/// An `Arena` structure containing certain [`Node`]s.
+///
+/// [`Node`]: struct.Node.html
+</span><span class="kw">pub struct </span>Arena&lt;T&gt; {
+    nodes: Vec&lt;Node&lt;T&gt;&gt;,
+    first_free_slot: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    last_free_slot: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates a new empty `Arena`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::default</span>()
+<span class="kw">impl</span>&lt;T&gt; Arena&lt;T&gt; {
+    <span class="doccomment">/// Creates a new empty `Arena`.
+    </span><span class="kw">pub fn </span>new() -&gt; Arena&lt;T&gt; {
+        <span class="self">Self</span>::default()
     }
 
-    <span class="doccomment">/// Creates a new empty `Arena` with enough capacity to store `n` nodes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">nodes</span>: <span class="ident">Vec::with_capacity</span>(<span class="ident">n</span>),
-            <span class="ident">first_free_slot</span>: <span class="prelude-val">None</span>,
-            <span class="ident">last_free_slot</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Creates a new empty `Arena` with enough capacity to store `n` nodes.
+    </span><span class="kw">pub fn </span>with_capacity(n: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            nodes: Vec::with_capacity(n),
+            first_free_slot: <span class="prelude-val">None</span>,
+            last_free_slot: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Returns the number of nodes the arena can hold without reallocating.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">capacity</span>()
+    <span class="doccomment">/// Returns the number of nodes the arena can hold without reallocating.
+    </span><span class="kw">pub fn </span>capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.nodes.capacity()
     }
 
-    <span class="doccomment">/// Reserves capacity for `additional` more nodes to be inserted.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The arena may reserve more space to avoid frequent reallocations.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the new capacity exceeds isize::MAX bytes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reserve</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">additional</span>: <span class="ident">usize</span>) {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">reserve</span>(<span class="ident">additional</span>);
+    <span class="doccomment">/// Reserves capacity for `additional` more nodes to be inserted.
+    ///
+    /// The arena may reserve more space to avoid frequent reallocations.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the new capacity exceeds isize::MAX bytes.
+    </span><span class="kw">pub fn </span>reserve(<span class="kw-2">&amp;mut </span><span class="self">self</span>, additional: usize) {
+        <span class="self">self</span>.nodes.reserve(additional);
     }
 
-    <span class="doccomment">/// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// let node = arena.get(foo).unwrap();</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let node_id = arena.get_node_id(node).unwrap();</span>
-    <span class="doccomment">/// assert_eq!(*arena[node_id].get(), &quot;foo&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_node_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span> {
-        <span class="comment">// self.nodes.as_ptr_range() is not stable until rust 1.48</span>
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">as_ptr</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">node</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">if</span> (<span class="ident">start</span>..<span class="ident">end</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
-            <span class="kw">let</span> <span class="ident">node_id</span> <span class="op">=</span> (<span class="ident">p</span> <span class="op">-</span> <span class="ident">start</span>) <span class="op">/</span> <span class="ident">core::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="ident">NonZeroUsize::new</span>(<span class="ident">node_id</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="ident">node_id_non_zero</span><span class="op">|</span> {
-                <span class="ident">NodeId::from_non_zero_usize</span>(<span class="ident">node_id_non_zero</span>, <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">node_id</span>].<span class="ident">stamp</span>)
+    <span class="doccomment">/// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node(&quot;foo&quot;);
+    /// let node = arena.get(foo).unwrap();
+    ///
+    /// let node_id = arena.get_node_id(node).unwrap();
+    /// assert_eq!(*arena[node_id].get(), &quot;foo&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>get_node_id(<span class="kw-2">&amp;</span><span class="self">self</span>, node: <span class="kw-2">&amp;</span>Node&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;NodeId&gt; {
+        <span class="comment">// self.nodes.as_ptr_range() is not stable until rust 1.48
+        </span><span class="kw">let </span>start = <span class="self">self</span>.nodes.as_ptr() <span class="kw">as </span>usize;
+        <span class="kw">let </span>end = start + <span class="self">self</span>.nodes.len() * core::mem::size_of::&lt;Node&lt;T&gt;&gt;();
+        <span class="kw">let </span>p = node <span class="kw">as </span><span class="kw-2">*const </span>Node&lt;T&gt; <span class="kw">as </span>usize;
+        <span class="kw">if </span>(start..end).contains(<span class="kw-2">&amp;</span>p) {
+            <span class="kw">let </span>node_id = (p - start) / core::mem::size_of::&lt;Node&lt;T&gt;&gt;();
+            NonZeroUsize::new(node_id.wrapping_add(<span class="number">1</span>)).map(|node_id_non_zero| {
+                NodeId::from_non_zero_usize(node_id_non_zero, <span class="self">self</span>.nodes[node_id].stamp)
             })
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="doccomment">/// Creates a new node from its associated data.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if the arena already has `usize::max_value()` nodes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*arena[foo].get(), &quot;foo&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_node</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">T</span>) -&gt; <span class="ident">NodeId</span> {
-        <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">stamp</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop_front_free_node</span>() {
-            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">index</span>];
-            <span class="ident">node</span>.<span class="ident">reuse</span>(<span class="ident">data</span>);
-            (<span class="ident">index</span>, <span class="ident">node</span>.<span class="ident">stamp</span>)
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>();
-            <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">Node::new</span>(<span class="ident">data</span>);
-            <span class="kw">let</span> <span class="ident">stamp</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">stamp</span>;
-            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">node</span>);
-            (<span class="ident">index</span>, <span class="ident">stamp</span>)
+    <span class="doccomment">/// Creates a new node from its associated data.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the arena already has `usize::max_value()` nodes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node(&quot;foo&quot;);
+    ///
+    /// assert_eq!(*arena[foo].get(), &quot;foo&quot;);
+    /// ```
+    </span><span class="kw">pub fn </span>new_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: T) -&gt; NodeId {
+        <span class="kw">let </span>(index, stamp) = <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = <span class="self">self</span>.pop_front_free_node() {
+            <span class="kw">let </span>node = <span class="kw-2">&amp;mut </span><span class="self">self</span>.nodes[index];
+            node.reuse(data);
+            (index, node.stamp)
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>index = <span class="self">self</span>.nodes.len();
+            <span class="kw">let </span>node = Node::new(data);
+            <span class="kw">let </span>stamp = node.stamp;
+            <span class="self">self</span>.nodes.push(node);
+            (index, stamp)
         };
-        <span class="kw">let</span> <span class="ident">next_index1</span> <span class="op">=</span>
-            <span class="ident">NonZeroUsize::new</span>(<span class="ident">index</span>.<span class="ident">wrapping_add</span>(<span class="number">1</span>)).<span class="ident">expect</span>(<span class="string">&quot;Too many nodes in the arena&quot;</span>);
-        <span class="ident">NodeId::from_non_zero_usize</span>(<span class="ident">next_index1</span>, <span class="ident">stamp</span>)
+        <span class="kw">let </span>next_index1 =
+            NonZeroUsize::new(index.wrapping_add(<span class="number">1</span>)).expect(<span class="string">&quot;Too many nodes in the arena&quot;</span>);
+        NodeId::from_non_zero_usize(next_index1, stamp)
     }
 
-    <span class="doccomment">/// Counts the number of nodes in arena and returns it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// let _bar = arena.new_node(&quot;bar&quot;);</span>
-    <span class="doccomment">/// assert_eq!(arena.count(), 2);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// foo.remove(&amp;mut arena);</span>
-    <span class="doccomment">/// assert_eq!(arena.count(), 2);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>()
+    <span class="doccomment">/// Counts the number of nodes in arena and returns it.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node(&quot;foo&quot;);
+    /// let _bar = arena.new_node(&quot;bar&quot;);
+    /// assert_eq!(arena.count(), 2);
+    ///
+    /// foo.remove(&amp;mut arena);
+    /// assert_eq!(arena.count(), 2);
+    /// ```
+    </span><span class="kw">pub fn </span>count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.nodes.len()
     }
 
-    <span class="doccomment">/// Returns `true` if arena has no nodes, `false` otherwise.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// assert!(arena.is_empty());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// assert!(!arena.is_empty());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// foo.remove(&amp;mut arena);</span>
-    <span class="doccomment">/// assert!(!arena.is_empty());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">count</span>() <span class="op">==</span> <span class="number">0</span>
+    <span class="doccomment">/// Returns `true` if arena has no nodes, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// assert!(arena.is_empty());
+    ///
+    /// let foo = arena.new_node(&quot;foo&quot;);
+    /// assert!(!arena.is_empty());
+    ///
+    /// foo.remove(&amp;mut arena);
+    /// assert!(!arena.is_empty());
+    /// ```
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.count() == <span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Returns a reference to the node with the given id if in the arena.
+    ///
+    /// Returns `None` if not available.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeId};
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node(&quot;foo&quot;);
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));
+    /// ```
+    ///
+    /// Note that this does not check whether the given node ID is created by
+    /// the arena.
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node(&quot;foo&quot;);
+    /// let bar = arena.new_node(&quot;bar&quot;);
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));
+    ///
+    /// let mut another_arena = Arena::new();
+    /// let _ = another_arena.new_node(&quot;Another arena&quot;);
+    /// assert_eq!(another_arena.get(foo).map(|node| *node.get()), Some(&quot;Another arena&quot;));
+    /// assert!(another_arena.get(bar).is_none());
+    /// ```
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, id: NodeId) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Node&lt;T&gt;&gt; {
+        <span class="self">self</span>.nodes.get(id.index0())
     }
 
-    <span class="doccomment">/// Returns a reference to the node with the given id if in the arena.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if not available.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeId};</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this does not check whether the given node ID is created by</span>
-    <span class="doccomment">/// the arena.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// let bar = arena.new_node(&quot;bar&quot;);</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut another_arena = Arena::new();</span>
-    <span class="doccomment">/// let _ = another_arena.new_node(&quot;Another arena&quot;);</span>
-    <span class="doccomment">/// assert_eq!(another_arena.get(foo).map(|node| *node.get()), Some(&quot;Another arena&quot;));</span>
-    <span class="doccomment">/// assert!(another_arena.get(bar).is_none());</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NodeId</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="ident">index0</span>())
+    <span class="doccomment">/// Returns a mutable reference to the node with the given id if in the
+    /// arena.
+    ///
+    /// Returns `None` if not available.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeId};
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node(&quot;foo&quot;);
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));
+    ///
+    /// *arena.get_mut(foo).expect(&quot;The `foo` node exists&quot;).get_mut() = &quot;FOO!&quot;;
+    /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;FOO!&quot;));
+    /// ```
+    </span><span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeId) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>Node&lt;T&gt;&gt; {
+        <span class="self">self</span>.nodes.get_mut(id.index0())
     }
 
-    <span class="doccomment">/// Returns a mutable reference to the node with the given id if in the</span>
-    <span class="doccomment">/// arena.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns `None` if not available.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeId};</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// *arena.get_mut(foo).expect(&quot;The `foo` node exists&quot;).get_mut() = &quot;FOO!&quot;;</span>
-    <span class="doccomment">/// assert_eq!(arena.get(foo).map(|node| *node.get()), Some(&quot;FOO!&quot;));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NodeId</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get_mut</span>(<span class="ident">id</span>.<span class="ident">index0</span>())
+    <span class="doccomment">/// Returns an iterator of all nodes in the arena in storage-order.
+    ///
+    /// Note that this iterator returns also removed elements, which can be
+    /// tested with the [`is_removed()`] method on the node.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let _foo = arena.new_node(&quot;foo&quot;);
+    /// let _bar = arena.new_node(&quot;bar&quot;);
+    ///
+    /// let mut iter = arena.iter();
+    /// assert_eq!(iter.next().map(|node| *node.get()), Some(&quot;foo&quot;));
+    /// assert_eq!(iter.next().map(|node| *node.get()), Some(&quot;bar&quot;));
+    /// assert_eq!(iter.next().map(|node| *node.get()), None);
+    /// ```
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let _foo = arena.new_node(&quot;foo&quot;);
+    /// let bar = arena.new_node(&quot;bar&quot;);
+    /// bar.remove(&amp;mut arena);
+    ///
+    /// let mut iter = arena.iter();
+    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some((&quot;foo&quot;, false)));
+    /// assert_eq!(iter.next().map_or(false, |node| node.is_removed()), true);
+    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);
+    /// ```
+    ///
+    /// [`is_removed()`]: struct.Node.html#method.is_removed
+    </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>Node&lt;T&gt;&gt; {
+        <span class="self">self</span>.nodes.iter()
     }
 
-    <span class="doccomment">/// Returns an iterator of all nodes in the arena in storage-order.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this iterator returns also removed elements, which can be</span>
-    <span class="doccomment">/// tested with the [`is_removed()`] method on the node.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let _foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// let _bar = arena.new_node(&quot;bar&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = arena.iter();</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| *node.get()), Some(&quot;foo&quot;));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| *node.get()), Some(&quot;bar&quot;));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| *node.get()), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let mut arena = Arena::new();</span>
-    <span class="doccomment">/// let _foo = arena.new_node(&quot;foo&quot;);</span>
-    <span class="doccomment">/// let bar = arena.new_node(&quot;bar&quot;);</span>
-    <span class="doccomment">/// bar.remove(&amp;mut arena);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut iter = arena.iter();</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some((&quot;foo&quot;, false)));</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map_or(false, |node| node.is_removed()), true);</span>
-    <span class="doccomment">/// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">iter</span>()
+    <span class="doccomment">/// Returns a mutable iterator of all nodes in the arena in storage-order.
+    ///
+    /// Note that this iterator returns also removed elements, which can be
+    /// tested with the [`is_removed()`] method on the node.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let arena: &amp;mut Arena&lt;i64&gt; = &amp;mut Arena::new();
+    /// let a = arena.new_node(1);
+    /// let b = arena.new_node(2);
+    /// assert!(a.checked_append(b, arena).is_ok());
+    ///
+    /// for node in arena.iter_mut() {
+    ///     let data = node.get_mut();
+    ///     *data = data.wrapping_add(4);
+    /// }
+    ///
+    /// let node_refs = arena.iter().map(|i| i.get().clone()).collect::&lt;Vec&lt;_&gt;&gt;();
+    /// assert_eq!(node_refs, vec![5, 6]);
+    /// ```
+    /// [`is_removed()`]: struct.Node.html#method.is_removed
+    </span><span class="kw">pub fn </span>iter_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;mut </span>Node&lt;T&gt;&gt; {
+        <span class="self">self</span>.nodes.iter_mut()
     }
 
-    <span class="doccomment">/// Returns a mutable iterator of all nodes in the arena in storage-order.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this iterator returns also removed elements, which can be</span>
-    <span class="doccomment">/// tested with the [`is_removed()`] method on the node.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::Arena;</span>
-    <span class="doccomment">/// let arena: &amp;mut Arena&lt;i64&gt; = &amp;mut Arena::new();</span>
-    <span class="doccomment">/// let a = arena.new_node(1);</span>
-    <span class="doccomment">/// let b = arena.new_node(2);</span>
-    <span class="doccomment">/// assert!(a.checked_append(b, arena).is_ok());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// for node in arena.iter_mut() {</span>
-    <span class="doccomment">///     let data = node.get_mut();</span>
-    <span class="doccomment">///     *data = data.wrapping_add(4);</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let node_refs = arena.iter().map(|i| i.get().clone()).collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// assert_eq!(node_refs, vec![5, 6]);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// [`is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">iter_mut</span>()
+    <span class="doccomment">/// Clears all the nodes in the arena, but retains its allocated capacity.
+    ///
+    /// Note that this does not marks all nodes as removed, but completely
+    /// removes them from the arena storage, thus invalidating all the node ids
+    /// that were previously created.
+    ///
+    /// Any attempt to call the [`is_removed()`] method on the node id will
+    /// result in panic behavior.
+    ///
+    /// [`is_removed()`]: struct.NodeId.html#method.is_removed
+    </span><span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.nodes.clear();
+        <span class="self">self</span>.first_free_slot = <span class="prelude-val">None</span>;
+        <span class="self">self</span>.last_free_slot = <span class="prelude-val">None</span>;
     }
 
-    <span class="doccomment">/// Clears all the nodes in the arena, but retains its allocated capacity.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this does not marks all nodes as removed, but completely</span>
-    <span class="doccomment">/// removes them from the arena storage, thus invalidating all the node ids</span>
-    <span class="doccomment">/// that were previously created.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Any attempt to call the [`is_removed()`] method on the node id will</span>
-    <span class="doccomment">/// result in panic behavior.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`is_removed()`]: struct.NodeId.html#method.is_removed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">clear</span>();
-        <span class="self">self</span>.<span class="ident">first_free_slot</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="self">self</span>.<span class="ident">last_free_slot</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">free_node</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NodeId</span>) {
-        <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>[<span class="ident">id</span>];
-        <span class="ident">node</span>.<span class="ident">data</span> <span class="op">=</span> <span class="ident">NodeData::NextFree</span>(<span class="prelude-val">None</span>);
-        <span class="ident">node</span>.<span class="ident">stamp</span>.<span class="ident">as_removed</span>();
-        <span class="kw">let</span> <span class="ident">stamp</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">stamp</span>;
-        <span class="kw">if</span> <span class="ident">stamp</span>.<span class="ident">reuseable</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_free_slot</span> {
-                <span class="kw">let</span> <span class="ident">new_last</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">index0</span>();
-                <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">index</span>].<span class="ident">data</span> <span class="op">=</span> <span class="ident">NodeData::NextFree</span>(<span class="prelude-val">Some</span>(<span class="ident">new_last</span>));
-                <span class="self">self</span>.<span class="ident">last_free_slot</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_last</span>);
-            } <span class="kw">else</span> {
-                <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">first_free_slot</span>.<span class="ident">is_none</span>());
-                <span class="macro">debug_assert!</span>(<span class="self">self</span>.<span class="ident">last_free_slot</span>.<span class="ident">is_none</span>());
-                <span class="self">self</span>.<span class="ident">first_free_slot</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">index0</span>());
-                <span class="self">self</span>.<span class="ident">last_free_slot</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">index0</span>());
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>free_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeId) {
+        <span class="kw">let </span>node = <span class="kw-2">&amp;mut </span><span class="self">self</span>[id];
+        node.data = NodeData::NextFree(<span class="prelude-val">None</span>);
+        node.stamp.as_removed();
+        <span class="kw">let </span>stamp = node.stamp;
+        <span class="kw">if </span>stamp.reuseable() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = <span class="self">self</span>.last_free_slot {
+                <span class="kw">let </span>new_last = id.index0();
+                <span class="self">self</span>.nodes[index].data = NodeData::NextFree(<span class="prelude-val">Some</span>(new_last));
+                <span class="self">self</span>.last_free_slot = <span class="prelude-val">Some</span>(new_last);
+            } <span class="kw">else </span>{
+                <span class="macro">debug_assert!</span>(<span class="self">self</span>.first_free_slot.is_none());
+                <span class="macro">debug_assert!</span>(<span class="self">self</span>.last_free_slot.is_none());
+                <span class="self">self</span>.first_free_slot = <span class="prelude-val">Some</span>(id.index0());
+                <span class="self">self</span>.last_free_slot = <span class="prelude-val">Some</span>(id.index0());
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pop_front_free_node</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">first_free_slot</span>.<span class="ident">take</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="ident">first</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">NodeData::NextFree</span>(<span class="ident">next_free</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">index</span>].<span class="ident">data</span> {
-                <span class="self">self</span>.<span class="ident">first_free_slot</span> <span class="op">=</span> <span class="ident">next_free</span>;
-            } <span class="kw">else</span> {
+    <span class="kw">fn </span>pop_front_free_node(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="kw">let </span>first = <span class="self">self</span>.first_free_slot.take();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = first {
+            <span class="kw">if let </span>NodeData::NextFree(next_free) = <span class="self">self</span>.nodes[index].data {
+                <span class="self">self</span>.first_free_slot = next_free;
+            } <span class="kw">else </span>{
                 <span class="macro">unreachable!</span>(<span class="string">&quot;A data node consider as a freed node&quot;</span>);
             }
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">first_free_slot</span>.<span class="ident">is_none</span>() {
-                <span class="self">self</span>.<span class="ident">last_free_slot</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">if </span><span class="self">self</span>.first_free_slot.is_none() {
+                <span class="self">self</span>.last_free_slot = <span class="prelude-val">None</span>;
             }
         }
 
-        <span class="ident">first</span>
+        first
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;par_iter&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Sync</span><span class="op">&gt;</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns an parallel iterator over the whole arena.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that this iterator returns also removed elements, which can be</span>
-    <span class="doccomment">/// tested with the [`is_removed()`] method on the node.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`is_removed()`]: struct.Node.html#method.is_removed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">par_iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">rayon::slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">par_iter</span>()
+<span class="attribute">#[cfg(feature = <span class="string">&quot;par_iter&quot;</span>)]
+</span><span class="kw">impl</span>&lt;T: Sync&gt; Arena&lt;T&gt; {
+    <span class="doccomment">/// Returns an parallel iterator over the whole arena.
+    ///
+    /// Note that this iterator returns also removed elements, which can be
+    /// tested with the [`is_removed()`] method on the node.
+    ///
+    /// [`is_removed()`]: struct.Node.html#method.is_removed
+    </span><span class="kw">pub fn </span>par_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; rayon::slice::Iter&lt;<span class="lifetime">&#39;_</span>, Node&lt;T&gt;&gt; {
+        <span class="self">self</span>.nodes.par_iter()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">nodes</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">first_free_slot</span>: <span class="prelude-val">None</span>,
-            <span class="ident">last_free_slot</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>Arena&lt;T&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            nodes: Vec::new(),
+            first_free_slot: <span class="prelude-val">None</span>,
+            last_free_slot: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Index</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;T&gt; Index&lt;NodeId&gt; <span class="kw">for </span>Arena&lt;T&gt; {
+    <span class="kw">type </span>Output = Node&lt;T&gt;;
 
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">node</span>: <span class="ident">NodeId</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">node</span>.<span class="ident">index0</span>()]
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, node: NodeId) -&gt; <span class="kw-2">&amp;</span>Node&lt;T&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.nodes[node.index0()]
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">IndexMut</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">index_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="ident">NodeId</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">node</span>.<span class="ident">index0</span>()]
+<span class="kw">impl</span>&lt;T&gt; IndexMut&lt;NodeId&gt; <span class="kw">for </span>Arena&lt;T&gt; {
+    <span class="kw">fn </span>index_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: NodeId) -&gt; <span class="kw-2">&amp;mut </span>Node&lt;T&gt; {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.nodes[node.index0()]
     }
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">reuse_node</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arena</span> <span class="op">=</span> <span class="ident">Arena::new</span>();
-    <span class="kw">let</span> <span class="ident">n1_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1&quot;</span>);
-    <span class="kw">let</span> <span class="ident">n2_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;2&quot;</span>);
-    <span class="kw">let</span> <span class="ident">n3_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;3&quot;</span>);
-    <span class="ident">n1_id</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-    <span class="ident">n2_id</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-    <span class="ident">n3_id</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="ident">arena</span>);
-    <span class="kw">let</span> <span class="ident">n1_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;1&quot;</span>);
-    <span class="kw">let</span> <span class="ident">n2_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;2&quot;</span>);
-    <span class="kw">let</span> <span class="ident">n3_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="string">&quot;3&quot;</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">n1_id</span>.<span class="ident">index0</span>(), <span class="number">0</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">n2_id</span>.<span class="ident">index0</span>(), <span class="number">1</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">n3_id</span>.<span class="ident">index0</span>(), <span class="number">2</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">arena</span>.<span class="ident">nodes</span>.<span class="ident">len</span>(), <span class="number">3</span>);
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>reuse_node() {
+    <span class="kw">let </span><span class="kw-2">mut </span>arena = Arena::new();
+    <span class="kw">let </span>n1_id = arena.new_node(<span class="string">&quot;1&quot;</span>);
+    <span class="kw">let </span>n2_id = arena.new_node(<span class="string">&quot;2&quot;</span>);
+    <span class="kw">let </span>n3_id = arena.new_node(<span class="string">&quot;3&quot;</span>);
+    n1_id.remove(<span class="kw-2">&amp;mut </span>arena);
+    n2_id.remove(<span class="kw-2">&amp;mut </span>arena);
+    n3_id.remove(<span class="kw-2">&amp;mut </span>arena);
+    <span class="kw">let </span>n1_id = arena.new_node(<span class="string">&quot;1&quot;</span>);
+    <span class="kw">let </span>n2_id = arena.new_node(<span class="string">&quot;2&quot;</span>);
+    <span class="kw">let </span>n3_id = arena.new_node(<span class="string">&quot;3&quot;</span>);
+    <span class="macro">assert_eq!</span>(n1_id.index0(), <span class="number">0</span>);
+    <span class="macro">assert_eq!</span>(n2_id.index0(), <span class="number">1</span>);
+    <span class="macro">assert_eq!</span>(n3_id.index0(), <span class="number">2</span>);
+    <span class="macro">assert_eq!</span>(arena.nodes.len(), <span class="number">3</span>);
 }
 
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">conserve_capacity</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arena</span> <span class="op">=</span> <span class="ident">Arena::with_capacity</span>(<span class="number">5</span>);
-    <span class="kw">let</span> <span class="ident">cap</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">capacity</span>();
-    <span class="macro">assert!</span>(<span class="ident">cap</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">5</span>);
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">cap</span> {
-        <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="ident">i</span>);
+<span class="attribute">#[test]
+</span><span class="kw">fn </span>conserve_capacity() {
+    <span class="kw">let </span><span class="kw-2">mut </span>arena = Arena::with_capacity(<span class="number">5</span>);
+    <span class="kw">let </span>cap = arena.capacity();
+    <span class="macro">assert!</span>(cap &gt;= <span class="number">5</span>);
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..cap {
+        arena.new_node(i);
     }
-    <span class="ident">arena</span>.<span class="ident">clear</span>();
-    <span class="macro">assert!</span>(<span class="ident">arena</span>.<span class="ident">is_empty</span>());
-    <span class="kw">let</span> <span class="ident">n1_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">n2_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="number">2</span>);
-    <span class="kw">let</span> <span class="ident">n3_id</span> <span class="op">=</span> <span class="ident">arena</span>.<span class="ident">new_node</span>(<span class="number">3</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">n1_id</span>.<span class="ident">index0</span>(), <span class="number">0</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">n2_id</span>.<span class="ident">index0</span>(), <span class="number">1</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">n3_id</span>.<span class="ident">index0</span>(), <span class="number">2</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">arena</span>.<span class="ident">count</span>(), <span class="number">3</span>);
-    <span class="macro">assert_eq!</span>(<span class="ident">arena</span>.<span class="ident">capacity</span>(), <span class="ident">cap</span>);
+    arena.clear();
+    <span class="macro">assert!</span>(arena.is_empty());
+    <span class="kw">let </span>n1_id = arena.new_node(<span class="number">1</span>);
+    <span class="kw">let </span>n2_id = arena.new_node(<span class="number">2</span>);
+    <span class="kw">let </span>n3_id = arena.new_node(<span class="number">3</span>);
+    <span class="macro">assert_eq!</span>(n1_id.index0(), <span class="number">0</span>);
+    <span class="macro">assert_eq!</span>(n2_id.index0(), <span class="number">1</span>);
+    <span class="macro">assert_eq!</span>(n3_id.index0(), <span class="number">2</span>);
+    <span class="macro">assert_eq!</span>(arena.count(), <span class="number">3</span>);
+    <span class="macro">assert_eq!</span>(arena.capacity(), cap);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/siblings_range.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>siblings_range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/siblings_range.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>siblings_range.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -160,156 +154,156 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Sibling nodes range.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Sibling nodes range.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error::ConsistencyError</span>, <span class="ident">relations::connect_neighbors</span>, <span class="ident">Arena</span>, <span class="ident">NodeId</span>};
+</span><span class="kw">use crate</span>::{error::ConsistencyError, relations::connect_neighbors, Arena, NodeId};
 
-<span class="doccomment">/// Siblings range.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">SiblingsRange</span> {
-    <span class="doccomment">/// First node.</span>
-    <span class="ident">first</span>: <span class="ident">NodeId</span>,
-    <span class="doccomment">/// Last node.</span>
-    <span class="ident">last</span>: <span class="ident">NodeId</span>,
+<span class="doccomment">/// Siblings range.
+</span><span class="attribute">#[derive(Debug, Clone, Copy)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SiblingsRange {
+    <span class="doccomment">/// First node.
+    </span>first: NodeId,
+    <span class="doccomment">/// Last node.
+    </span>last: NodeId,
 }
 
-<span class="kw">impl</span> <span class="ident">SiblingsRange</span> {
-    <span class="doccomment">/// Creates a new range.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It is user&#39;s responsibility to guarantee that `first` to `last` is a</span>
-    <span class="doccomment">/// correct range.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">first</span>: <span class="ident">NodeId</span>, <span class="ident">last</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">first</span>, <span class="ident">last</span> }
+<span class="kw">impl </span>SiblingsRange {
+    <span class="doccomment">/// Creates a new range.
+    ///
+    /// It is user&#39;s responsibility to guarantee that `first` to `last` is a
+    /// correct range.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(first: NodeId, last: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ first, last }
     }
 
-    <span class="doccomment">/// Detaches the range from the siblings out of the range, preserving</span>
-    <span class="doccomment">/// sibling relations inside the range.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">detach_from_siblings</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">DetachedSiblingsRange</span> {
-        <span class="comment">// Update children&#39;s parents, siblings relations outside the range, and</span>
-        <span class="comment">// old parent&#39;s first and last child nodes.</span>
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">arena</span>[<span class="self">self</span>.<span class="ident">first</span>].<span class="ident">parent</span>;
+    <span class="doccomment">/// Detaches the range from the siblings out of the range, preserving
+    /// sibling relations inside the range.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>detach_from_siblings&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;) -&gt; DetachedSiblingsRange {
+        <span class="comment">// Update children&#39;s parents, siblings relations outside the range, and
+        // old parent&#39;s first and last child nodes.
+        </span><span class="kw">let </span>parent = arena[<span class="self">self</span>.first].parent;
 
-        <span class="comment">// Update siblings relations outside the range and old parent&#39;s</span>
-        <span class="comment">// children if necessary.</span>
-        <span class="kw">let</span> <span class="ident">prev_of_range</span> <span class="op">=</span> <span class="ident">arena</span>[<span class="self">self</span>.<span class="ident">first</span>].<span class="ident">previous_sibling</span>.<span class="ident">take</span>();
-        <span class="kw">let</span> <span class="ident">next_of_range</span> <span class="op">=</span> <span class="ident">arena</span>[<span class="self">self</span>.<span class="ident">last</span>].<span class="ident">next_sibling</span>.<span class="ident">take</span>();
-        <span class="ident">connect_neighbors</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">prev_of_range</span>, <span class="ident">next_of_range</span>);
+        <span class="comment">// Update siblings relations outside the range and old parent&#39;s
+        // children if necessary.
+        </span><span class="kw">let </span>prev_of_range = arena[<span class="self">self</span>.first].previous_sibling.take();
+        <span class="kw">let </span>next_of_range = arena[<span class="self">self</span>.last].next_sibling.take();
+        connect_neighbors(arena, parent, prev_of_range, next_of_range);
 
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) {
-            <span class="macro">debug_assert_eq!</span>(<span class="ident">arena</span>[<span class="self">self</span>.<span class="ident">first</span>].<span class="ident">previous_sibling</span>, <span class="prelude-val">None</span>);
-            <span class="macro">debug_assert_eq!</span>(<span class="ident">arena</span>[<span class="self">self</span>.<span class="ident">last</span>].<span class="ident">next_sibling</span>, <span class="prelude-val">None</span>);
-            <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">prev_of_range</span>, <span class="ident">next_of_range</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent_node</span>) <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="ident">id</span>]) {
+        <span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) {
+            <span class="macro">debug_assert_eq!</span>(arena[<span class="self">self</span>.first].previous_sibling, <span class="prelude-val">None</span>);
+            <span class="macro">debug_assert_eq!</span>(arena[<span class="self">self</span>.last].next_sibling, <span class="prelude-val">None</span>);
+            <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, prev_of_range, next_of_range);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(parent_node) = parent.map(|id| <span class="kw-2">&amp;</span>arena[id]) {
                 <span class="macro">debug_assert_eq!</span>(
-                    <span class="ident">parent_node</span>.<span class="ident">first_child</span>.<span class="ident">is_some</span>(),
-                    <span class="ident">parent_node</span>.<span class="ident">last_child</span>.<span class="ident">is_some</span>()
+                    parent_node.first_child.is_some(),
+                    parent_node.last_child.is_some()
                 );
-                <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="prelude-val">None</span>, <span class="ident">parent_node</span>.<span class="ident">first_child</span>);
-                <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">parent_node</span>.<span class="ident">last_child</span>, <span class="prelude-val">None</span>);
+                <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, <span class="prelude-val">None</span>, parent_node.first_child);
+                <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, parent_node.last_child, <span class="prelude-val">None</span>);
             }
         }
 
-        <span class="ident">DetachedSiblingsRange</span> {
-            <span class="ident">first</span>: <span class="self">self</span>.<span class="ident">first</span>,
-            <span class="ident">last</span>: <span class="self">self</span>.<span class="ident">last</span>,
+        DetachedSiblingsRange {
+            first: <span class="self">self</span>.first,
+            last: <span class="self">self</span>.last,
         }
     }
 }
 
-<span class="doccomment">/// Detached siblings range.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note that the nodes in the range has outdated parent information.</span>
-<span class="doccomment">/// It is user&#39;s responsibility to properly update them using</span>
-<span class="doccomment">/// `rewrite_parents()`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="attribute">#[<span class="ident">must_use</span> <span class="op">=</span> <span class="string">&quot;This range can have outdated parent information and they should be updated&quot;</span>]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">DetachedSiblingsRange</span> {
-    <span class="doccomment">/// First node.</span>
-    <span class="ident">first</span>: <span class="ident">NodeId</span>,
-    <span class="doccomment">/// Last node.</span>
-    <span class="ident">last</span>: <span class="ident">NodeId</span>,
+<span class="doccomment">/// Detached siblings range.
+///
+/// Note that the nodes in the range has outdated parent information.
+/// It is user&#39;s responsibility to properly update them using
+/// `rewrite_parents()`.
+</span><span class="attribute">#[derive(Debug, Clone, Copy)]
+#[must_use = <span class="string">&quot;This range can have outdated parent information and they should be updated&quot;</span>]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>DetachedSiblingsRange {
+    <span class="doccomment">/// First node.
+    </span>first: NodeId,
+    <span class="doccomment">/// Last node.
+    </span>last: NodeId,
 }
 
-<span class="kw">impl</span> <span class="ident">DetachedSiblingsRange</span> {
-    <span class="doccomment">/// Rewrites the parents.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Failures</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given parent is a node in the range.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">rewrite_parents</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+<span class="kw">impl </span>DetachedSiblingsRange {
+    <span class="doccomment">/// Rewrites the parents.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given parent is a node in the range.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>rewrite_parents&lt;T&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="ident">new_parent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ConsistencyError</span><span class="op">&gt;</span> {
-        <span class="comment">// Update parents of children in the range.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">child_opt</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">first</span>);
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">child</span>) <span class="op">=</span> <span class="ident">child_opt</span> {
-            <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">child</span>) <span class="op">==</span> <span class="ident">new_parent</span> {
-                <span class="comment">// Attempt to set the node itself as its parent.</span>
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ConsistencyError::ParentChildLoop</span>);
+        arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;,
+        new_parent: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ConsistencyError&gt; {
+        <span class="comment">// Update parents of children in the range.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>child_opt = <span class="prelude-val">Some</span>(<span class="self">self</span>.first);
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(child) = child_opt {
+            <span class="kw">if </span><span class="prelude-val">Some</span>(child) == new_parent {
+                <span class="comment">// Attempt to set the node itself as its parent.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(ConsistencyError::ParentChildLoop);
             }
-            <span class="kw">let</span> <span class="ident">child_node</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">arena</span>[<span class="ident">child</span>];
-            <span class="ident">child_node</span>.<span class="ident">parent</span> <span class="op">=</span> <span class="ident">new_parent</span>;
-            <span class="ident">child_opt</span> <span class="op">=</span> <span class="ident">child_node</span>.<span class="ident">next_sibling</span>;
+            <span class="kw">let </span>child_node = <span class="kw-2">&amp;mut </span>arena[child];
+            child_node.parent = new_parent;
+            child_opt = child_node.next_sibling;
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Inserts the range to the given place preserving sibling relations in</span>
-    <span class="doccomment">/// the range.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This does `rewrite_parents()` automatically, so callers do not need to</span>
-    <span class="doccomment">/// call it manually.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Failures</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an error if the given parent is a node in the range.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">transplant</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// Inserts the range to the given place preserving sibling relations in
+    /// the range.
+    ///
+    /// This does `rewrite_parents()` automatically, so callers do not need to
+    /// call it manually.
+    ///
+    /// # Failures
+    ///
+    /// Returns an error if the given parent is a node in the range.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>transplant&lt;T&gt;(
         <span class="self">self</span>,
-        <span class="ident">arena</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="ident">parent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
-        <span class="ident">previous_sibling</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
-        <span class="ident">next_sibling</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ConsistencyError</span><span class="op">&gt;</span> {
-        <span class="comment">// Check that the given arguments are consistent.</span>
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">previous_sibling</span>) <span class="op">=</span> <span class="ident">previous_sibling</span> {
-                <span class="macro">debug_assert_eq!</span>(<span class="ident">arena</span>[<span class="ident">previous_sibling</span>].<span class="ident">parent</span>, <span class="ident">parent</span>);
+        arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;,
+        parent: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
+        previous_sibling: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
+        next_sibling: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ConsistencyError&gt; {
+        <span class="comment">// Check that the given arguments are consistent.
+        </span><span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(previous_sibling) = previous_sibling {
+                <span class="macro">debug_assert_eq!</span>(arena[previous_sibling].parent, parent);
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next_sibling</span>) <span class="op">=</span> <span class="ident">next_sibling</span> {
-                <span class="macro">debug_assert_eq!</span>(<span class="ident">arena</span>[<span class="ident">next_sibling</span>].<span class="ident">parent</span>, <span class="ident">parent</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(next_sibling) = next_sibling {
+                <span class="macro">debug_assert_eq!</span>(arena[next_sibling].parent, parent);
             }
-            <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="ident">next_sibling</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent_node</span>) <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="ident">id</span>]) {
+            <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, previous_sibling, next_sibling);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(parent_node) = parent.map(|id| <span class="kw-2">&amp;</span>arena[id]) {
                 <span class="macro">debug_assert_eq!</span>(
-                    <span class="ident">parent_node</span>.<span class="ident">first_child</span>.<span class="ident">is_some</span>(),
-                    <span class="ident">parent_node</span>.<span class="ident">last_child</span>.<span class="ident">is_some</span>()
+                    parent_node.first_child.is_some(),
+                    parent_node.last_child.is_some()
                 );
             }
         }
 
-        <span class="comment">// Rewrite parents of the nodes in the range.</span>
-        <span class="self">self</span>.<span class="ident">rewrite_parents</span>(<span class="ident">arena</span>, <span class="ident">parent</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Rewrite parents of the nodes in the range.
+        </span><span class="self">self</span>.rewrite_parents(arena, parent)<span class="question-mark">?</span>;
 
-        <span class="comment">// Connect the previous sibling and the first node in the range.</span>
-        <span class="ident">connect_neighbors</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">first</span>));
+        <span class="comment">// Connect the previous sibling and the first node in the range.
+        </span>connect_neighbors(arena, parent, previous_sibling, <span class="prelude-val">Some</span>(<span class="self">self</span>.first));
 
-        <span class="comment">// Connect the next sibling and the last node in the range.</span>
-        <span class="ident">connect_neighbors</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">last</span>), <span class="ident">next_sibling</span>);
+        <span class="comment">// Connect the next sibling and the last node in the range.
+        </span>connect_neighbors(arena, parent, <span class="prelude-val">Some</span>(<span class="self">self</span>.last), next_sibling);
 
-        <span class="comment">// Ensure related nodes are consistent.</span>
-        <span class="comment">// Check only in debug build.</span>
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) {
-            <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">previous_sibling</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">first</span>));
-            <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">last</span>), <span class="ident">next_sibling</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">parent_node</span>) <span class="op">=</span> <span class="ident">parent</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="ident">id</span>]) {
+        <span class="comment">// Ensure related nodes are consistent.
+        // Check only in debug build.
+        </span><span class="kw">if </span><span class="macro">cfg!</span>(debug_assertions) {
+            <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, previous_sibling, <span class="prelude-val">Some</span>(<span class="self">self</span>.first));
+            <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, <span class="prelude-val">Some</span>(<span class="self">self</span>.last), next_sibling);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(parent_node) = parent.map(|id| <span class="kw-2">&amp;</span>arena[id]) {
                 <span class="macro">debug_assert!</span>(
-                    <span class="ident">parent_node</span>.<span class="ident">first_child</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">parent_node</span>.<span class="ident">last_child</span>.<span class="ident">is_some</span>(),
-                    <span class="string">&quot;parent should have children (at least `self.first`)&quot;</span>
-                );
-                <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="prelude-val">None</span>, <span class="ident">parent_node</span>.<span class="ident">first_child</span>);
-                <span class="macro">debug_assert_triangle_nodes!</span>(<span class="ident">arena</span>, <span class="ident">parent</span>, <span class="ident">parent_node</span>.<span class="ident">last_child</span>, <span class="prelude-val">None</span>);
+                    parent_node.first_child.is_some() &amp;&amp; parent_node.last_child.is_some(),
+                    <span class="string">&quot;parent should have children (at least `self.first`)&quot;
+                </span>);
+                <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, <span class="prelude-val">None</span>, parent_node.first_child);
+                <span class="macro">debug_assert_triangle_nodes!</span>(arena, parent, parent_node.last_child, <span class="prelude-val">None</span>);
             }
         }
 
@@ -317,5 +311,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

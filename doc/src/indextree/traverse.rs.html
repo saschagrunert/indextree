@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/traverse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traverse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a><h2 class="location"></h2>
-    </nav>
-    <nav class="sidebar"><a class="sidebar-logo" href="../../indextree/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/traverse.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traverse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../indextree/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -444,446 +438,483 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Iterators.</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Iterators.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Arena</span>, <span class="ident">Node</span>, <span class="ident">NodeId</span>};
+</span><span class="kw">use crate</span>::{Arena, Node, NodeId};
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_node_iterator</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">next</span>:<span class="ident">expr</span>) =&gt; {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-            <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">NodeId</span>;
+<span class="macro">macro_rules! </span>impl_node_iterator {
+    (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$next</span>:expr) =&gt; {
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Iterator <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+            <span class="kw">type </span>Item = NodeId;
 
-            <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">node</span>.<span class="ident">take</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">node</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">arena</span>[<span class="ident">node</span>]);
-                <span class="prelude-val">Some</span>(<span class="ident">node</span>)
+            <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NodeId&gt; {
+                <span class="kw">let </span>node = <span class="self">self</span>.node.take()<span class="question-mark">?</span>;
+                <span class="self">self</span>.node = <span class="macro-nonterminal">$next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.arena[node]);
+                <span class="prelude-val">Some</span>(node)
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::iter::FusedIterator</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
+        <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; core::iter::FusedIterator <span class="kw">for </span><span class="macro-nonterminal">$name</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; {}
     };
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the IDs of the ancestors a given node.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ancestors</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">node</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the IDs of the ancestors of a given node.
+</span><span class="kw">pub struct </span>Ancestors&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    node: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
 }
-<span class="macro">impl_node_iterator!</span>(<span class="ident">Ancestors</span>, <span class="op">|</span><span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">node</span>.<span class="ident">parent</span>);
+<span class="macro">impl_node_iterator!</span>(Ancestors, |node: <span class="kw-2">&amp;</span>Node&lt;T&gt;| node.parent);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Ancestors</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">arena</span>,
-            <span class="ident">node</span>: <span class="prelude-val">Some</span>(<span class="ident">current</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Ancestors&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            node: <span class="prelude-val">Some</span>(current),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the IDs of the siblings before a given node.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrecedingSiblings</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">node</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the IDs of the predecessors of a given node.
+</span><span class="kw">pub struct </span>Predecessors&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    node: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
 }
-<span class="macro">impl_node_iterator!</span>(<span class="ident">PrecedingSiblings</span>, <span class="op">|</span><span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">node</span>.<span class="ident">previous_sibling</span>);
+<span class="macro">impl_node_iterator!</span>(Predecessors, |node: <span class="kw-2">&amp;</span>Node&lt;T&gt;| {
+    node.previous_sibling.or(node.parent)
+});
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PrecedingSiblings</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">arena</span>,
-            <span class="ident">node</span>: <span class="prelude-val">Some</span>(<span class="ident">current</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Predecessors&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            node: <span class="prelude-val">Some</span>(current),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the IDs of the siblings after a given node.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FollowingSiblings</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">node</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the IDs of the siblings before a given node.
+</span><span class="kw">pub struct </span>PrecedingSiblings&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    node: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
 }
-<span class="macro">impl_node_iterator!</span>(<span class="ident">FollowingSiblings</span>, <span class="op">|</span><span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">node</span>.<span class="ident">next_sibling</span>);
+<span class="macro">impl_node_iterator!</span>(PrecedingSiblings, |node: <span class="kw-2">&amp;</span>Node&lt;T&gt;| node.previous_sibling);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">FollowingSiblings</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">arena</span>,
-            <span class="ident">node</span>: <span class="prelude-val">Some</span>(<span class="ident">current</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; PrecedingSiblings&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            node: <span class="prelude-val">Some</span>(current),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the IDs of the children of a given node, in insertion order.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Children</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">node</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the IDs of the siblings after a given node.
+</span><span class="kw">pub struct </span>FollowingSiblings&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    node: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
 }
-<span class="macro">impl_node_iterator!</span>(<span class="ident">Children</span>, <span class="op">|</span><span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">node</span>.<span class="ident">next_sibling</span>);
+<span class="macro">impl_node_iterator!</span>(FollowingSiblings, |node: <span class="kw-2">&amp;</span>Node&lt;T&gt;| node.next_sibling);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Children</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">arena</span>,
-            <span class="ident">node</span>: <span class="ident">arena</span>[<span class="ident">current</span>].<span class="ident">first_child</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; FollowingSiblings&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            node: <span class="prelude-val">Some</span>(current),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the IDs of the children of a given node, in reverse insertion order.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReverseChildren</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">node</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the IDs of the children of a given node, in insertion order.
+</span><span class="kw">pub struct </span>Children&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    node: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
 }
-<span class="macro">impl_node_iterator!</span>(<span class="ident">ReverseChildren</span>, <span class="op">|</span><span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">|</span> <span class="ident">node</span>.<span class="ident">previous_sibling</span>);
+<span class="macro">impl_node_iterator!</span>(Children, |node: <span class="kw-2">&amp;</span>Node&lt;T&gt;| node.next_sibling);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ReverseChildren</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">arena</span>,
-            <span class="ident">node</span>: <span class="ident">arena</span>[<span class="ident">current</span>].<span class="ident">last_child</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Children&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            node: arena[current].first_child,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// i.e. node -&gt; first child -&gt; second child</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Descendants</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>);
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the IDs of the children of a given node, in reverse insertion order.
+</span><span class="kw">pub struct </span>ReverseChildren&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    node: <span class="prelude-ty">Option</span>&lt;NodeId&gt;,
+}
+<span class="macro">impl_node_iterator!</span>(ReverseChildren, |node: <span class="kw-2">&amp;</span>Node&lt;T&gt;| node.previous_sibling);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Descendants</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Traverse::new</span>(<span class="ident">arena</span>, <span class="ident">current</span>))
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ReverseChildren&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            node: arena[current].last_child,
+        }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Descendants</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">NodeId</span>;
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.
+///
+/// i.e. node -&gt; first child -&gt; second child
+</span><span class="kw">pub struct </span>Descendants&lt;<span class="lifetime">&#39;a</span>, T&gt;(Traverse&lt;<span class="lifetime">&#39;a</span>, T&gt;);
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeId</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">find_map</span>(<span class="op">|</span><span class="ident">edge</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">edge</span> {
-            <span class="ident">NodeEdge::Start</span>(<span class="ident">node</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">node</span>),
-            <span class="ident">NodeEdge::End</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Descendants&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Traverse::new(arena, current))
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Iterator <span class="kw">for </span>Descendants&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">type </span>Item = NodeId;
+
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NodeId&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.find_map(|edge| <span class="kw">match </span>edge {
+            NodeEdge::Start(node) =&gt; <span class="prelude-val">Some</span>(node),
+            NodeEdge::End(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">Descendants</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; core::iter::FusedIterator <span class="kw">for </span>Descendants&lt;<span class="lifetime">&#39;a</span>, T&gt; {}
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="doccomment">/// Indicator if the node is at a start or endpoint of the tree</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">NodeEdge</span> {
-    <span class="doccomment">/// Indicates that start of a node that has children.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Yielded by `Traverse::next()` before the node’s descendants. In HTML or</span>
-    <span class="doccomment">/// XML, this corresponds to an opening tag like `&lt;div&gt;`.</span>
-    <span class="ident">Start</span>(<span class="ident">NodeId</span>),
+<span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+</span><span class="doccomment">/// Indicator if the node is at a start or endpoint of the tree
+</span><span class="kw">pub enum </span>NodeEdge {
+    <span class="doccomment">/// Indicates that start of a node that has children.
+    ///
+    /// Yielded by `Traverse::next()` before the node’s descendants. In HTML or
+    /// XML, this corresponds to an opening tag like `&lt;div&gt;`.
+    </span>Start(NodeId),
 
-    <span class="doccomment">/// Indicates that end of a node that has children.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Yielded by `Traverse::next()` after the node’s descendants. In HTML or</span>
-    <span class="doccomment">/// XML, this corresponds to a closing tag like `&lt;/div&gt;`</span>
-    <span class="ident">End</span>(<span class="ident">NodeId</span>),
+    <span class="doccomment">/// Indicates that end of a node that has children.
+    ///
+    /// Yielded by `Traverse::next()` after the node’s descendants. In HTML or
+    /// XML, this corresponds to a closing tag like `&lt;/div&gt;`
+    </span>End(NodeId),
 }
 
-<span class="kw">impl</span> <span class="ident">NodeEdge</span> {
-    <span class="doccomment">/// Returns the next `NodeEdge` to be returned by forward depth-first traversal.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let steps = std::iter::successors(</span>
-    <span class="doccomment">///     Some(NodeEdge::Start(n1)),</span>
-    <span class="doccomment">///     |current| current.next_traverse(&amp;arena)</span>
-    <span class="doccomment">/// )</span>
-    <span class="doccomment">///     .collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// let traversed_by_iter = n1.traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     steps,</span>
-    <span class="doccomment">///     traversed_by_iter,</span>
-    <span class="doccomment">///     &quot;repeated `.next_traverse()`s emit same events as `NodeId::traverse()` iterator&quot;</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `NodeEdge` itself does not borrow an arena, so you can modify the nodes</span>
-    <span class="doccomment">/// being traversed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;.to_owned());</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena: Arena&lt;String&gt;</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1].get(), &quot;1&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_3].get(), &quot;1_3&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut next = Some(NodeEdge::Start(n1));</span>
-    <span class="doccomment">/// let mut count = 0;</span>
-    <span class="doccomment">/// while let Some(current) = next {</span>
-    <span class="doccomment">///     next = current.next_traverse(&amp;arena);</span>
-    <span class="doccomment">///     let current = match current {</span>
-    <span class="doccomment">///         NodeEdge::Start(id) =&gt; id,</span>
-    <span class="doccomment">///         NodeEdge::End(_) =&gt; continue,</span>
-    <span class="doccomment">///     };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     arena[current].get_mut().push_str(&amp;format!(&quot; (count={})&quot;, count));</span>
-    <span class="doccomment">///     count += 1;</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1].get(), &quot;1 (count=0)&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1 (count=2)&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_3].get(), &quot;1_3 (count=4)&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_traverse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">NodeEdge::Start</span>(<span class="ident">node</span>) =&gt; <span class="kw">match</span> <span class="ident">arena</span>[<span class="ident">node</span>].<span class="ident">first_child</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">first_child</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::Start</span>(<span class="ident">first_child</span>)),
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::End</span>(<span class="ident">node</span>)),
+<span class="kw">impl </span>NodeEdge {
+    <span class="doccomment">/// Returns the next `NodeEdge` to be returned by forward depth-first traversal.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let steps = std::iter::successors(
+    ///     Some(NodeEdge::Start(n1)),
+    ///     |current| current.next_traverse(&amp;arena)
+    /// )
+    ///     .collect::&lt;Vec&lt;_&gt;&gt;();
+    /// let traversed_by_iter = n1.traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();
+    /// assert_eq!(
+    ///     steps,
+    ///     traversed_by_iter,
+    ///     &quot;repeated `.next_traverse()`s emit same events as `NodeId::traverse()` iterator&quot;
+    /// );
+    /// ```
+    ///
+    /// `NodeEdge` itself does not borrow an arena, so you can modify the nodes
+    /// being traversed.
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;.to_owned());
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;.to_owned());
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;.to_owned());
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;.to_owned());
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;.to_owned());
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena: Arena&lt;String&gt;
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// assert_eq!(*arena[n1].get(), &quot;1&quot;);
+    /// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1&quot;);
+    /// assert_eq!(*arena[n1_3].get(), &quot;1_3&quot;);
+    ///
+    /// let mut next = Some(NodeEdge::Start(n1));
+    /// let mut count = 0;
+    /// while let Some(current) = next {
+    ///     next = current.next_traverse(&amp;arena);
+    ///     let current = match current {
+    ///         NodeEdge::Start(id) =&gt; id,
+    ///         NodeEdge::End(_) =&gt; continue,
+    ///     };
+    ///
+    ///     arena[current].get_mut().push_str(&amp;format!(&quot; (count={})&quot;, count));
+    ///     count += 1;
+    /// }
+    ///
+    /// assert_eq!(*arena[n1].get(), &quot;1 (count=0)&quot;);
+    /// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1 (count=2)&quot;);
+    /// assert_eq!(*arena[n1_3].get(), &quot;1_3 (count=4)&quot;);
+    /// ```
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>next_traverse&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            NodeEdge::Start(node) =&gt; <span class="kw">match </span>arena[node].first_child {
+                <span class="prelude-val">Some</span>(first_child) =&gt; <span class="prelude-val">Some</span>(NodeEdge::Start(first_child)),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(NodeEdge::End(node)),
             },
-            <span class="ident">NodeEdge::End</span>(<span class="ident">node</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="ident">node</span>];
-                <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">next_sibling</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">next_sibling</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::Start</span>(<span class="ident">next_sibling</span>)),
-                    <span class="comment">// `node.parent()` here can only be `None` if the tree has</span>
-                    <span class="comment">// been modified during iteration, but silently stoping</span>
-                    <span class="comment">// iteration seems a more sensible behavior than panicking.</span>
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">node</span>.<span class="ident">parent</span>.<span class="ident">map</span>(<span class="ident">NodeEdge::End</span>),
+            NodeEdge::End(node) =&gt; {
+                <span class="kw">let </span>node = <span class="kw-2">&amp;</span>arena[node];
+                <span class="kw">match </span>node.next_sibling {
+                    <span class="prelude-val">Some</span>(next_sibling) =&gt; <span class="prelude-val">Some</span>(NodeEdge::Start(next_sibling)),
+                    <span class="comment">// `node.parent()` here can only be `None` if the tree has
+                    // been modified during iteration, but silently stoping
+                    // iteration seems a more sensible behavior than panicking.
+                    </span><span class="prelude-val">None </span>=&gt; node.parent.map(NodeEdge::End),
                 }
             }
         }
     }
 
-    <span class="doccomment">/// Returns the previous `NodeEdge` to be returned by forward depth-first traversal.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;);</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;);</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let steps = std::iter::successors(</span>
-    <span class="doccomment">///     Some(NodeEdge::End(n1)),</span>
-    <span class="doccomment">///     |current| current.prev_traverse(&amp;arena)</span>
-    <span class="doccomment">/// )</span>
-    <span class="doccomment">///     .collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// let traversed_by_iter = n1.reverse_traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();</span>
-    <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     steps,</span>
-    <span class="doccomment">///     traversed_by_iter,</span>
-    <span class="doccomment">///     &quot;repeated `.prev_traverse()`s emit same events as \</span>
-    <span class="doccomment">///      `NodeId::reverse_traverse()` iterator&quot;</span>
-    <span class="doccomment">/// );</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// `NodeEdge` itself does not borrow an arena, so you can modify the nodes</span>
-    <span class="doccomment">/// being traversed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use indextree::{Arena, NodeEdge};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # let mut arena = Arena::new();</span>
-    <span class="doccomment">/// # let n1 = arena.new_node(&quot;1&quot;.to_owned());</span>
-    <span class="doccomment">/// # let n1_1 = arena.new_node(&quot;1_1&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1.append(n1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1_1.append(n1_1_1, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_2 = arena.new_node(&quot;1_2&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1.append(n1_2, &amp;mut arena);</span>
-    <span class="doccomment">/// # let n1_3 = arena.new_node(&quot;1_3&quot;.to_owned());</span>
-    <span class="doccomment">/// # n1.append(n1_3, &amp;mut arena);</span>
-    <span class="doccomment">/// #</span>
-    <span class="doccomment">/// // arena: Arena&lt;String&gt;</span>
-    <span class="doccomment">/// // `-- 1</span>
-    <span class="doccomment">/// //     |-- 1_1</span>
-    <span class="doccomment">/// //     |   `-- 1_1_1</span>
-    <span class="doccomment">/// //     |-- 1_2</span>
-    <span class="doccomment">/// //     `-- 1_3</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_3].get(), &quot;1_3&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1].get(), &quot;1&quot;);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut next = Some(NodeEdge::End(n1_3));</span>
-    <span class="doccomment">/// let mut count = 0;</span>
-    <span class="doccomment">/// while let Some(current) = next {</span>
-    <span class="doccomment">///     next = current.prev_traverse(&amp;arena);</span>
-    <span class="doccomment">///     let current = match current {</span>
-    <span class="doccomment">///         NodeEdge::Start(id) =&gt; id,</span>
-    <span class="doccomment">///         NodeEdge::End(_) =&gt; continue,</span>
-    <span class="doccomment">///     };</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     arena[current].get_mut().push_str(&amp;format!(&quot; (count={})&quot;, count));</span>
-    <span class="doccomment">///     count += 1;</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_3].get(), &quot;1_3 (count=0)&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1 (count=2)&quot;);</span>
-    <span class="doccomment">/// assert_eq!(*arena[n1].get(), &quot;1 (count=4)&quot;);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prev_traverse</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">NodeEdge::End</span>(<span class="ident">node</span>) =&gt; <span class="kw">match</span> <span class="ident">arena</span>[<span class="ident">node</span>].<span class="ident">last_child</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">last_child</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::End</span>(<span class="ident">last_child</span>)),
-                <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::Start</span>(<span class="ident">node</span>)),
+    <span class="doccomment">/// Returns the previous `NodeEdge` to be returned by forward depth-first traversal.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeEdge};
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;);
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;);
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;);
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;);
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;);
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let steps = std::iter::successors(
+    ///     Some(NodeEdge::End(n1)),
+    ///     |current| current.prev_traverse(&amp;arena)
+    /// )
+    ///     .collect::&lt;Vec&lt;_&gt;&gt;();
+    /// let traversed_by_iter = n1.reverse_traverse(&amp;arena).collect::&lt;Vec&lt;_&gt;&gt;();
+    /// assert_eq!(
+    ///     steps,
+    ///     traversed_by_iter,
+    ///     &quot;repeated `.prev_traverse()`s emit same events as \
+    ///      `NodeId::reverse_traverse()` iterator&quot;
+    /// );
+    /// ```
+    ///
+    /// `NodeEdge` itself does not borrow an arena, so you can modify the nodes
+    /// being traversed.
+    ///
+    /// ```
+    /// use indextree::{Arena, NodeEdge};
+    ///
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node(&quot;1&quot;.to_owned());
+    /// # let n1_1 = arena.new_node(&quot;1_1&quot;.to_owned());
+    /// # n1.append(n1_1, &amp;mut arena);
+    /// # let n1_1_1 = arena.new_node(&quot;1_1_1&quot;.to_owned());
+    /// # n1_1.append(n1_1_1, &amp;mut arena);
+    /// # let n1_2 = arena.new_node(&quot;1_2&quot;.to_owned());
+    /// # n1.append(n1_2, &amp;mut arena);
+    /// # let n1_3 = arena.new_node(&quot;1_3&quot;.to_owned());
+    /// # n1.append(n1_3, &amp;mut arena);
+    /// #
+    /// // arena: Arena&lt;String&gt;
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |   `-- 1_1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// assert_eq!(*arena[n1_3].get(), &quot;1_3&quot;);
+    /// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1&quot;);
+    /// assert_eq!(*arena[n1].get(), &quot;1&quot;);
+    ///
+    /// let mut next = Some(NodeEdge::End(n1_3));
+    /// let mut count = 0;
+    /// while let Some(current) = next {
+    ///     next = current.prev_traverse(&amp;arena);
+    ///     let current = match current {
+    ///         NodeEdge::Start(id) =&gt; id,
+    ///         NodeEdge::End(_) =&gt; continue,
+    ///     };
+    ///
+    ///     arena[current].get_mut().push_str(&amp;format!(&quot; (count={})&quot;, count));
+    ///     count += 1;
+    /// }
+    ///
+    /// assert_eq!(*arena[n1_3].get(), &quot;1_3 (count=0)&quot;);
+    /// assert_eq!(*arena[n1_1_1].get(), &quot;1_1_1 (count=2)&quot;);
+    /// assert_eq!(*arena[n1].get(), &quot;1 (count=4)&quot;);
+    /// ```
+    </span><span class="attribute">#[must_use]
+    </span><span class="kw">pub fn </span>prev_traverse&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            NodeEdge::End(node) =&gt; <span class="kw">match </span>arena[node].last_child {
+                <span class="prelude-val">Some</span>(last_child) =&gt; <span class="prelude-val">Some</span>(NodeEdge::End(last_child)),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(NodeEdge::Start(node)),
             },
-            <span class="ident">NodeEdge::Start</span>(<span class="ident">node</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">arena</span>[<span class="ident">node</span>];
-                <span class="kw">match</span> <span class="ident">node</span>.<span class="ident">previous_sibling</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">previous_sibling</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::End</span>(<span class="ident">previous_sibling</span>)),
-                    <span class="comment">// `node.parent()` here can only be `None` if the tree has</span>
-                    <span class="comment">// been modified during iteration, but silently stoping</span>
-                    <span class="comment">// iteration seems a more sensible behavior than panicking.</span>
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">node</span>.<span class="ident">parent</span>.<span class="ident">map</span>(<span class="ident">NodeEdge::Start</span>),
+            NodeEdge::Start(node) =&gt; {
+                <span class="kw">let </span>node = <span class="kw-2">&amp;</span>arena[node];
+                <span class="kw">match </span>node.previous_sibling {
+                    <span class="prelude-val">Some</span>(previous_sibling) =&gt; <span class="prelude-val">Some</span>(NodeEdge::End(previous_sibling)),
+                    <span class="comment">// `node.parent()` here can only be `None` if the tree has
+                    // been modified during iteration, but silently stoping
+                    // iteration seems a more sensible behavior than panicking.
+                    </span><span class="prelude-val">None </span>=&gt; node.parent.map(NodeEdge::Start),
                 }
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,</span>
-<span class="doccomment">/// where node sides are visited start to end and children are visited in insertion order.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// i.e. node.start -&gt; first child -&gt; second child -&gt; node.end</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">root</span>: <span class="ident">NodeId</span>,
-    <span class="ident">next</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeEdge</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,
+/// where node sides are visited start to end and children are visited in insertion order.
+///
+/// i.e. node.start -&gt; first child -&gt; second child -&gt; node.end
+</span><span class="kw">pub struct </span>Traverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    root: NodeId,
+    next: <span class="prelude-ty">Option</span>&lt;NodeEdge&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">arena</span>,
-            <span class="ident">root</span>: <span class="ident">current</span>,
-            <span class="ident">next</span>: <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::Start</span>(<span class="ident">current</span>)),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Traverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            root: current,
+            next: <span class="prelude-val">Some</span>(NodeEdge::Start(current)),
         }
     }
 
-    <span class="doccomment">/// Calculates the next node.</span>
-    <span class="kw">fn</span> <span class="ident">next_of_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">next</span>: <span class="ident">NodeEdge</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeEdge</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">next</span> <span class="op">==</span> <span class="ident">NodeEdge::End</span>(<span class="self">self</span>.<span class="ident">root</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// Calculates the next node.
+    </span><span class="kw">fn </span>next_of_next(<span class="kw-2">&amp;</span><span class="self">self</span>, next: NodeEdge) -&gt; <span class="prelude-ty">Option</span>&lt;NodeEdge&gt; {
+        <span class="kw">if </span>next == NodeEdge::End(<span class="self">self</span>.root) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="ident">next</span>.<span class="ident">next_traverse</span>(<span class="self">self</span>.<span class="ident">arena</span>)
+        next.next_traverse(<span class="self">self</span>.arena)
     }
 
-    <span class="doccomment">/// Returns a reference to the arena.</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">arena</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">arena</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">NodeEdge</span>;
-
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeEdge</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>.<span class="ident">take</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next_of_next</span>(<span class="ident">next</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">next</span>)
+    <span class="doccomment">/// Returns a reference to the arena.
+    </span><span class="attribute">#[inline]
+    #[must_use]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>arena(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Arena&lt;T&gt; {
+        <span class="self">self</span>.arena
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">Traverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Iterator <span class="kw">for </span>Traverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">type </span>Item = NodeEdge;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,</span>
-<span class="doccomment">/// where nodes are visited end to start and children are visited in reverse insertion order.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// i.e. node.end -&gt; second child -&gt; first child -&gt; node.start</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReverseTraverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">root</span>: <span class="ident">NodeId</span>,
-    <span class="ident">next</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeEdge</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NodeEdge&gt; {
+        <span class="kw">let </span>next = <span class="self">self</span>.next.take()<span class="question-mark">?</span>;
+        <span class="self">self</span>.next = <span class="self">self</span>.next_of_next(next);
+        <span class="prelude-val">Some</span>(next)
+    }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">ReverseTraverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">arena</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Arena</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">current</span>: <span class="ident">NodeId</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">arena</span>,
-            <span class="ident">root</span>: <span class="ident">current</span>,
-            <span class="ident">next</span>: <span class="prelude-val">Some</span>(<span class="ident">NodeEdge::End</span>(<span class="ident">current</span>)),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; core::iter::FusedIterator <span class="kw">for </span>Traverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {}
+
+<span class="attribute">#[derive(Clone)]
+</span><span class="doccomment">/// An iterator of the &quot;sides&quot; of a node visited during a depth-first pre-order traversal,
+/// where nodes are visited end to start and children are visited in reverse insertion order.
+///
+/// i.e. node.end -&gt; second child -&gt; first child -&gt; node.start
+</span><span class="kw">pub struct </span>ReverseTraverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;,
+    root: NodeId,
+    next: <span class="prelude-ty">Option</span>&lt;NodeEdge&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; ReverseTraverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(arena: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Arena&lt;T&gt;, current: NodeId) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            arena,
+            root: current,
+            next: <span class="prelude-val">Some</span>(NodeEdge::End(current)),
         }
     }
 
-    <span class="doccomment">/// Calculates the next node.</span>
-    <span class="kw">fn</span> <span class="ident">next_of_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">next</span>: <span class="ident">NodeEdge</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeEdge</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">next</span> <span class="op">==</span> <span class="ident">NodeEdge::Start</span>(<span class="self">self</span>.<span class="ident">root</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// Calculates the next node.
+    </span><span class="kw">fn </span>next_of_next(<span class="kw-2">&amp;</span><span class="self">self</span>, next: NodeEdge) -&gt; <span class="prelude-ty">Option</span>&lt;NodeEdge&gt; {
+        <span class="kw">if </span>next == NodeEdge::Start(<span class="self">self</span>.root) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="ident">next</span>.<span class="ident">prev_traverse</span>(<span class="self">self</span>.<span class="ident">arena</span>)
+        next.prev_traverse(<span class="self">self</span>.arena)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ReverseTraverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">NodeEdge</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; Iterator <span class="kw">for </span>ReverseTraverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {
+    <span class="kw">type </span>Item = NodeEdge;
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NodeEdge</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next</span>.<span class="ident">take</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">next</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">next_of_next</span>(<span class="ident">next</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">next</span>)
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NodeEdge&gt; {
+        <span class="kw">let </span>next = <span class="self">self</span>.next.take()<span class="question-mark">?</span>;
+        <span class="self">self</span>.next = <span class="self">self</span>.next_of_next(next);
+        <span class="prelude-val">Some</span>(next)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">core::iter::FusedIterator</span> <span class="kw">for</span> <span class="ident">ReverseTraverse</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, T&gt; core::iter::FusedIterator <span class="kw">for </span>ReverseTraverse&lt;<span class="lifetime">&#39;a</span>, T&gt; {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0 (4b91a6ea7 2022-08-08)" ></div>
-</body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="indextree" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>

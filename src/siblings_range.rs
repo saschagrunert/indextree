@@ -69,6 +69,14 @@ pub(crate) struct DetachedSiblingsRange {
 }
 
 impl DetachedSiblingsRange {
+    /// Creates a new range.
+    ///
+    /// It is user's responsibility to guarantee that `first` to `last` is a
+    /// correct range.
+    pub(crate) fn new(first: NodeId, last: NodeId) -> Self {
+        Self { first, last }
+    }
+
     /// Rewrites the parents.
     ///
     /// # Failures
@@ -153,4 +161,46 @@ impl DetachedSiblingsRange {
 
         Ok(())
     }
+
+    /// Inserts the range to the given place.
+    ///
+    /// This does `rewrite_parents()` automatically, so callers do not need to
+    /// call it manually.
+    ///
+    pub(crate) fn transplant_after_prev<T>(
+        self,
+        arena: &mut Arena<T>,
+        parent: Option<NodeId>,
+        previous_sibling: Option<NodeId>,
+    ) -> Result<(), ConsistencyError> {
+        // Check that the given arguments are consistent.
+        if cfg!(debug_assertions) {
+            if let Some(parent_node) = parent.map(|id| &arena[id]) {
+                debug_assert_eq!(
+                    parent_node.first_child.is_some(),
+                    parent_node.last_child.is_some()
+                );
+            }
+        }
+
+        // Rewrite parents of the nodes in the range.
+        self.rewrite_parents(arena, parent)?;
+
+        // Connect the previous sibling and the first node in the range.
+        connect_neighbors(arena, parent, previous_sibling, Some(self.first));
+
+        // Ensure related nodes are consistent.
+        // Check only in debug build.
+        if cfg!(debug_assertions) {
+            if let Some(parent_node) = parent.map(|id| &arena[id]) {
+                debug_assert!(
+                    parent_node.first_child.is_some() && parent_node.last_child.is_some(),
+                    "parent should have children (at least `self.first`)"
+                );
+                debug_assert_triangle_nodes!(arena, parent, None, parent_node.first_child);
+                debug_assert_triangle_nodes!(arena, parent, parent_node.last_child, None);
+            }
+        }
+
+        Ok(())
 }

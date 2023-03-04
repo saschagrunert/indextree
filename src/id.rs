@@ -10,9 +10,11 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, num::NonZeroUsize};
 
 use crate::{
-    debug_pretty_print::DebugPrettyPrint, relations::insert_with_neighbors,
-    siblings_range::SiblingsRange, Ancestors, Arena, Children, Descendants, FollowingSiblings,
-    NodeError, PrecedingSiblings, Predecessors, ReverseChildren, ReverseTraverse, Traverse,
+    debug_pretty_print::DebugPrettyPrint,
+    relations::{insert_with_neighbors, insert_with_previous_unchecked},
+    siblings_range::SiblingsRange,
+    Ancestors, Arena, Children, Descendants, FollowingSiblings, NodeError, PrecedingSiblings,
+    Predecessors, ReverseChildren, ReverseTraverse, Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
@@ -675,6 +677,100 @@ impl NodeId {
         new_child.detach(arena);
         insert_with_neighbors(arena, new_child, Some(self), arena[self].last_child, None)
             .expect("Should never fail: `new_child` is not `self` and they are not removed");
+
+        Ok(())
+    }
+
+    /// Appends a new child to this node, after existing children.
+    /// This method is a fast path for the common case of appending a new node.
+    /// `new_child` requirements:
+    /// 1. Must a detached. No parents or siblings.
+    /// 2. Has not been [`remove`]d.
+    /// 3. `append_new_node()` was not called on itself
+    ///
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    ///
+    /// * the given new child is `self`, or
+    /// * the given new child is an ancestor of `self`, or
+    /// * the current node or the given new child was already [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = arena.new_node("1_1");
+    /// n1.append_new_node(n1_1, &mut arena); // ok, n1_1 is a detached node
+    /// let n_changes = arena.new_node("changes");
+    /// n1.append_new_node(n1, &mut arena); // ok, n_changes is a detached node
+    /// n1_1.append(n_changes, &mut arena); // using `append_new_node` would be wrong, n_changes is not detached
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //           |-- changes
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(changes));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    pub fn append_new_node<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
+        self.checked_append_new_node(new_child, arena)
+            .expect("Preconditions not met: invalid argument");
+    }
+
+    /// Appends a new child to this node, after existing children.
+    /// This method is a fast path for the common case of appending a new node.
+    /// `new_child` requirements:
+    /// 1. Must a detached. No parents or siblings.
+    /// 2. Has not been [`remove`]d.
+    /// 3. `append_new_node()` was not called on itself
+    ///
+    /// # Failures
+    ///
+    /// * Returns [`NodeError::AppendSelf`] error if the given new child is
+    ///   `self`.
+    /// * Returns [`NodeError::AppendAncestor`] error if the given new child is
+    ///   an ancestor of `self`.
+    /// * Returns [`NodeError::Removed`] error if the given new child or `self`
+    ///   is [`remove`]d.
+    ///
+    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// assert!(n1.checked_append(n1, &mut arena).is_err());
+    ///
+    /// let n1_1 = arena.new_node("1_1");
+    /// assert!(n1.checked_append(n1_1, &mut arena).is_ok());
+    /// ```
+    ///
+    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
+    /// [`NodeError::AppendSelf`]: enum.NodeError.html#variant.AppendSelf
+    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
+    /// [`remove`]: struct.NodeId.html#method.remove
+    fn checked_append_new_node<T>(
+        self,
+        new_child: NodeId,
+        arena: &mut Arena<T>,
+    ) -> Result<(), NodeError> {
+        insert_with_previous_unchecked(arena, new_child, Some(self), arena[self].last_child)
+            .expect("Should never fail if user upholds assumptions for caller");
 
         Ok(())
     }

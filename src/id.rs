@@ -708,7 +708,7 @@ impl NodeId {
     /// let n1_1 = arena.new_node("1_1");
     /// n1.append_new_node(n1_1, &mut arena); // ok, n1_1 is a detached node
     /// let n_changes = arena.new_node("changes");
-    /// n1.append_new_node(n1, &mut arena); // ok, n_changes is a detached node
+    /// n1.append_new_node(n_changes, &mut arena); // ok, n_changes is a detached node
     /// n1_1.append(n_changes, &mut arena); // using `append_new_node` would be wrong, n_changes is not detached
     ///
     /// // arena
@@ -719,7 +719,7 @@ impl NodeId {
     /// let mut iter = n1.descendants(&arena);
     /// assert_eq!(iter.next(), Some(n1));
     /// assert_eq!(iter.next(), Some(n1_1));
-    /// assert_eq!(iter.next(), Some(changes));
+    /// assert_eq!(iter.next(), Some(n_changes));
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
@@ -1368,5 +1368,22 @@ mod tests {
         assert!(n1_2_1_1.is_removed(&arena));
         assert!(n1_2_1_1_1.is_removed(&arena));
         assert!(n1_2_2.is_removed(&arena));
+    }
+
+    #[test]
+    fn quick_dirty() {
+        let mut arena = Arena::new();
+        let n1 = arena.new_node("1");
+        let n1_1 = arena.new_node("1_1");
+        n1.append_new_node(n1_1, &mut arena); // ok, n1_1 is a detached node
+        let n_changes = arena.new_node("changes");
+        n1.append_new_node(n_changes, &mut arena); // ok, n_changes is a detached node
+        n1_1.append(n_changes, &mut arena); // using `append_new_node` would be wrong, n_changes is not detached
+
+        let mut iter = n1.descendants(&arena);
+        assert_eq!(iter.next(), Some(n1));
+        assert_eq!(iter.next(), Some(n1_1));
+        assert_eq!(iter.next(), Some(n_changes));
+        assert_eq!(iter.next(), None);
     }
 }

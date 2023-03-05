@@ -162,7 +162,8 @@ impl DetachedSiblingsRange {
         Ok(())
     }
 
-    /// Inserts the range to the given place.
+    /// Inserts the range after previous sibling.
+    /// Previous sibling must be the last child of the parent.
     ///
     /// This does `rewrite_parents()` automatically, so callers do not need to
     /// call it manually.
@@ -180,6 +181,8 @@ impl DetachedSiblingsRange {
                     parent_node.first_child.is_some(),
                     parent_node.last_child.is_some()
                 );
+
+                debug_assert_eq!(Some(parent_node.last_child()), Some(previous_sibling));
             }
         }
 
@@ -188,6 +191,9 @@ impl DetachedSiblingsRange {
 
         // Connect the previous sibling and the first node in the range.
         connect_neighbors(arena, parent, previous_sibling, Some(self.first));
+
+        // Connect the next sibling and the last node in the range.
+        connect_neighbors(arena, parent, Some(self.last), None);
 
         // Ensure related nodes are consistent.
         // Check only in debug build.

@@ -175,17 +175,13 @@ pub(crate) fn insert_with_previous_unchecked<T>(
     new: NodeId,
     parent: Option<NodeId>,
     previous_sibling: Option<NodeId>,
-) -> Result<(), ConsistencyError> {
-    if previous_sibling == Some(new) {
-        // One of the given neighbors is going to be detached.
-        return Err(ConsistencyError::SiblingsLoop);
-    }
-
+) {
     DetachedSiblingsRange::new(new, new)
         .transplant_after_prev(arena, parent, previous_sibling)
-        .expect("Should never fail: neighbors including parent are not `self`");
+        .expect(
+            "Should never fail, callers must verify assumptions when using fast path append.
+                 `expect` only needed due to usage of shared functions that return a `Result`.",
+        );
 
     debug_assert_triangle_nodes!(arena, parent, previous_sibling, Some(new));
-
-    Ok(())
 }

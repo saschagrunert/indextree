@@ -11,7 +11,7 @@ use std::{fmt, num::NonZeroUsize};
 
 use crate::{
     debug_pretty_print::DebugPrettyPrint,
-    relations::{insert_with_neighbors, insert_with_previous_unchecked},
+    relations::{insert_last_unchecked, insert_with_neighbors},
     siblings_range::SiblingsRange,
     Ancestors, Arena, Children, Descendants, FollowingSiblings, NodeError, PrecedingSiblings,
     Predecessors, ReverseChildren, ReverseTraverse, Traverse,
@@ -713,12 +713,12 @@ impl NodeId {
     /// [`append`]: struct.NodeId.html#method.append
     pub fn append_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
         let new_child = arena.new_node(value);
-        self.unchecked_append_new_node(new_child, arena);
+        self.append_new_node_unchecked(new_child, arena);
 
         new_child
     }
 
-    /// Appends a new child to this node, after existing children.
+    /// Appends a new child to this node, after all existing children (if any).
     /// This method is a fast path for the common case of appending a new node.
     /// `new_child` requirements:
     /// 1. Must be detached. No parents or siblings.
@@ -738,8 +738,8 @@ impl NodeId {
     /// ```
     ///
     /// [`remove`]: struct.NodeId.html#method.remove
-    fn unchecked_append_new_node<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
-        insert_with_previous_unchecked(arena, new_child, Some(self), arena[self].last_child);
+    fn append_new_node_unchecked<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
+        insert_last_unchecked(arena, new_child, self);
     }
 
     /// Prepends a new child to this node, before existing children.

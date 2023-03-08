@@ -153,15 +153,15 @@ pub(crate) fn insert_with_neighbors<T>(
     Ok(())
 }
 
-/// Inserts, and updates the given detached node using the given neighbors.
+/// Inserts, and updates the given detached node to the parent, after all of it's existing children
 ///
 /// ```text
 /// Before:
 ///
-///    parent
-///     /  \
-///    /    \
-///  ... -> prev
+///     parent
+///     /     \
+///    /       \
+///  ... -> prev_sibling
 ///
 /// After:
 ///
@@ -170,18 +170,14 @@ pub(crate) fn insert_with_neighbors<T>(
 ///   /      |      \
 /// ... -> prev -> (new)
 /// ```
-pub(crate) fn insert_with_previous_unchecked<T>(
-    arena: &mut Arena<T>,
-    new: NodeId,
-    parent: Option<NodeId>,
-    previous_sibling: Option<NodeId>,
-) {
+pub(crate) fn insert_last_unchecked<T>(arena: &mut Arena<T>, new: NodeId, parent: NodeId) {
+    let previous_sibling = arena[parent].last_child;
     DetachedSiblingsRange::new(new, new)
-        .transplant_after_prev(arena, parent, previous_sibling)
+        .transplant(arena, Some(parent), previous_sibling, None)
         .expect(
             "Should never fail, callers must verify assumptions when using fast path append.
                  `expect` only needed due to usage of shared functions that return a `Result`.",
         );
 
-    debug_assert_triangle_nodes!(arena, parent, previous_sibling, Some(new));
+    debug_assert_triangle_nodes!(arena, Some(parent), previous_sibling, Some(new));
 }

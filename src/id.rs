@@ -694,9 +694,9 @@ impl NodeId {
     /// # use indextree::Arena;
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
-    /// let n1_1 = n1.append_new_value("1_1", &mut arena);
-    /// let n1_1_1 = n1_1.append_new_value("1_1_1", &mut arena);
-    /// let n1_1_2 = n1_1.append_new_value("1_1_2", &mut arena);
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    /// let n1_1_1 = n1_1.append_value("1_1_1", &mut arena);
+    /// let n1_1_2 = n1_1.append_value("1_1_2", &mut arena);
     ///
     /// // arena
     /// // `-- 1
@@ -711,49 +711,11 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     /// [`append`]: struct.NodeId.html#method.append
-    pub fn append_new_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+    pub fn append_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
         let new_child = arena.new_node(value);
         self.unchecked_append_new_node(new_child, arena);
 
         new_child
-    }
-
-    /// Appends a new child to this node, after existing children.
-    /// This method is a fast path for the common case of appending a new node.
-    /// Caller must uphold the following assumptions for `new_child`:
-    /// 1. Is detached - no parents or siblings.
-    /// 2. Has not been [`remove`]d.
-    /// 3. `append_new_node()` was not called on itself
-    ///
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use indextree::Arena;
-    /// let mut arena = Arena::new();
-    /// let n1 = arena.new_node("1");
-    /// let n1_1 = arena.new_node("1_1");
-    /// n1.append_new_node(n1_1, &mut arena); // ok, n1_1 is a detached node
-    /// let n_changes = arena.new_node("changes");
-    /// n1.append_new_node(n_changes, &mut arena); // ok, n_changes is a detached node
-    /// n1_1.append(n_changes, &mut arena); // using `append_new_node` would be wrong, n_changes is not detached
-    ///
-    /// // arena
-    /// // `-- 1
-    /// //     |-- 1_1
-    /// //           |-- changes
-    ///
-    /// let mut iter = n1.descendants(&arena);
-    /// assert_eq!(iter.next(), Some(n1));
-    /// assert_eq!(iter.next(), Some(n1_1));
-    /// assert_eq!(iter.next(), Some(n_changes));
-    /// assert_eq!(iter.next(), None);
-    /// ```
-    ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`remove`]: struct.NodeId.html#method.remove
-    pub fn append_new_node<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
-        self.unchecked_append_new_node(new_child, arena);
     }
 
     /// Appends a new child to this node, after existing children.
@@ -1373,22 +1335,5 @@ mod tests {
         assert!(n1_2_1_1.is_removed(&arena));
         assert!(n1_2_1_1_1.is_removed(&arena));
         assert!(n1_2_2.is_removed(&arena));
-    }
-
-    #[test]
-    fn quick_dirty() {
-        let mut arena = Arena::new();
-        let n1 = arena.new_node("1");
-        let n1_1 = arena.new_node("1_1");
-        n1.append_new_node(n1_1, &mut arena); // ok, n1_1 is a detached node
-        let n_changes = arena.new_node("changes");
-        n1.append_new_node(n_changes, &mut arena); // ok, n_changes is a detached node
-        n1_1.append(n_changes, &mut arena); // using `append_new_node` would be wrong, n_changes is not detached
-
-        let mut iter = n1.descendants(&arena);
-        assert_eq!(iter.next(), Some(n1));
-        assert_eq!(iter.next(), Some(n1_1));
-        assert_eq!(iter.next(), Some(n_changes));
-        assert_eq!(iter.next(), None);
     }
 }

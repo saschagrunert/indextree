@@ -34,3 +34,7 @@ let b = arena.new_node(2);
 assert!(a.append(b, arena).is_ok());
 assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 ```
+
+### Benchmarks
+
+https://github.com/mooman219/generational_arena_bench

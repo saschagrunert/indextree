@@ -1,5 +1,7 @@
 //! Iterators.
 
+#![allow(clippy::redundant_closure_call)]
+
 use crate::{Arena, Node, NodeId};
 
 macro_rules! impl_node_iterator {

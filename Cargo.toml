@@ -12,10 +12,6 @@ description = "Arena based tree structure by using indices instead of reference 
 categories = ["data-structures"]
 edition = "2018"
 
-[badges]
-travis-ci = { repository = "saschagrunert/indextree", branch = "main" }
-appveyor = { repository = "saschagrunert/indextree", branch = "main", service = "github" }
-
 [features]
 default = ["std"]
 deser = [ "serde" ]

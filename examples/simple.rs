@@ -10,5 +10,5 @@ pub fn main() {
 
     // Append a to b
     a.append(b, arena);
-    assert_eq!(b.ancestors(arena).into_iter().count(), 2);
+    assert_eq!(b.ancestors(arena).count(), 2);
 }

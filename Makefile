@@ -22,7 +22,7 @@ build-doc:
 	cargo doc --all --no-deps
 
 lint-clippy:
-	cargo clippy -- -D warnings
+	cargo clippy --all-targets -- -D warnings
 
 lint-rustfmt:
 	cargo fmt --version

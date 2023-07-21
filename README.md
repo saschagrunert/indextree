@@ -1,7 +1,6 @@
 # indextree
 
 [![GitHub Actions](https://github.com/saschagrunert/indextree/actions/workflows/test.yml/badge.svg)](https://github.com/saschagrunert/indextree/actions/workflows/test.yml)
-[![Build status](https://ci.appveyor.com/api/projects/status/byraapuh9py02us0?svg=true)](https://ci.appveyor.com/project/saschagrunert/indextree)
 [![Coverage](https://codecov.io/gh/saschagrunert/indextree/branch/main/graph/badge.svg)](https://codecov.io/gh/saschagrunert/indextree)
 [![Dependency Status](https://deps.rs/repo/github/saschagrunert/indextree/status.svg)](https://deps.rs/repo/github/saschagrunert/indextree)
 [![Doc indextree](https://img.shields.io/badge/main-indextree-blue.svg)](https://saschagrunert.github.io/indextree/doc/indextree)

@@ -362,7 +362,7 @@ impl NodeEdge {
                 match node.previous_sibling {
                     Some(previous_sibling) => Some(NodeEdge::End(previous_sibling)),
                     // `node.parent()` here can only be `None` if the tree has
-                    // been modified during iteration, but silently stoping
+                    // been modified during iteration, but silently stopping
                     // iteration seems a more sensible behavior than panicking.
                     None => node.parent.map(NodeEdge::Start),
                 }

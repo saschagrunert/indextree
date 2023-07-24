@@ -65,7 +65,7 @@ impl<T> Arena<T> {
         self.nodes.reserve(additional);
     }
 
-    /// Retrieves the `NodeId` correspoding to a `Node` in the `Arena`.
+    /// Retrieves the `NodeId` corresponding to a `Node` in the `Arena`.
     ///
     /// # Examples
     ///

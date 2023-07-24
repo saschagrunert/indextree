@@ -823,7 +823,7 @@
                 <span class="kw">match </span>node.previous_sibling {
                     <span class="prelude-val">Some</span>(previous_sibling) =&gt; <span class="prelude-val">Some</span>(NodeEdge::End(previous_sibling)),
                     <span class="comment">// `node.parent()` here can only be `None` if the tree has
-                    // been modified during iteration, but silently stoping
+                    // been modified during iteration, but silently stopping
                     // iteration seems a more sensible behavior than panicking.
                     </span><span class="prelude-val">None </span>=&gt; node.parent.map(NodeEdge::Start),
                 }

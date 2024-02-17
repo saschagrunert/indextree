@@ -93,6 +93,35 @@ impl<T> Arena<T> {
         }
     }
 
+    /// Retrieves the `NodeId` corresponding to the `Node` at `index` in the `Arena`, if it exists.
+    ///
+    /// Note: We use 1 based indexing, so the first element is at `1` and not `0`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # use std::num::NonZeroUsize;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let node = arena.get(foo).unwrap();
+    /// let index: NonZeroUsize = foo.into();
+    ///
+    /// let new_foo = arena.get_node_id_at(index).unwrap();
+    /// assert_eq!(foo, new_foo);
+    ///
+    /// foo.remove(&mut arena);
+    /// let new_foo = arena.get_node_id_at(index);
+    /// assert!(new_foo.is_none(), "must be none if the node at the index doesn't exist");
+    /// ```
+    pub fn get_node_id_at(&self, index: NonZeroUsize) -> Option<NodeId> {
+        let index0 = index.get() - 1; // we use 1 based indexing.
+        self.nodes
+            .get(index0)
+            .filter(|n| !n.is_removed())
+            .map(|node| NodeId::from_non_zero_usize(index, node.stamp))
+    }
+
     /// Creates a new node from its associated data.
     ///
     /// # Panics

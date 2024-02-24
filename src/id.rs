@@ -6,6 +6,9 @@ use core::{fmt, num::NonZeroUsize};
 #[cfg(feature = "deser")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "rkyv")]
+use rkyv::{Archive, Deserialize, Serialize};
+
 #[cfg(feature = "std")]
 use std::{fmt, num::NonZeroUsize};
 
@@ -19,6 +22,7 @@ use crate::{
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
 /// A node identifier within a particular [`Arena`].
 ///
 /// This ID is used to get [`Node`] references from an [`Arena`].
@@ -35,7 +39,8 @@ pub struct NodeId {
 /// is still the same node.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-pub(crate) struct NodeStamp(i16);
+#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
+pub struct NodeStamp(i16);
 
 impl NodeStamp {
     pub fn is_removed(self) -> bool {

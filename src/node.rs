@@ -6,6 +6,9 @@ use core::fmt;
 #[cfg(feature = "deser")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "rkyv")]
+use rkyv::{Archive, Deserialize, Serialize};
+
 #[cfg(feature = "std")]
 use std::fmt;
 
@@ -13,7 +16,8 @@ use crate::{id::NodeStamp, NodeId};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-pub(crate) enum NodeData<T> {
+#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
+pub enum NodeData<T> {
     /// The actual data store
     Data(T),
     /// The next free node position.
@@ -22,6 +26,7 @@ pub(crate) enum NodeData<T> {
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
 /// A node within a particular `Arena`.
 pub struct Node<T> {
     // Keep these private (with read-only accessors) so that we can keep them

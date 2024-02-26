@@ -7,7 +7,8 @@ use core::fmt;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "rkyv")]
-use rkyv::{Archive, Deserialize, Serialize};
+use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
+use std::fmt::Debug;
 
 #[cfg(feature = "std")]
 use std::fmt;
@@ -16,8 +17,9 @@ use crate::{id::NodeStamp, NodeId};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
-pub(crate) enum NodeData<T> {
+#[cfg_attr(feature = "rkyv", derive(Archive, RkyvDeserialize, RkyvSerialize))]
+pub(crate) enum NodeData<T> 
+{
     /// The actual data store
     Data(T),
     /// The next free node position.
@@ -26,18 +28,20 @@ pub(crate) enum NodeData<T> {
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
+#[cfg_attr(feature = "rkyv", derive(Archive, RkyvDeserialize, RkyvSerialize))]
 /// A node within a particular `Arena`.
-pub struct Node<T> {
-    // Keep these private (with read-only accessors) so that we can keep them
+pub struct Node<T>
+{    // Keep these private (with read-only accessors) so that we can keep them
     // consistent. E.g. the parent of a node’s child is that node.
     pub(crate) parent: Option<NodeId>,
     pub(crate) previous_sibling: Option<NodeId>,
     pub(crate) next_sibling: Option<NodeId>,
     pub(crate) first_child: Option<NodeId>,
     pub(crate) last_child: Option<NodeId>,
+    #[cfg_attr(feature = "rkyv", omit_bounds)]
     pub(crate) stamp: NodeStamp,
     /// The actual data which will be stored within the tree.
+    #[cfg_attr(feature = "rkyv", omit_bounds)]
     pub(crate) data: NodeData<T>,
 }
 

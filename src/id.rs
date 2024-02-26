@@ -7,7 +7,7 @@ use core::{fmt, num::NonZeroUsize};
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "rkyv")]
-use rkyv::{Archive, Deserialize, Serialize};
+use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 
 #[cfg(feature = "std")]
 use std::{fmt, num::NonZeroUsize};
@@ -22,7 +22,7 @@ use crate::{
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
+#[cfg_attr(feature = "rkyv", derive(Archive, RkyvDeserialize, RkyvSerialize))]
 /// A node identifier within a particular [`Arena`].
 ///
 /// This ID is used to get [`Node`] references from an [`Arena`].
@@ -32,6 +32,7 @@ use crate::{
 pub struct NodeId {
     /// One-based index.
     index1: NonZeroUsize,
+    #[cfg_attr(feature = "rkyv", omit_bounds)]
     stamp: NodeStamp,
 }
 
@@ -39,7 +40,7 @@ pub struct NodeId {
 /// is still the same node.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
-#[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
+#[cfg_attr(feature = "rkyv", derive(Archive, RkyvDeserialize, RkyvSerialize))]
 pub(crate) struct NodeStamp(i16);
 
 impl NodeStamp {

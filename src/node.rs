@@ -17,7 +17,7 @@ use crate::{id::NodeStamp, NodeId};
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
-pub enum NodeData<T> {
+pub(crate) enum NodeData<T> {
     /// The actual data store
     Data(T),
     /// The next free node position.

@@ -40,7 +40,7 @@ pub struct NodeId {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 #[cfg_attr(feature = "rkyv", derive(Archive, Deserialize, Serialize))]
-pub struct NodeStamp(i16);
+pub(crate) struct NodeStamp(i16);
 
 impl NodeStamp {
     pub fn is_removed(self) -> bool {

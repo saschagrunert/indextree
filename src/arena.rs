@@ -15,6 +15,9 @@ use rayon::prelude::*;
 #[cfg(feature = "deser")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "rkyv")]
+use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
+
 #[cfg(feature = "std")]
 use std::{
     num::NonZeroUsize,
@@ -25,6 +28,7 @@ use crate::{node::NodeData, Node, NodeId};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "rkyv", derive(Archive, RkyvDeserialize, RkyvSerialize))]
 /// An `Arena` structure containing certain [`Node`]s.
 ///
 /// [`Node`]: struct.Node.html

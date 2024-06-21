@@ -5,93 +5,163 @@
 use crate::{Arena, Node, NodeId};
 
 #[derive(Clone)]
-struct PlainIterator<'a, T> {
+struct Iter<'a, T> {
     arena: &'a Arena<T>,
-    node: Option<NodeId>,
+    head: Option<NodeId>,
+    tail: Option<NodeId>,
 }
 
-impl<'a, T> PlainIterator<'a, T> {
-    fn new(arena: &'a Arena<T>, node: impl Into<Option<NodeId>>) -> Self {
-        let node = node.into();
+impl<'a, T> Iter<'a, T> {
+    fn new(
+        arena: &'a Arena<T>,
+        head: impl Into<Option<NodeId>>,
+        tail: impl Into<Option<NodeId>>,
+    ) -> Self {
+        let head = head.into();
+        let tail = tail.into();
 
-        Self {
-            arena,
-            node,
-        }
+        Self { arena, head, tail }
     }
 }
 
-macro_rules! new_plain_iterator {
+macro_rules! new_iterator {
     ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr $(,)?) => {
         $(#[$attr])*
         #[repr(transparent)]
         #[derive(Clone)]
-        pub struct $name<'a, T>(PlainIterator<'a, T>);
+        pub struct $name<'a, T>(Iter<'a, T>);
 
+        #[allow(deprecated)]
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
             fn next(&mut self) -> Option<NodeId> {
-                let node = self.0.node.take()?;
-                let next: fn(&Node<T>) -> Option<NodeId> = $next;
-                self.0.node = next(&self.0.arena[node]);
-                Some(node)
+                match (self.0.head, self.0.tail) {
+                    (Some(head), Some(tail)) if head == tail => {
+                        let result = head;
+                        self.0.head = None;
+                        self.0.tail = None;
+                        Some(result)
+                    }
+                    (Some(head), None) | (Some(head), Some(_)) => {
+                        let next: fn(&Node<T>) -> Option<NodeId> = $next;
+
+                        self.0.head = next(&self.0.arena[head]);
+                        Some(head)
+                    }
+                    (None, Some(_)) | (None, None) => None,
+                }
             }
         }
 
-        impl<'a, T> ::core::iter::FusedIterator for $name<'a, T> {}
-
         impl<'a, T> $name<'a, T> {
             pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
-                Self($new(arena, node))
+                let new: fn(&'a Arena<T>, NodeId) -> Iter<'a, T> = $new;
+                Self(new(arena, node))
+            }
+        }
+    };
+    ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr, next_back = $next_back:expr $(,)?) => {
+        new_iterator!(
+            $(#[$attr])*
+            $name,
+            new = $new,
+            next = $next,
+        );
+        impl<'a, T> ::core::iter::DoubleEndedIterator for $name<'a, T> {
+            fn next_back(&mut self) -> Option<Self::Item> {
+                match (self.0.head, self.0.tail) {
+                    (Some(head), Some(tail)) if head == tail => {
+                        let result = head;
+                        self.0.head = None;
+                        self.0.tail = None;
+                        Some(result)
+                    }
+                    (None, Some(tail)) | (Some(_), Some(tail)) => {
+                        let next_back: fn(&Node<T>) -> Option<NodeId> = $next_back;
+
+                        self.0.head = next_back(&self.0.arena[tail]);
+                        Some(tail)
+                    }
+                    (Some(_), None)| (None, None) => None,
+                }
             }
         }
     };
     ($(#[$attr:meta])* $name:ident, next = $next:expr $(,)?) => {
-        new_plain_iterator!(
+        new_iterator!(
             $(#[$attr])*
             $name,
-            new = |arena, node| PlainIterator::new(arena, node),
+            new = |arena, node| Iter::new(arena, node, None),
             next = $next,
+        );
+    };
+    ($(#[$attr:meta])* $name:ident, next = $next:expr, next_back = $next_back:expr $(,)?) => {
+        new_iterator!(
+            $(#[$attr])*
+            $name,
+            new = |arena, node| Iter::new(arena, node, None),
+            next = $next,
+            next_back = $next_back,
         );
     };
 }
 
-new_plain_iterator!(
+new_iterator!(
     /// An iterator of the IDs of the ancestors of a given node.
     Ancestors,
     next = |node| node.parent,
 );
 
-new_plain_iterator!(
+new_iterator!(
     /// An iterator of the IDs of the predecessors of a given node.
     Predecessors,
     next = |node| node.previous_sibling.or(node.parent),
 );
 
-new_plain_iterator!(
+new_iterator!(
     /// An iterator of the IDs of the siblings before a given node.
     PrecedingSiblings,
+    new = |arena, node| {
+        let Some(parent) = arena[node].parent else {
+            return Iter::new(arena, node, arena.get_node_id(arena.iter().next().expect("first item is at least the node itself")));
+        };
+
+        let first = arena[parent].first_child.expect("first child exists, it must be at least the same as input node");
+
+        Iter::new(arena, node, first)
+    },
     next = |node| node.previous_sibling,
 );
 
-new_plain_iterator!(
+new_iterator!(
     /// An iterator of the IDs of the siblings after a given node.
     FollowingSiblings,
+    new = |arena, node| {
+        let Some(parent) = arena[node].parent else {
+            return Iter::new(arena, node, arena.get_node_id(arena.iter().last().expect("last item is at least the node itself")));
+        };
+
+        let last = arena[parent].last_child.expect("last child exists, it must be at least the same as input node");
+
+        Iter::new(arena, node, last)
+    },
     next = |node| node.next_sibling,
 );
 
-new_plain_iterator!(
+new_iterator!(
     /// An iterator of the IDs of the children of a given node, in insertion order.
     Children,
-    new = |arena, node| PlainIterator::new(arena, arena[node].first_child),
+    new = |arena, node| Iter::new(arena, arena[node].first_child, arena[node].last_child),
     next = |node| node.next_sibling,
+    next_back = |tail| tail.previous_sibling,
 );
 
-new_plain_iterator!(
+new_iterator!(
+    #[deprecated(since = "4.7.0", note = "please, use Children::rev() instead if you want to iterate in reverse")]
     /// An iterator of the IDs of the children of a given node, in reverse insertion order.
     ReverseChildren,
-    new = |arena, node| PlainIterator::new(arena, arena[node].last_child),
+    new = |arena, node| Iter::new(arena, arena[node].last_child, None),
     next = |node| node.previous_sibling,
 );
 

@@ -10,11 +10,11 @@ homepage = "https://github.com/saschagrunert/indextree"
 documentation = "https://docs.rs/indextree"
 description = "Arena based tree structure by using indices instead of reference counted pointers"
 categories = ["data-structures"]
-edition = "2018"
+edition = "2021"
 
 [features]
 default = ["std"]
-deser = [ "serde" ]
+deser = ["serde"]
 par_iter = ["rayon"]
 std = []
 

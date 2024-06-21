@@ -4,125 +4,96 @@
 
 use crate::{Arena, Node, NodeId};
 
-macro_rules! impl_node_iterator {
-    ($name:ident, $next:expr) => {
+#[derive(Clone)]
+struct PlainIterator<'a, T> {
+    arena: &'a Arena<T>,
+    node: Option<NodeId>,
+}
+
+impl<'a, T> PlainIterator<'a, T> {
+    fn new(arena: &'a Arena<T>, node: impl Into<Option<NodeId>>) -> Self {
+        let node = node.into();
+
+        Self {
+            arena,
+            node,
+        }
+    }
+}
+
+macro_rules! new_plain_iterator {
+    ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr $(,)?) => {
+        $(#[$attr])*
+        #[repr(transparent)]
+        #[derive(Clone)]
+        pub struct $name<'a, T>(PlainIterator<'a, T>);
+
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
             fn next(&mut self) -> Option<NodeId> {
-                let node = self.node.take()?;
-                self.node = $next(&self.arena[node]);
+                let node = self.0.node.take()?;
+                let next: fn(&Node<T>) -> Option<NodeId> = $next;
+                self.0.node = next(&self.0.arena[node]);
                 Some(node)
             }
         }
 
-        impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
+        impl<'a, T> ::core::iter::FusedIterator for $name<'a, T> {}
+
+        impl<'a, T> $name<'a, T> {
+            pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
+                Self($new(arena, node))
+            }
+        }
+    };
+    ($(#[$attr:meta])* $name:ident, next = $next:expr $(,)?) => {
+        new_plain_iterator!(
+            $(#[$attr])*
+            $name,
+            new = |arena, node| PlainIterator::new(arena, node),
+            next = $next,
+        );
     };
 }
 
-#[derive(Clone)]
-/// An iterator of the IDs of the ancestors of a given node.
-pub struct Ancestors<'a, T> {
-    arena: &'a Arena<T>,
-    node: Option<NodeId>,
-}
-impl_node_iterator!(Ancestors, |node: &Node<T>| node.parent);
+new_plain_iterator!(
+    /// An iterator of the IDs of the ancestors of a given node.
+    Ancestors,
+    next = |node| node.parent,
+);
 
-impl<'a, T> Ancestors<'a, T> {
-    pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
-        Self {
-            arena,
-            node: Some(current),
-        }
-    }
-}
+new_plain_iterator!(
+    /// An iterator of the IDs of the predecessors of a given node.
+    Predecessors,
+    next = |node| node.previous_sibling.or(node.parent),
+);
 
-#[derive(Clone)]
-/// An iterator of the IDs of the predecessors of a given node.
-pub struct Predecessors<'a, T> {
-    arena: &'a Arena<T>,
-    node: Option<NodeId>,
-}
-impl_node_iterator!(Predecessors, |node: &Node<T>| {
-    node.previous_sibling.or(node.parent)
-});
+new_plain_iterator!(
+    /// An iterator of the IDs of the siblings before a given node.
+    PrecedingSiblings,
+    next = |node| node.previous_sibling,
+);
 
-impl<'a, T> Predecessors<'a, T> {
-    pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
-        Self {
-            arena,
-            node: Some(current),
-        }
-    }
-}
+new_plain_iterator!(
+    /// An iterator of the IDs of the siblings after a given node.
+    FollowingSiblings,
+    next = |node| node.next_sibling,
+);
 
-#[derive(Clone)]
-/// An iterator of the IDs of the siblings before a given node.
-pub struct PrecedingSiblings<'a, T> {
-    arena: &'a Arena<T>,
-    node: Option<NodeId>,
-}
-impl_node_iterator!(PrecedingSiblings, |node: &Node<T>| node.previous_sibling);
+new_plain_iterator!(
+    /// An iterator of the IDs of the children of a given node, in insertion order.
+    Children,
+    new = |arena, node| PlainIterator::new(arena, arena[node].first_child),
+    next = |node| node.next_sibling,
+);
 
-impl<'a, T> PrecedingSiblings<'a, T> {
-    pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
-        Self {
-            arena,
-            node: Some(current),
-        }
-    }
-}
-
-#[derive(Clone)]
-/// An iterator of the IDs of the siblings after a given node.
-pub struct FollowingSiblings<'a, T> {
-    arena: &'a Arena<T>,
-    node: Option<NodeId>,
-}
-impl_node_iterator!(FollowingSiblings, |node: &Node<T>| node.next_sibling);
-
-impl<'a, T> FollowingSiblings<'a, T> {
-    pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
-        Self {
-            arena,
-            node: Some(current),
-        }
-    }
-}
-
-#[derive(Clone)]
-/// An iterator of the IDs of the children of a given node, in insertion order.
-pub struct Children<'a, T> {
-    arena: &'a Arena<T>,
-    node: Option<NodeId>,
-}
-impl_node_iterator!(Children, |node: &Node<T>| node.next_sibling);
-
-impl<'a, T> Children<'a, T> {
-    pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
-        Self {
-            arena,
-            node: arena[current].first_child,
-        }
-    }
-}
-
-#[derive(Clone)]
-/// An iterator of the IDs of the children of a given node, in reverse insertion order.
-pub struct ReverseChildren<'a, T> {
-    arena: &'a Arena<T>,
-    node: Option<NodeId>,
-}
-impl_node_iterator!(ReverseChildren, |node: &Node<T>| node.previous_sibling);
-
-impl<'a, T> ReverseChildren<'a, T> {
-    pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
-        Self {
-            arena,
-            node: arena[current].last_child,
-        }
-    }
-}
+new_plain_iterator!(
+    /// An iterator of the IDs of the children of a given node, in reverse insertion order.
+    ReverseChildren,
+    new = |arena, node| PlainIterator::new(arena, arena[node].last_child),
+    next = |node| node.previous_sibling,
+);
 
 #[derive(Clone)]
 /// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.

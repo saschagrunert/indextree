@@ -158,7 +158,10 @@ new_iterator!(
 );
 
 new_iterator!(
-    #[deprecated(since = "4.7.0", note = "please, use Children::rev() instead if you want to iterate in reverse")]
+    #[deprecated(
+        since = "4.7.0",
+        note = "please, use Children::rev() instead if you want to iterate in reverse"
+    )]
     /// An iterator of the IDs of the children of a given node, in reverse insertion order.
     ReverseChildren,
     new = |arena, node| Iter::new(arena, arena[node].last_child, None),

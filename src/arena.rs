@@ -5,6 +5,7 @@ use alloc::vec::Vec;
 
 #[cfg(not(feature = "std"))]
 use core::{
+    mem,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
 };
@@ -17,6 +18,7 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
 use std::{
+    mem,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
 };
@@ -86,12 +88,13 @@ impl<T> Arena<T> {
             return None;
         }
 
-        let node_index = (p as usize - nodes_range.start as usize) / core::mem::size_of::<Node<T>>();
-        let Some(node_id) = NonZeroUsize::new(node_index.wrapping_add(1)) else {
-            return None;
-        };
+        let node_index = (p as usize - nodes_range.start as usize) / mem::size_of::<Node<T>>();
+        let node_id = NonZeroUsize::new(node_index.wrapping_add(1))?;
 
-        Some(NodeId::from_non_zero_usize(node_id, self.nodes[node_index].stamp))
+        Some(NodeId::from_non_zero_usize(
+            node_id,
+            self.nodes[node_index].stamp,
+        ))
     }
 
     /// Retrieves the `NodeId` corresponding to the `Node` at `index` in the `Arena`, if it exists.

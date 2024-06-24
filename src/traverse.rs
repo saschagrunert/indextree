@@ -39,11 +39,26 @@ impl<'a, T> DoubleEndedIter<'a, T> {
 }
 
 macro_rules! new_iterator {
-    ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr $(,)?) => {
+    ($(#[$attr:meta])* $name:ident, inner = $inner:ident, new = $new:expr $(,)?) => {
         $(#[$attr])*
         #[repr(transparent)]
         #[derive(Clone)]
-        pub struct $name<'a, T>(Iter<'a, T>);
+        pub struct $name<'a, T>($inner<'a, T>);
+
+        impl<'a, T> $name<'a, T> {
+            pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
+                let new: fn(&'a Arena<T>, NodeId) -> $inner<'a, T> = $new;
+                Self(new(arena, node))
+            }
+        }
+    };
+    ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr $(,)?) => {
+        new_iterator!(
+            $(#[$attr])*
+            $name,
+            inner = Iter,
+            new = $new,
+        );
 
         #[allow(deprecated)]
         impl<'a, T> Iterator for $name<'a, T> {
@@ -59,19 +74,14 @@ macro_rules! new_iterator {
         }
 
         impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
-
-        impl<'a, T> $name<'a, T> {
-            pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
-                let new: fn(&'a Arena<T>, NodeId) -> Iter<'a, T> = $new;
-                Self(new(arena, node))
-            }
-        }
     };
     ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr, next_back = $next_back:expr $(,)?) => {
-        $(#[$attr])*
-        #[repr(transparent)]
-        #[derive(Clone)]
-        pub struct $name<'a, T>(DoubleEndedIter<'a, T>);
+        new_iterator!(
+            $(#[$attr])*
+            $name,
+            inner = DoubleEndedIter,
+            new = $new,
+        );
 
         #[allow(deprecated)]
         impl<'a, T> Iterator for $name<'a, T> {
@@ -93,13 +103,6 @@ macro_rules! new_iterator {
                     }
                     (None, Some(_)) | (None, None) => None,
                 }
-            }
-        }
-
-        impl<'a, T> $name<'a, T> {
-            pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
-                let new: fn(&'a Arena<T>, NodeId) -> DoubleEndedIter<'a, T> = $new;
-                Self(new(arena, node))
             }
         }
 

@@ -7,11 +7,25 @@ use crate::{Arena, Node, NodeId};
 #[derive(Clone)]
 struct Iter<'a, T> {
     arena: &'a Arena<T>,
+    node: Option<NodeId>,
+}
+
+impl<'a, T> Iter<'a, T> {
+    fn new(arena: &'a Arena<T>, node: impl Into<Option<NodeId>>) -> Self {
+        let node = node.into();
+
+        Self { arena, node }
+    }
+}
+
+#[derive(Clone)]
+struct DoubleEndedIter<'a, T> {
+    arena: &'a Arena<T>,
     head: Option<NodeId>,
     tail: Option<NodeId>,
 }
 
-impl<'a, T> Iter<'a, T> {
+impl<'a, T> DoubleEndedIter<'a, T> {
     fn new(
         arena: &'a Arena<T>,
         head: impl Into<Option<NodeId>>,
@@ -30,6 +44,34 @@ macro_rules! new_iterator {
         #[repr(transparent)]
         #[derive(Clone)]
         pub struct $name<'a, T>(Iter<'a, T>);
+
+        #[allow(deprecated)]
+        impl<'a, T> Iterator for $name<'a, T> {
+            type Item = NodeId;
+
+            fn next(&mut self) -> Option<NodeId> {
+                let next: fn(&Node<T>) -> Option<NodeId> = $next;
+
+                let node = self.0.node.take()?;
+                self.0.node = next(&self.0.arena[node]);
+                Some(node)
+            }
+        }
+
+        impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
+
+        impl<'a, T> $name<'a, T> {
+            pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
+                let new: fn(&'a Arena<T>, NodeId) -> Iter<'a, T> = $new;
+                Self(new(arena, node))
+            }
+        }
+    };
+    ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr, next_back = $next_back:expr $(,)?) => {
+        $(#[$attr])*
+        #[repr(transparent)]
+        #[derive(Clone)]
+        pub struct $name<'a, T>(DoubleEndedIter<'a, T>);
 
         #[allow(deprecated)]
         impl<'a, T> Iterator for $name<'a, T> {
@@ -56,18 +98,11 @@ macro_rules! new_iterator {
 
         impl<'a, T> $name<'a, T> {
             pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
-                let new: fn(&'a Arena<T>, NodeId) -> Iter<'a, T> = $new;
+                let new: fn(&'a Arena<T>, NodeId) -> DoubleEndedIter<'a, T> = $new;
                 Self(new(arena, node))
             }
         }
-    };
-    ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr, next_back = $next_back:expr $(,)?) => {
-        new_iterator!(
-            $(#[$attr])*
-            $name,
-            new = $new,
-            next = $next,
-        );
+
         impl<'a, T> ::core::iter::DoubleEndedIterator for $name<'a, T> {
             fn next_back(&mut self) -> Option<Self::Item> {
                 match (self.0.head, self.0.tail) {
@@ -92,7 +127,7 @@ macro_rules! new_iterator {
         new_iterator!(
             $(#[$attr])*
             $name,
-            new = |arena, node| Iter::new(arena, node, None),
+            new = |arena, node| Iter::new(arena, node),
             next = $next,
         );
     };
@@ -100,7 +135,7 @@ macro_rules! new_iterator {
         new_iterator!(
             $(#[$attr])*
             $name,
-            new = |arena, node| Iter::new(arena, node, None),
+            new = |arena, node| DoubleEndedIter::new(arena, node, None),
             next = $next,
             next_back = $next_back,
         );
@@ -122,37 +157,19 @@ new_iterator!(
 new_iterator!(
     /// An iterator of the IDs of the siblings before a given node.
     PrecedingSiblings,
-    new = |arena, node| {
-        let Some(parent) = arena[node].parent else {
-            return Iter::new(arena, node, arena.get_node_id(arena.iter().next().expect("first item is at least the node itself")));
-        };
-
-        let first = arena[parent].first_child.expect("first child exists, it must be at least the same as input node");
-
-        Iter::new(arena, node, first)
-    },
     next = |node| node.previous_sibling,
 );
 
 new_iterator!(
     /// An iterator of the IDs of the siblings after a given node.
     FollowingSiblings,
-    new = |arena, node| {
-        let Some(parent) = arena[node].parent else {
-            return Iter::new(arena, node, arena.get_node_id(arena.iter().last().expect("last item is at least the node itself")));
-        };
-
-        let last = arena[parent].last_child.expect("last child exists, it must be at least the same as input node");
-
-        Iter::new(arena, node, last)
-    },
     next = |node| node.next_sibling,
 );
 
 new_iterator!(
     /// An iterator of the IDs of the children of a given node, in insertion order.
     Children,
-    new = |arena, node| Iter::new(arena, arena[node].first_child, arena[node].last_child),
+    new = |arena, node| DoubleEndedIter::new(arena, arena[node].first_child, arena[node].last_child),
     next = |node| node.next_sibling,
     next_back = |tail| tail.previous_sibling,
 );
@@ -164,7 +181,7 @@ new_iterator!(
     )]
     /// An iterator of the IDs of the children of a given node, in reverse insertion order.
     ReverseChildren,
-    new = |arena, node| Iter::new(arena, arena[node].last_child, None),
+    new = |arena, node| Iter::new(arena, arena[node].last_child),
     next = |node| node.previous_sibling,
 );
 

@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "std")]
 use std::{fmt, num::NonZeroUsize};
 
+#[allow(deprecated)]
 use crate::{
     debug_pretty_print::DebugPrettyPrint,
     relations::{insert_last_unchecked, insert_with_neighbors},
@@ -361,6 +362,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_1));                    // #3
     /// assert_eq!(iter.next(), None);
     /// ```
+    #[allow(deprecated)]
     pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<'_, T> {
         ReverseChildren::new(arena, self)
     }

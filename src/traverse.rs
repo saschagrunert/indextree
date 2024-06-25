@@ -163,13 +163,39 @@ new_iterator!(
 new_iterator!(
     /// An iterator of the IDs of the siblings before a given node.
     PrecedingSiblings,
-    next = |node| node.previous_sibling,
+    new = |arena, node| {
+        let first = arena
+            .get(node)
+            .unwrap()
+            .parent
+            .map(|parent_id| arena.get(parent_id))
+            .flatten()
+            .map(|parent| parent.first_child)
+            .flatten();
+
+        DoubleEndedIter::new(arena, node, first)
+    },
+    next = |head| head.previous_sibling,
+    next_back = |tail| tail.next_sibling,
 );
 
 new_iterator!(
     /// An iterator of the IDs of the siblings after a given node.
     FollowingSiblings,
-    next = |node| node.next_sibling,
+    new = |arena, node| {
+        let last = arena
+            .get(node)
+            .unwrap()
+            .parent
+            .map(|parent_id| arena.get(parent_id))
+            .flatten()
+            .map(|parent| parent.last_child)
+            .flatten();
+
+        DoubleEndedIter::new(arena, node, last)
+    },
+    next = |head| head.next_sibling,
+    next_back = |tail| tail.previous_sibling,
 );
 
 new_iterator!(

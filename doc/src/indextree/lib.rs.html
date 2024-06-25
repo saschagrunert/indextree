@@ -50,6 +50,7 @@
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Arena based tree data structure
 //!
 //! This arena tree structure is using just a single `Vec` and numerical
@@ -80,7 +81,8 @@
 #[cfg(not(feature = <span class="string">"std"</span>))]
 </span><span class="kw">extern crate </span>alloc;
 
-<span class="kw">pub use crate</span>::{
+<span class="attr">#[allow(deprecated)]
+</span><span class="kw">pub use crate</span>::{
     arena::Arena,
     debug_pretty_print::DebugPrettyPrint,
     error::NodeError,

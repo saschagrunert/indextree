@@ -1337,6 +1337,8 @@
 <a href="#1337" id="1337">1337</a>
 <a href="#1338" id="1338">1338</a>
 <a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Node ID.
 
 </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
@@ -1348,7 +1350,8 @@
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::{fmt, num::NonZeroUsize};
 
-<span class="kw">use crate</span>::{
+<span class="attr">#[allow(deprecated)]
+</span><span class="kw">use crate</span>::{
     debug_pretty_print::DebugPrettyPrint,
     relations::{insert_last_unchecked, insert_with_neighbors},
     siblings_range::SiblingsRange,
@@ -1700,6 +1703,7 @@
     /// assert_eq!(iter.next(), Some(n1_1));                    // #3
     /// assert_eq!(iter.next(), None);
     /// ```
+    </span><span class="attr">#[allow(deprecated)]
     </span><span class="kw">pub fn </span>reverse_children&lt;T&gt;(<span class="self">self</span>, arena: <span class="kw-2">&amp;</span>Arena&lt;T&gt;) -&gt; ReverseChildren&lt;<span class="lifetime">'_</span>, T&gt; {
         ReverseChildren::new(arena, <span class="self">self</span>)
     }

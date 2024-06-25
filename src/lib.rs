@@ -28,6 +28,7 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
+#[allow(deprecated)]
 pub use crate::{
     arena::Arena,
     debug_pretty_print::DebugPrettyPrint,

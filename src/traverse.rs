@@ -45,6 +45,7 @@ macro_rules! new_iterator {
         #[derive(Clone)]
         pub struct $name<'a, T>($inner<'a, T>);
 
+        #[allow(deprecated)]
         impl<'a, T> $name<'a, T> {
             pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
                 let new: fn(&'a Arena<T>, NodeId) -> $inner<'a, T> = $new;
@@ -73,6 +74,7 @@ macro_rules! new_iterator {
             }
         }
 
+        #[allow(deprecated)]
         impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
     };
     ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr, next_back = $next_back:expr $(,)?) => {
@@ -106,6 +108,7 @@ macro_rules! new_iterator {
             }
         }
 
+        #[allow(deprecated)]
         impl<'a, T> ::core::iter::DoubleEndedIterator for $name<'a, T> {
             fn next_back(&mut self) -> Option<Self::Item> {
                 match (self.0.head, self.0.tail) {

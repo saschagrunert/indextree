@@ -8,6 +8,7 @@ use core::{
     mem,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
+    slice,
 };
 
 #[cfg(feature = "par_iter")]
@@ -21,6 +22,7 @@ use std::{
     mem,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
+    slice,
 };
 
 use crate::{node::NodeData, Node, NodeId};
@@ -280,7 +282,7 @@ impl<T> Arena<T> {
     /// ```
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed
-    pub fn iter(&self) -> impl Iterator<Item = &Node<T>> {
+    pub fn iter(&self) -> slice::Iter<Node<T>> {
         self.nodes.iter()
     }
 
@@ -307,7 +309,7 @@ impl<T> Arena<T> {
     /// assert_eq!(node_refs, vec![5, 6]);
     /// ```
     /// [`is_removed()`]: struct.Node.html#method.is_removed
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Node<T>> {
+    pub fn iter_mut(&mut self) -> slice::IterMut<Node<T>> {
         self.nodes.iter_mut()
     }
 

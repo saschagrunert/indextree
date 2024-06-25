@@ -329,6 +329,14 @@ impl<T> Arena<T> {
         self.last_free_slot = None;
     }
 
+    /// Returns a slice of the inner nodes collection.
+    ///
+    /// Note that this **does not** return root elements, it simply
+    /// returns a slice into the internal representation of the arena.
+    pub fn as_slice(&self) -> &[Node<T>] {
+        self.nodes.as_slice()
+    }
+
     pub(crate) fn free_node(&mut self, id: NodeId) {
         let node = &mut self[id];
         node.data = NodeData::NextFree(None);

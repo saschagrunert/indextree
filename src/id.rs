@@ -363,6 +363,10 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     #[allow(deprecated)]
+    #[deprecated(
+        since = "4.7.0",
+        note = "please, use `NodeId::children().rev()` instead if you want to iterate in reverse"
+    )]
     pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<'_, T> {
         ReverseChildren::new(arena, self)
     }

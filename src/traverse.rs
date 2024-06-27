@@ -168,10 +168,8 @@ new_iterator!(
             .get(node)
             .unwrap()
             .parent
-            .map(|parent_id| arena.get(parent_id))
-            .flatten()
-            .map(|parent| parent.first_child)
-            .flatten();
+            .and_then(|parent_id| arena.get(parent_id))
+            .and_then(|parent| parent.first_child);
 
         DoubleEndedIter::new(arena, node, first)
     },
@@ -187,10 +185,8 @@ new_iterator!(
             .get(node)
             .unwrap()
             .parent
-            .map(|parent_id| arena.get(parent_id))
-            .flatten()
-            .map(|parent| parent.last_child)
-            .flatten();
+            .and_then(|parent_id| arena.get(parent_id))
+            .and_then(|parent| parent.last_child);
 
         DoubleEndedIter::new(arena, node, last)
     },

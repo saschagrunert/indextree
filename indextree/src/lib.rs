@@ -41,6 +41,9 @@ pub use crate::{
     },
 };
 
+#[cfg(feature = "macros")]
+pub use indextree_macros as macros;
+
 #[macro_use]
 pub(crate) mod relations;
 

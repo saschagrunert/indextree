@@ -1,0 +1,36 @@
+[package]
+name = "indextree"
+version = "4.7.0"
+license = "MIT"
+readme = "README.md"
+keywords = ["tree", "arena", "index", "indextree", "trie"]
+authors = ["Sascha Grunert <mail@saschagruenrt.de>"]
+repository = "https://github.com/saschagrunert/indextree"
+homepage = "https://github.com/saschagrunert/indextree"
+documentation = "https://docs.rs/indextree"
+description = "Arena based tree structure by using indices instead of reference counted pointers"
+categories = ["data-structures"]
+edition = "2021"
+
+[features]
+default = ["std", "macros"]
+deser = ["serde"]
+par_iter = ["rayon"]
+std = []
+macros = ["indextree-macros"]
+
+[dependencies]
+rayon = { version = "1.7.0", optional = true }
+serde = { version = "1.0.154", features = ["derive"], optional = true }
+indextree-macros = { path = "../indextree-macros", optional = true }
+
+[[example]]
+name = "parallel_iteration"
+required-features = ["par_iter"]
+
+[[example]]
+name = "simple"
+
+[[example]]
+name = "tree-macro"
+required-features = ["macros"]

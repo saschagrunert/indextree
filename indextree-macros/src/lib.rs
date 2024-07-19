@@ -82,8 +82,12 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let mut action_buffer = quote! {
         let mut __arena: &mut ::indextree::Arena<_> = #arena;
         let __root_node: ::indextree::NodeId = {
+            fn __type_id_of_val<__T: 'static>(_: &__T) -> ::std::any::TypeId {
+                ::std::any::TypeId::of::<__T>()
+            }
+
             let __root_node = #root_node;
-            if ::std::any::type_name_of_val(&__root_node) == ::std::any::type_name::<::indextree::NodeId>() {
+            if __type_id_of_val(&__root_node) == ::std::any::TypeId::of::<::indextree::NodeId>() {
                 #[allow(clippy::useless_transmute)]
                 let __root_node = unsafe { ::std::mem::transmute::<_, ::indextree::NodeId>(__root_node) };
                 __root_node

@@ -1,6 +1,11 @@
 use either::Either;
 use quote::quote;
-use syn::{parse::{Parse, ParseStream}, parse_macro_input, punctuated::Punctuated, Token};
+use syn::{
+    parse::{Parse, ParseStream},
+    parse_macro_input,
+    punctuated::Punctuated,
+    Token,
+};
 
 #[derive(Clone, Debug)]
 struct IndexNode {
@@ -48,7 +53,11 @@ impl Parse for IndexTree {
         syn::braced!(nodes in input);
         let nodes = nodes.parse_terminated(IndexNode::parse, Token![,])?;
 
-        Ok(IndexTree { arena, root_node, nodes })
+        Ok(IndexTree {
+            arena,
+            root_node,
+            nodes,
+        })
     }
 }
 
@@ -57,13 +66,14 @@ struct NestingLevelMarker;
 
 #[proc_macro]
 pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let IndexTree { arena, root_node, nodes } = parse_macro_input!(input as IndexTree);
+    let IndexTree {
+        arena,
+        root_node,
+        nodes,
+    } = parse_macro_input!(input as IndexTree);
 
-    let mut stack: Vec<Either<_, NestingLevelMarker>> = nodes
-        .into_iter()
-        .map(Either::Left)
-        .rev()
-        .collect();
+    let mut stack: Vec<Either<_, NestingLevelMarker>> =
+        nodes.into_iter().map(Either::Left).rev().collect();
 
     // HACK: Due to the fact that specialization is unstable, we must resort to manual type
     // checking and transmuting the value once the type is checked, in order to satisfy the borrow
@@ -114,5 +124,6 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     quote! {{
         #action_buffer;
         __root_node
-    }}.into()
+    }}
+    .into()
 }

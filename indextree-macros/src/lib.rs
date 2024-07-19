@@ -74,9 +74,11 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         let __root_node: ::indextree::NodeId = {
             let __root_node = #root_node;
             if ::std::any::type_name_of_val(&__root_node) == ::std::any::type_name::<::indextree::NodeId>() {
+                #[allow(clippy::useless_transmute)]
                 let __root_node = unsafe { ::std::mem::transmute::<_, ::indextree::NodeId>(__root_node) };
                 __root_node
             } else {
+                #[allow(clippy::useless_transmute)]
                 let __root_node = unsafe { ::std::mem::transmute::<_, _>(__root_node) };
                 __arena.new_node(__root_node)
             }

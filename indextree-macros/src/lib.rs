@@ -81,21 +81,30 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     // which is not zero-cost.
     let mut action_buffer = quote! {
         let mut __arena: &mut ::indextree::Arena<_> = #arena;
-        let __root_node: ::indextree::NodeId = {
-            fn __type_id_of_val<__T: 'static>(_: &__T) -> ::std::any::TypeId {
-                ::std::any::TypeId::of::<__T>()
-            }
 
-            let __root_node = #root_node;
-            if __type_id_of_val(&__root_node) == ::std::any::TypeId::of::<::indextree::NodeId>() {
-                #[allow(clippy::useless_transmute)]
-                let __root_node = unsafe { ::std::mem::transmute::<_, ::indextree::NodeId>(__root_node) };
-                __root_node
-            } else {
-                #[allow(clippy::useless_transmute)]
-                let __root_node = unsafe { ::std::mem::transmute::<_, _>(__root_node) };
-                __arena.new_node(__root_node)
+        trait __ToNodeId<__T> {
+            fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId;
+        }
+
+        trait __NodeIdToNodeId<__T> {
+            fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId;
+        }
+
+        impl<__T> __NodeIdToNodeId<__T> for ::std::mem::ManuallyDrop<::indextree::NodeId> {
+            fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
+                unsafe { ::std::mem::ManuallyDrop::take(self) }
             }
+        }
+
+        impl<__T> __ToNodeId<__T> for &mut ::std::mem::ManuallyDrop<__T> {
+            fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
+                __arena.new_node(unsafe { ::std::mem::ManuallyDrop::take(*self) })
+            }
+        }
+
+        let __root_node: ::indextree::NodeId = {
+            let mut __root_node = ::std::mem::ManuallyDrop::new(#root_node);
+            (&mut __root_node).__to_node_id(__arena)
         };
         let mut __node: ::indextree::NodeId = __root_node;
         let mut __last: ::indextree::NodeId;

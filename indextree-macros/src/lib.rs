@@ -53,6 +53,8 @@ impl Parse for IndexTree {
         syn::braced!(nodes in input);
         let nodes = nodes.parse_terminated(IndexNode::parse, Token![,])?;
 
+        let _ = input.parse::<Token![,]>();
+
         Ok(IndexTree {
             arena,
             root_node,

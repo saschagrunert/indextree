@@ -82,6 +82,9 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let mut action_buffer = quote! {
         let mut __arena: &mut ::indextree::Arena<_> = #arena;
 
+        #[repr(transparent)]
+        struct __Wrapping<__T>(::core::mem::ManuallyDrop<__T>);
+
         trait __ToNodeId<__T> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId;
         }
@@ -90,20 +93,20 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId;
         }
 
-        impl<__T> __NodeIdToNodeId<__T> for ::std::mem::ManuallyDrop<::indextree::NodeId> {
+        impl<__T> __NodeIdToNodeId<__T> for __Wrapping<::indextree::NodeId> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
-                unsafe { ::std::mem::ManuallyDrop::take(self) }
+                unsafe { ::core::mem::ManuallyDrop::take(&mut self.0) }
             }
         }
 
-        impl<__T> __ToNodeId<__T> for &mut ::std::mem::ManuallyDrop<__T> {
+        impl<__T> __ToNodeId<__T> for &mut __Wrapping<__T> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
-                __arena.new_node(unsafe { ::std::mem::ManuallyDrop::take(*self) })
+                ::indextree::Arena::new_node(__arena, unsafe { ::core::mem::ManuallyDrop::take(&mut self.0) })
             }
         }
 
         let __root_node: ::indextree::NodeId = {
-            let mut __root_node = ::std::mem::ManuallyDrop::new(#root_node);
+            let mut __root_node = __Wrapping(::core::mem::ManuallyDrop::new(#root_node));
             (&mut __root_node).__to_node_id(__arena)
         };
         let mut __node: ::indextree::NodeId = __root_node;
@@ -113,7 +116,11 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     while let Some(item) = stack.pop() {
         let Either::Left(IndexNode { node, children }) = item else {
             action_buffer.extend(quote! {
-                __node = __arena.get(__node).unwrap().parent().unwrap();
+                let __temp = ::indextree::Arena::get(__arena, __node);
+                let __temp = ::core::option::Option::unwrap(__temp);
+                let __temp = ::indextree::Node::parent(__temp);
+                let __temp = ::core::option::Option::unwrap(__temp);
+                __node = __temp;
             });
             continue;
         };

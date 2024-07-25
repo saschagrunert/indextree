@@ -80,10 +80,9 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let mut stack: Vec<Either<_, NestingLevelMarker>> =
         nodes.into_iter().map(Either::Left).rev().collect();
 
-    // HACK: Due to the fact that specialization is unstable, we must resort to manual type
-    // checking and transmuting the value once the type is checked, in order to satisfy the borrow
-    // checker. Also, using `std::any::Any` trait is no use, since it requires dynamic dispatch,
-    // which is not zero-cost.
+    // HACK(alexmozaidze): Due to the fact that specialization is unstable, we must resort to
+    // autoref specialization trick.
+    // https://github.com/dtolnay/case-studies/blob/master/autoref-specialization/README.md
     let mut action_buffer = quote! {
         let mut __arena: &mut ::indextree::Arena<_> = #arena;
 

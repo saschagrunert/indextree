@@ -47,11 +47,14 @@ impl Parse for IndexTree {
 
         let root_node = input.parse::<syn::Expr>()?;
 
-        input.parse::<Token![=>]>()?;
+        let nodes = if input.parse::<Token![=>]>().is_ok() {
+            let braced_nodes;
+            syn::braced!(braced_nodes in input);
+            braced_nodes.parse_terminated(IndexNode::parse, Token![,])?
+        } else {
+            Punctuated::new()
+        };
 
-        let nodes;
-        syn::braced!(nodes in input);
-        let nodes = nodes.parse_terminated(IndexNode::parse, Token![,])?;
 
         let _ = input.parse::<Token![,]>();
 

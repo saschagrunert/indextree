@@ -1,11 +1,15 @@
 use either::Either;
+use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use strum::EnumDiscriminants;
 use syn::{
-    braced, parse::{Parse, ParseStream}, parse_macro_input, punctuated::Punctuated, Expr, Token
+    braced,
+    parse::{Parse, ParseStream},
+    parse_macro_input,
+    punctuated::Punctuated,
+    Expr, Token,
 };
-use itertools::Itertools;
 
 #[derive(Clone, Debug)]
 struct IndexNode {
@@ -54,7 +58,6 @@ impl Parse for IndexTree {
         } else {
             Punctuated::new()
         };
-
 
         let _ = input.parse::<Token![,]>();
 

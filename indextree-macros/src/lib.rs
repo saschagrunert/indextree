@@ -119,6 +119,90 @@ impl ToTokens for ActionStream {
     }
 }
 
+/// Construct a tree for a given arena.
+///
+/// This macro creates a tree in an [`Arena`] with a pre-defined layout. If the root node is of
+/// type [`NodeId`], then that [`NodeId`] is used for the root node, but if it's any other type,
+/// then it creates a new root node on-the-fly. The macro returns [`NodeId`] of the root node.
+///
+/// # Examples
+///
+/// ```
+/// # use indextree::{Arena, macros::tree};
+/// # let mut arena = Arena::new();
+/// let root_node = arena.new_node("root node");
+/// tree!(
+///     &mut arena,
+///     root_node => {
+///         "1",
+///         "2" => {
+///             "2_1" => { "2_1_1" },
+///             "2_2",
+///         },
+///         "3",
+///     }
+/// );
+///
+/// let automagical_root_node = tree!(
+///     &mut arena,
+///     "root node, but automagically created" => {
+///         "1",
+///         "2" => {
+///             "2_1" => { "2_1_1" },
+///             "2_2",
+///         },
+///         "3",
+///     }
+/// );
+/// ```
+///
+/// Note that you can anchor the root node in the macro to any node at any nesting. So you can take
+/// an already existing node of a tree and attach another tree to it:
+/// ```
+/// # use indextree::{Arena, macros::tree};
+/// # let mut arena = Arena::new();
+/// let root_node = tree!(
+///     &mut arena,
+///     "root node" => {
+///         "1",
+///         "2",
+///         "3",
+///     }
+/// );
+///
+/// let node_1 = arena.get(root_node).unwrap().first_child().unwrap();
+/// let node_2 = arena.get(node_1).unwrap().next_sibling().unwrap();
+/// tree!(
+///     &mut arena,
+///     node_2 => {
+///         "2_1" => { "2_1_1" },
+///         "2_2",
+///     }
+/// );
+/// ```
+///
+/// It is also possible to create an empty root_node, although, I'm not sure why you'd want to do
+/// that.
+/// ```
+/// # use indextree::{Arena, macros::tree};
+/// # let mut arena = Arena::new();
+/// let root_node = tree!(
+///     &mut arena,
+///     "my root node",
+/// );
+/// ```
+/// Empty nodes can also be defined as `=> {}`
+/// ```
+/// # use indextree::{Arena, macros::tree};
+/// # let mut arena = Arena::new();
+/// let root_node = tree!(
+///     &mut arena,
+///     "my root node" => {},
+/// );
+/// ```
+///
+/// [`Arena`]: https://docs.rs/indextree/latest/indextree/struct.Arena.html
+/// [`NodeId`]: https://docs.rs/indextree/latest/indextree/struct.NodeId.html
 #[proc_macro]
 pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let IndexTree {

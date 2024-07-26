@@ -1,17 +1,14 @@
 mod regular_usage;
 
-use regular_usage::compare_nodes;
-use indextree_macros::tree;
 use indextree::Arena;
+use indextree_macros::tree;
+use regular_usage::compare_nodes;
 
 #[test]
 fn outragous_nesting() {
     let mut arena = Arena::new();
 
-    let root_macro = tree!(
-        &mut arena,
-        "macro root node"
-    );
+    let root_macro = tree!(&mut arena, "macro root node");
     tree!(
         &mut arena,
         root_macro => {

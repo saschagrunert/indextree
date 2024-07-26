@@ -1,24 +1,16 @@
 use std::fmt::{Debug, Display};
 
-use indextree_macros::tree;
 use indextree::{Arena, NodeId};
+use indextree_macros::tree;
 
 pub fn compare_nodes<T>(arena: &Arena<T>, n1: NodeId, n2: NodeId)
 where
     T: Debug + Display + Clone + PartialEq,
 {
-    let get_val = |id: NodeId| -> T {
-        arena.get(id).unwrap().get().clone()
-    };
+    let get_val = |id: NodeId| -> T { arena.get(id).unwrap().get().clone() };
 
-    let n1_iter = n1
-        .descendants(arena)
-        .skip(1)
-        .map(get_val);
-    let n2_iter = n2
-        .descendants(arena)
-        .skip(1)
-        .map(get_val);
+    let n1_iter = n1.descendants(arena).skip(1).map(get_val);
+    let n2_iter = n2.descendants(arena).skip(1).map(get_val);
 
     assert!(
         Iterator::eq(n1_iter, n2_iter),

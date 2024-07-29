@@ -1,0 +1,1 @@
+searchState.loadedDescShard("indextree_macros", 0, "Construct a tree for a given arena.")

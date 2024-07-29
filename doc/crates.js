@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["indextree"];
+window.ALL_CRATES = ["indextree","indextree_macros"];

@@ -2,6 +2,8 @@
 name = "indextree-macros"
 version = "0.1.0"
 edition = "2021"
+description = "Macros for indextree"
+license = "MIT"
 
 [lib]
 proc-macro = true

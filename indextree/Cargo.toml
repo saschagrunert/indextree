@@ -2,7 +2,7 @@
 name = "indextree"
 version = "4.7.0"
 license = "MIT"
-readme = "README.md"
+readme = "../README.md"
 keywords = ["tree", "arena", "index", "indextree", "trie"]
 authors = ["Sascha Grunert <mail@saschagruenrt.de>"]
 repository = "https://github.com/saschagrunert/indextree"
@@ -22,7 +22,7 @@ macros = ["indextree-macros"]
 [dependencies]
 rayon = { version = "1.7.0", optional = true }
 serde = { version = "1.0.154", features = ["derive"], optional = true }
-indextree-macros = { path = "../indextree-macros", optional = true }
+indextree-macros = { path = "../indextree-macros", version = "0.1.0", optional = true }
 
 [[example]]
 name = "parallel_iteration"

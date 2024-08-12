@@ -22,7 +22,7 @@ macros = ["indextree-macros"]
 [dependencies]
 rayon = { version = "1.7.0", optional = true }
 serde = { version = "1.0.154", features = ["derive"], optional = true }
-indextree-macros = { path = "../indextree-macros", version = "0.1.0", optional = true }
+indextree-macros = { path = "../indextree-macros", version = "0.1.1", optional = true }
 
 [[example]]
 name = "parallel_iteration"

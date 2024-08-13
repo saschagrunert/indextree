@@ -1,6 +1,6 @@
 [package]
 name = "indextree"
-version = "4.7.1"
+version = "4.7.2"
 license = "MIT"
 readme = "../README.md"
 keywords = ["tree", "arena", "index", "indextree", "trie"]

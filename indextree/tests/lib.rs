@@ -281,3 +281,17 @@ fn inaccessible_node() {
     assert_eq!(*arena[n1_id].get(), "1");
     n2_id.is_removed(&arena);
 }
+
+#[test]
+fn reverse_children() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(10);
+    root.append_value(1, &mut arena);
+    root.append_value(2, &mut arena);
+    root.append_value(3, &mut arena);
+    let mut iter = root.children(&arena).rev().map(|n| *arena[n].get());
+    assert_eq!(iter.next(), Some(3));
+    assert_eq!(iter.next(), Some(2));
+    assert_eq!(iter.next(), Some(1));
+    assert_eq!(iter.next(), None);
+}

@@ -121,7 +121,7 @@ macro_rules! new_iterator {
                     (None, Some(tail)) | (Some(_), Some(tail)) => {
                         let next_back: fn(&Node<T>) -> Option<NodeId> = $next_back;
 
-                        self.0.head = next_back(&self.0.arena[tail]);
+                        self.0.tail = next_back(&self.0.arena[tail]);
                         Some(tail)
                     }
                     (Some(_), None)| (None, None) => None,

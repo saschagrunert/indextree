@@ -96,7 +96,7 @@ jobs:
         with:
           config: .github/grcov.yml
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
 
   doc:
     runs-on: ubuntu-latest

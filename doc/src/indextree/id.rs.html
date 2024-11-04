@@ -1343,6 +1343,13 @@
 <a href="#1343" id="1343">1343</a>
 <a href="#1344" id="1344">1344</a>
 <a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Node ID.
 
 </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
@@ -1415,17 +1422,15 @@
     }
 }
 
-<span class="attr">#[allow(clippy::from_over_into)]
-</span><span class="kw">impl </span>Into&lt;NonZeroUsize&gt; <span class="kw">for </span>NodeId {
-    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; NonZeroUsize {
-        <span class="self">self</span>.index1
+<span class="kw">impl </span>From&lt;NodeId&gt; <span class="kw">for </span>NonZeroUsize {
+    <span class="kw">fn </span>from(value: NodeId) -&gt; NonZeroUsize {
+        value.index1
     }
 }
 
-<span class="attr">#[allow(clippy::from_over_into)]
-</span><span class="kw">impl </span>Into&lt;usize&gt; <span class="kw">for </span>NodeId {
-    <span class="kw">fn </span>into(<span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.index1.get()
+<span class="kw">impl </span>From&lt;NodeId&gt; <span class="kw">for </span>usize {
+    <span class="kw">fn </span>from(value: NodeId) -&gt; usize {
+        value.index1.get()
     }
 }
 
@@ -2686,6 +2691,15 @@
         <span class="macro">assert!</span>(n1_2_1_1.is_removed(<span class="kw-2">&amp;</span>arena));
         <span class="macro">assert!</span>(n1_2_1_1_1.is_removed(<span class="kw-2">&amp;</span>arena));
         <span class="macro">assert!</span>(n1_2_2.is_removed(<span class="kw-2">&amp;</span>arena));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_conversions() {
+        <span class="kw">let </span><span class="kw-2">mut </span>arena = Arena::new();
+        <span class="kw">let </span>n1 = arena.new_node(<span class="string">"1"</span>);
+        <span class="macro">assert_eq!</span>(usize::from(n1), <span class="number">1</span>);
+        <span class="macro">assert_eq!</span>(NonZeroUsize::from(n1), NonZeroUsize::new(<span class="number">1</span>).unwrap());
+        <span class="macro">assert_eq!</span>(n1.to_string(), <span class="string">"1"</span>);
     }
 }
 </code></pre></div></section></main></body></html>

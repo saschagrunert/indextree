@@ -70,17 +70,15 @@ impl fmt::Display for NodeId {
     }
 }
 
-#[allow(clippy::from_over_into)]
-impl Into<NonZeroUsize> for NodeId {
-    fn into(self) -> NonZeroUsize {
-        self.index1
+impl From<NodeId> for NonZeroUsize {
+    fn from(value: NodeId) -> NonZeroUsize {
+        value.index1
     }
 }
 
-#[allow(clippy::from_over_into)]
-impl Into<usize> for NodeId {
-    fn into(self) -> usize {
-        self.index1.get()
+impl From<NodeId> for usize {
+    fn from(value: NodeId) -> usize {
+        value.index1.get()
     }
 }
 
@@ -1341,5 +1339,14 @@ mod tests {
         assert!(n1_2_1_1.is_removed(&arena));
         assert!(n1_2_1_1_1.is_removed(&arena));
         assert!(n1_2_2.is_removed(&arena));
+    }
+
+    #[test]
+    fn test_conversions() {
+        let mut arena = Arena::new();
+        let n1 = arena.new_node("1");
+        assert_eq!(usize::from(n1), 1);
+        assert_eq!(NonZeroUsize::from(n1), NonZeroUsize::new(1).unwrap());
+        assert_eq!(n1.to_string(), "1");
     }
 }

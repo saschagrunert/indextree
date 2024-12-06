@@ -243,7 +243,7 @@ impl<'a, T> DebugPrettyPrint<'a, T> {
     }
 }
 
-impl<'a, T: fmt::Display> fmt::Display for DebugPrettyPrint<'a, T> {
+impl<T: fmt::Display> fmt::Display for DebugPrettyPrint<'_, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let is_alternate = f.alternate();
         let mut writer = IndentWriter::new(f);
@@ -274,7 +274,7 @@ impl<'a, T: fmt::Display> fmt::Display for DebugPrettyPrint<'a, T> {
     }
 }
 
-impl<'a, T: fmt::Debug> fmt::Debug for DebugPrettyPrint<'a, T> {
+impl<T: fmt::Debug> fmt::Debug for DebugPrettyPrint<'_, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let is_alternate = f.alternate();
         let mut writer = IndentWriter::new(f);

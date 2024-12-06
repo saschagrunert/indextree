@@ -225,7 +225,7 @@ impl<'a, T> Descendants<'a, T> {
     }
 }
 
-impl<'a, T> Iterator for Descendants<'a, T> {
+impl<T> Iterator for Descendants<'_, T> {
     type Item = NodeId;
 
     fn next(&mut self) -> Option<NodeId> {
@@ -236,7 +236,7 @@ impl<'a, T> Iterator for Descendants<'a, T> {
     }
 }
 
-impl<'a, T> core::iter::FusedIterator for Descendants<'a, T> {}
+impl<T> core::iter::FusedIterator for Descendants<'_, T> {}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// Indicator if the node is at a start or endpoint of the tree
@@ -496,7 +496,7 @@ impl<'a, T> Traverse<'a, T> {
     }
 }
 
-impl<'a, T> Iterator for Traverse<'a, T> {
+impl<T> Iterator for Traverse<'_, T> {
     type Item = NodeEdge;
 
     fn next(&mut self) -> Option<NodeEdge> {
@@ -506,7 +506,7 @@ impl<'a, T> Iterator for Traverse<'a, T> {
     }
 }
 
-impl<'a, T> core::iter::FusedIterator for Traverse<'a, T> {}
+impl<T> core::iter::FusedIterator for Traverse<'_, T> {}
 
 #[derive(Clone)]
 /// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
@@ -537,7 +537,7 @@ impl<'a, T> ReverseTraverse<'a, T> {
     }
 }
 
-impl<'a, T> Iterator for ReverseTraverse<'a, T> {
+impl<T> Iterator for ReverseTraverse<'_, T> {
     type Item = NodeEdge;
 
     fn next(&mut self) -> Option<NodeEdge> {
@@ -547,4 +547,4 @@ impl<'a, T> Iterator for ReverseTraverse<'a, T> {
     }
 }
 
-impl<'a, T> core::iter::FusedIterator for ReverseTraverse<'a, T> {}
+impl<T> core::iter::FusedIterator for ReverseTraverse<'_, T> {}

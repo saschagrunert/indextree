@@ -14,7 +14,7 @@ quote = "1.0.36"
 thiserror = "2.0.0"
 either = "1.13.0"
 syn = { version = "2.0.71", features = ["extra-traits", "full", "visit"] }
-itertools = "0.13.0"
+itertools = "0.14.0"
 strum = { version = "0.26.3", features = ["derive"] }
 
 [dev-dependencies]

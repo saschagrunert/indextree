@@ -15,7 +15,7 @@ thiserror = "2.0.0"
 either = "1.13.0"
 syn = { version = "2.0.71", features = ["extra-traits", "full", "visit"] }
 itertools = "0.14.0"
-strum = { version = "0.26.3", features = ["derive"] }
+strum = { version = "0.27.0", features = ["derive"] }
 
 [dev-dependencies]
 indextree = { path = "../indextree", version = "4.7.2" }

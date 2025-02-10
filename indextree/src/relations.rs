@@ -75,8 +75,8 @@ pub(crate) fn connect_neighbors<T>(
             );
             debug_assert!(!parent_node.is_removed());
         }
-        debug_assert!(!previous.map_or(false, |id| arena[id].is_removed()));
-        debug_assert!(!next.map_or(false, |id| arena[id].is_removed()));
+        debug_assert!(!previous.is_some_and(|id| arena[id].is_removed()));
+        debug_assert!(!next.is_some_and(|id| arena[id].is_removed()));
     }
 
     let (mut parent_first_child, mut parent_last_child) = parent

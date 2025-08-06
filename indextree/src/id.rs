@@ -100,6 +100,35 @@ impl NodeId {
         arena[self].stamp != self.stamp
     }
 
+    /// Returns the ID of the parent node, unless this node is the root of the
+    /// tree.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// # n1.append(n1_1, &mut arena);
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    /// assert_eq!(n1.parent(&arena), None);
+    /// assert_eq!(n1_1.parent(&arena), Some(n1));
+    /// assert_eq!(n1_2.parent(&arena), Some(n1));
+    /// assert_eq!(n1_3.parent(&arena), Some(n1));
+    /// ```
+    pub fn parent<T>(self, arena: &Arena<T>) -> Option<Self> {
+        arena[self].parent()
+    }
+
     /// Returns an iterator of IDs of this node and its ancestors.
     ///
     /// Use [`.skip(1)`][`skip`] or call `.next()` once on the iterator to skip

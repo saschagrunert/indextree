@@ -254,9 +254,9 @@ impl<T: fmt::Display> fmt::Display for DebugPrettyPrint<'_, T> {
         {
             let data = self.arena[*self.id].get();
             if is_alternate {
-                write!(writer, "{:#}", data)?
+                write!(writer, "{data:#}")?
             } else {
-                write!(writer, "{}", data)?
+                write!(writer, "{data}")?
             }
         }
 
@@ -264,9 +264,9 @@ impl<T: fmt::Display> fmt::Display for DebugPrettyPrint<'_, T> {
         while let Some(id) = prepare_next_node_printing(&mut writer, &mut traverser)? {
             let data = traverser.arena()[id].get();
             if is_alternate {
-                write!(writer, "{:#}", data)?
+                write!(writer, "{data:#}")?
             } else {
-                write!(writer, "{}", data)?
+                write!(writer, "{data}")?
             }
         }
 
@@ -285,9 +285,9 @@ impl<T: fmt::Debug> fmt::Debug for DebugPrettyPrint<'_, T> {
         {
             let data = self.arena[*self.id].get();
             if is_alternate {
-                write!(writer, "{:#?}", data)?
+                write!(writer, "{data:#?}")?
             } else {
-                write!(writer, "{:?}", data)?
+                write!(writer, "{data:?}")?
             }
         }
 
@@ -295,9 +295,9 @@ impl<T: fmt::Debug> fmt::Debug for DebugPrettyPrint<'_, T> {
         while let Some(id) = prepare_next_node_printing(&mut writer, &mut traverser)? {
             let data = traverser.arena()[id].get();
             if is_alternate {
-                write!(writer, "{:#?}", data)?
+                write!(writer, "{data:#?}")?
             } else {
-                write!(writer, "{:?}", data)?
+                write!(writer, "{data:?}")?
             }
         }
 

@@ -282,7 +282,7 @@ impl<T> Arena<T> {
     /// ```
     ///
     /// [`is_removed()`]: struct.Node.html#method.is_removed
-    pub fn iter(&self) -> slice::Iter<Node<T>> {
+    pub fn iter(&self) -> slice::Iter<'_, Node<T>> {
         self.nodes.iter()
     }
 
@@ -309,7 +309,7 @@ impl<T> Arena<T> {
     /// assert_eq!(node_refs, vec![5, 6]);
     /// ```
     /// [`is_removed()`]: struct.Node.html#method.is_removed
-    pub fn iter_mut(&mut self) -> slice::IterMut<Node<T>> {
+    pub fn iter_mut(&mut self) -> slice::IterMut<'_, Node<T>> {
         self.nodes.iter_mut()
     }
 

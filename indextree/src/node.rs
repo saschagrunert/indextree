@@ -321,27 +321,27 @@ impl<T> Node<T> {
 impl<T> fmt::Display for Node<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(parent) = self.parent {
-            write!(f, "parent: {}; ", parent)?;
+            write!(f, "parent: {parent}; ")?;
         } else {
             write!(f, "no parent; ")?;
         }
         if let Some(previous_sibling) = self.previous_sibling {
-            write!(f, "previous sibling: {}; ", previous_sibling)?;
+            write!(f, "previous sibling: {previous_sibling}; ")?;
         } else {
             write!(f, "no previous sibling; ")?;
         }
         if let Some(next_sibling) = self.next_sibling {
-            write!(f, "next sibling: {}; ", next_sibling)?;
+            write!(f, "next sibling: {next_sibling}; ")?;
         } else {
             write!(f, "no next sibling; ")?;
         }
         if let Some(first_child) = self.first_child {
-            write!(f, "first child: {}; ", first_child)?;
+            write!(f, "first child: {first_child}; ")?;
         } else {
             write!(f, "no first child; ")?;
         }
         if let Some(last_child) = self.last_child {
-            write!(f, "last child: {}; ", last_child)?;
+            write!(f, "last child: {last_child}; ")?;
         } else {
             write!(f, "no last child; ")?;
         }

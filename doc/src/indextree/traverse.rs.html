@@ -334,7 +334,7 @@
 <a href=#334 id=334 data-nosnippet>334</a>                <span class="kw">match </span>node.next_sibling {
 <a href=#335 id=335 data-nosnippet>335</a>                    <span class="prelude-val">Some</span>(next_sibling) =&gt; <span class="prelude-val">Some</span>(NodeEdge::Start(next_sibling)),
 <a href=#336 id=336 data-nosnippet>336</a>                    <span class="comment">// `node.parent()` here can only be `None` if the tree has
-<a href=#337 id=337 data-nosnippet>337</a>                    // been modified during iteration, but silently stoping
+<a href=#337 id=337 data-nosnippet>337</a>                    // been modified during iteration, but silently stopping
 <a href=#338 id=338 data-nosnippet>338</a>                    // iteration seems a more sensible behavior than panicking.
 <a href=#339 id=339 data-nosnippet>339</a>                    </span><span class="prelude-val">None </span>=&gt; node.parent.map(NodeEdge::End),
 <a href=#340 id=340 data-nosnippet>340</a>                }

@@ -29,11 +29,7 @@ let arena = &mut Arena::new();
 let a = arena.new_node(1);
 let b = arena.new_node(2);
 
-// Append a to b
+// Append b to a
 assert!(a.append(b, arena).is_ok());
 assert_eq!(b.ancestors(arena).into_iter().count(), 2);
 ```
-
-### Benchmarks
-
-https://github.com/mooman219/generational_arena_bench

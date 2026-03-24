@@ -9,13 +9,12 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "std")]
 use std::{fmt, num::NonZeroUsize};
 
-#[allow(deprecated)]
 use crate::{
     debug_pretty_print::DebugPrettyPrint,
     relations::{insert_last_unchecked, insert_with_neighbors},
     siblings_range::SiblingsRange,
     Ancestors, Arena, Children, Descendants, FollowingSiblings, NodeError, PrecedingSiblings,
-    Predecessors, ReverseChildren, ReverseTraverse, Traverse,
+    Predecessors, ReverseTraverse, Traverse,
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
@@ -356,46 +355,6 @@ impl NodeId {
     /// ```
     pub fn children<T>(self, arena: &Arena<T>) -> Children<'_, T> {
         Children::new(arena, self)
-    }
-
-    /// Returns an iterator of IDs of this node’s children, in reverse
-    /// order.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// # use indextree::Arena;
-    /// # let mut arena = Arena::new();
-    /// # let n1 = arena.new_node("1");
-    /// # let n1_1 = arena.new_node("1_1");
-    /// # n1.append(n1_1, &mut arena);
-    /// # let n1_1_1 = arena.new_node("1_1_1");
-    /// # n1_1.append(n1_1_1, &mut arena);
-    /// # let n1_2 = arena.new_node("1_2");
-    /// # n1.append(n1_2, &mut arena);
-    /// # let n1_3 = arena.new_node("1_3");
-    /// # n1.append(n1_3, &mut arena);
-    /// #
-    /// // arena
-    /// // `-- 1
-    /// //     |-- 1_1                                          // #3
-    /// //     |   `-- 1_1_1
-    /// //     |-- 1_2                                          // #2
-    /// //     `-- 1_3                                          // #1
-    ///
-    /// let mut iter = n1.reverse_children(&arena);
-    /// assert_eq!(iter.next(), Some(n1_3));                    // #1
-    /// assert_eq!(iter.next(), Some(n1_2));                    // #2
-    /// assert_eq!(iter.next(), Some(n1_1));                    // #3
-    /// assert_eq!(iter.next(), None);
-    /// ```
-    #[allow(deprecated)]
-    #[deprecated(
-        since = "4.7.0",
-        note = "please, use `NodeId::children().rev()` instead if you want to iterate in reverse"
-    )]
-    pub fn reverse_children<T>(self, arena: &Arena<T>) -> ReverseChildren<'_, T> {
-        ReverseChildren::new(arena, self)
     }
 
     /// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.

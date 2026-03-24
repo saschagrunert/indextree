@@ -19,10 +19,10 @@ build:
 	cargo build $(GENERAL_ARGS)
 
 build-doc:
-	cargo doc --all --no-deps
+	cargo doc --workspace --all-features --no-deps
 
 lint-clippy:
-	cargo clippy --all-targets -- -D warnings
+	cargo clippy --all-targets --all-features -- -D warnings
 
 lint-rustfmt:
 	cargo fmt --version
@@ -30,4 +30,5 @@ lint-rustfmt:
 	git diff --exit-code
 
 test:
-	cargo test --features="par_iter"
+	cargo test --all-features
+	cargo test --no-default-features

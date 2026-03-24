@@ -28,7 +28,6 @@
 #[cfg(not(feature = "std"))]
 extern crate alloc;
 
-#[allow(deprecated)]
 pub use crate::{
     arena::Arena,
     debug_pretty_print::DebugPrettyPrint,
@@ -37,7 +36,7 @@ pub use crate::{
     node::Node,
     traverse::{
         Ancestors, Children, Descendants, FollowingSiblings, NodeEdge, PrecedingSiblings,
-        Predecessors, ReverseChildren, ReverseTraverse, Traverse,
+        Predecessors, ReverseTraverse, Traverse,
     },
 };
 

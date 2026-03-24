@@ -45,7 +45,6 @@ macro_rules! new_iterator {
         #[derive(Clone)]
         pub struct $name<'a, T>($inner<'a, T>);
 
-        #[allow(deprecated)]
         impl<'a, T> $name<'a, T> {
             pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
                 let new: fn(&'a Arena<T>, NodeId) -> $inner<'a, T> = $new;
@@ -61,7 +60,6 @@ macro_rules! new_iterator {
             new = $new,
         );
 
-        #[allow(deprecated)]
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
@@ -74,7 +72,6 @@ macro_rules! new_iterator {
             }
         }
 
-        #[allow(deprecated)]
         impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
     };
     ($(#[$attr:meta])* $name:ident, new = $new:expr, next = $next:expr, next_back = $next_back:expr $(,)?) => {
@@ -85,7 +82,6 @@ macro_rules! new_iterator {
             new = $new,
         );
 
-        #[allow(deprecated)]
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
@@ -108,7 +104,6 @@ macro_rules! new_iterator {
             }
         }
 
-        #[allow(deprecated)]
         impl<'a, T> ::core::iter::DoubleEndedIterator for $name<'a, T> {
             fn next_back(&mut self) -> Option<Self::Item> {
                 match (self.0.head, self.0.tail) {
@@ -200,17 +195,6 @@ new_iterator!(
     new = |arena, node| DoubleEndedIter::new(arena, arena[node].first_child, arena[node].last_child),
     next = |node| node.next_sibling,
     next_back = |tail| tail.previous_sibling,
-);
-
-new_iterator!(
-    #[deprecated(
-        since = "4.7.0",
-        note = "please, use Children::rev() instead if you want to iterate in reverse"
-    )]
-    /// An iterator of the IDs of the children of a given node, in reverse insertion order.
-    ReverseChildren,
-    new = |arena, node| Iter::new(arena, arena[node].last_child),
-    next = |node| node.previous_sibling,
 );
 
 #[derive(Clone)]

@@ -40,11 +40,13 @@ pub struct Arena<T> {
 
 impl<T> Arena<T> {
     /// Creates a new empty `Arena`.
+    #[must_use]
     pub fn new() -> Arena<T> {
         Self::default()
     }
 
     /// Creates a new empty `Arena` with enough capacity to store `n` nodes.
+    #[must_use]
     pub fn with_capacity(n: usize) -> Self {
         Self {
             nodes: Vec::with_capacity(n),
@@ -160,7 +162,14 @@ impl<T> Arena<T> {
         NodeId::from_non_zero_usize(next_index1, stamp)
     }
 
-    /// Counts the number of nodes in arena and returns it.
+    /// Returns the number of nodes in the arena, including removed nodes.
+    ///
+    /// Removed nodes are still counted because they remain in the
+    /// internal storage. Use [`iter()`] with [`Node::is_removed()`]
+    /// to count only live nodes.
+    ///
+    /// [`iter()`]: Arena::iter
+    /// [`Node::is_removed()`]: crate::Node::is_removed
     ///
     /// # Examples
     ///
@@ -172,6 +181,7 @@ impl<T> Arena<T> {
     /// assert_eq!(arena.count(), 2);
     ///
     /// foo.remove(&mut arena);
+    /// // The removed node is still counted.
     /// assert_eq!(arena.count(), 2);
     /// ```
     pub fn count(&self) -> usize {

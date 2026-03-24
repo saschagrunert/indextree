@@ -252,12 +252,12 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     for action in &action_buffer {
         let kind = action.kind();
         let stream = action.to_stream();
-        if let Some(last) = actions.last_mut() {
-            if last.kind == kind {
-                last.count += 1;
-                last.stream.extend(stream);
-                continue;
-            }
+        if let Some(last) = actions.last_mut()
+            && last.kind == kind
+        {
+            last.count += 1;
+            last.stream.extend(stream);
+            continue;
         }
         actions.push(ActionStream {
             count: 1,

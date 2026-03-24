@@ -21,7 +21,7 @@ use crate::{
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// A node identifier within a particular [`Arena`].
 ///
-/// This ID is used to get [`Node`] references from an [`Arena`].
+/// This ID is used to get [`Node`](crate::Node) references from an [`Arena`].
 ///
 pub struct NodeId {
     /// One-based index.
@@ -585,7 +585,7 @@ impl NodeId {
     /// * the given new child is an ancestor of `self`, or
     /// * the current node or the given new child was already [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -631,7 +631,7 @@ impl NodeId {
     /// * Returns [`NodeError::Removed`] error if the given new child or `self`
     ///   is [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -777,7 +777,7 @@ impl NodeId {
     /// * the given new child is an ancestor of `self`, or
     /// * the current node or the given new child was already [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -823,7 +823,7 @@ impl NodeId {
     /// * Returns [`NodeError::Removed`] error if the given new child or `self`
     ///   is [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -867,7 +867,7 @@ impl NodeId {
     /// * the given new sibling is `self`, or
     /// * the current node or the given new sibling was already [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -917,7 +917,7 @@ impl NodeId {
     /// * Returns [`NodeError::Removed`] error if the given new sibling or
     ///   `self` is [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -963,7 +963,7 @@ impl NodeId {
     /// * the given new sibling is `self`, or
     /// * the current node or the given new sibling was already [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -1013,7 +1013,7 @@ impl NodeId {
     /// * Returns [`NodeError::Removed`] error if the given new sibling or
     ///   `self` is [`remove`]d.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///
@@ -1059,7 +1059,7 @@ impl NodeId {
     /// storage, but marked as `removed`. Traversing the arena returns a
     /// plain iterator and contains removed elements too.
     ///
-    /// To check if the node is removed or not, use [`Node::is_removed()`].
+    /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
     /// # Examples
     ///

@@ -13,9 +13,6 @@ use crate::{
     traverse::{NodeEdge, Traverse},
 };
 
-//use crate::dynamic::hierarchy::traverse::{DepthFirstTraverser, DftEvent};
-//use crate::dynamic::hierarchy::Hierarchy;
-
 /// State of an indent block.
 #[derive(Clone, Copy)]
 struct IndentedBlockState {
@@ -314,7 +311,7 @@ fn prepare_next_node_printing<T>(
 ) -> Result<Option<NodeId>, fmt::Error> {
     // Not using `for ev in traverser` in order to access to `traverser`
     // directly in the loop.
-    while let Some(ev) = traverser.next() {
+    for ev in traverser.by_ref() {
         let id = match ev {
             NodeEdge::Start(id) => id,
             NodeEdge::End(_) => {

@@ -119,10 +119,12 @@ macro_rules! new_iterator {
                         self.0.tail = next_back(&self.0.arena[tail]);
                         Some(tail)
                     }
-                    (Some(_), None)| (None, None) => None,
+                    (Some(_), None) | (None, None) => None,
                 }
             }
         }
+
+        impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
     };
     ($(#[$attr:meta])* $name:ident, next = $next:expr $(,)?) => {
         new_iterator!(

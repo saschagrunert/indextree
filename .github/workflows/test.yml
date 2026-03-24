@@ -85,7 +85,9 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
+        uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
+        with:
+          tool: cargo-llvm-cov
       - name: Generate code coverage
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info
       - name: Upload coverage to Codecov

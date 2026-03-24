@@ -387,3 +387,151 @@ fn remove_children_preserves_parent_position() {
     assert!(c1_1.is_removed(&arena));
     assert!(c2.is_removed(&arena));
 }
+
+#[test]
+fn reverse_traverse() {
+    use indextree::NodeEdge;
+
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    let n1_1 = arena.new_node("1_1");
+    n1.append(n1_1, &mut arena);
+    let n1_2 = arena.new_node("1_2");
+    n1.append(n1_2, &mut arena);
+
+    let forward: Vec<_> = n1.traverse(&arena).collect();
+    let mut reverse: Vec<_> = n1.reverse_traverse(&arena).collect();
+    reverse.reverse();
+    assert_eq!(forward, reverse);
+
+    // Verify specific order
+    let events: Vec<_> = n1.reverse_traverse(&arena).collect();
+    assert_eq!(events[0], NodeEdge::End(n1));
+    assert_eq!(events[1], NodeEdge::End(n1_2));
+    assert_eq!(events[2], NodeEdge::Start(n1_2));
+    assert_eq!(events[3], NodeEdge::End(n1_1));
+    assert_eq!(events[4], NodeEdge::Start(n1_1));
+    assert_eq!(events[5], NodeEdge::Start(n1));
+    assert_eq!(events.len(), 6);
+}
+
+#[test]
+fn predecessors() {
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    let n1_1 = arena.new_node("1_1");
+    n1.append(n1_1, &mut arena);
+    let n1_2 = arena.new_node("1_2");
+    n1.append(n1_2, &mut arena);
+
+    let preds: Vec<_> = n1_2.predecessors(&arena).collect();
+    assert_eq!(preds, vec![n1_2, n1_1, n1]);
+}
+
+#[test]
+fn iter_node_ids() {
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    let n2 = arena.new_node("2");
+    let n3 = arena.new_node("3");
+    n2.remove(&mut arena);
+
+    let ids: Vec<_> = arena.iter_node_ids().collect();
+    assert_eq!(ids, vec![n1, n3]);
+}
+
+#[test]
+fn node_display() {
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    let n2 = arena.new_node("2");
+    n1.append(n2, &mut arena);
+
+    let display = format!("{}", arena[n1]);
+    assert!(display.contains("no parent"));
+    assert!(display.contains("first child"));
+
+    let display = format!("{}", arena[n2]);
+    assert!(display.contains("parent:"));
+    assert!(display.contains("no first child"));
+}
+
+#[test]
+fn node_error_display() {
+    let err = NodeError::AppendSelf;
+    assert_eq!(format!("{err}"), "Can not append a node to itself");
+
+    let err = NodeError::Removed;
+    assert_eq!(
+        format!("{err}"),
+        "Removed node cannot have any parent, siblings, and children"
+    );
+}
+
+#[test]
+fn last_child_accessor() {
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    assert_eq!(arena[n1].last_child(), None);
+
+    let n1_1 = arena.new_node("1_1");
+    n1.append(n1_1, &mut arena);
+    let n1_2 = arena.new_node("1_2");
+    n1.append(n1_2, &mut arena);
+
+    assert_eq!(arena[n1].last_child(), Some(n1_2));
+}
+
+#[test]
+fn children_reverse_iterator() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = arena.new_node("c1");
+    let c2 = arena.new_node("c2");
+    let c3 = arena.new_node("c3");
+    root.append(c1, &mut arena);
+    root.append(c2, &mut arena);
+    root.append(c3, &mut arena);
+
+    let forward: Vec<_> = root.children(&arena).collect();
+    assert_eq!(forward, vec![c1, c2, c3]);
+
+    let backward: Vec<_> = root.children(&arena).rev().collect();
+    assert_eq!(backward, vec![c3, c2, c1]);
+}
+
+#[test]
+fn following_siblings_reverse() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = arena.new_node("c1");
+    let c2 = arena.new_node("c2");
+    let c3 = arena.new_node("c3");
+    root.append(c1, &mut arena);
+    root.append(c2, &mut arena);
+    root.append(c3, &mut arena);
+
+    let forward: Vec<_> = c1.following_siblings(&arena).collect();
+    assert_eq!(forward, vec![c1, c2, c3]);
+
+    let backward: Vec<_> = c1.following_siblings(&arena).rev().collect();
+    assert_eq!(backward, vec![c3, c2, c1]);
+}
+
+#[test]
+fn preceding_siblings_reverse() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = arena.new_node("c1");
+    let c2 = arena.new_node("c2");
+    let c3 = arena.new_node("c3");
+    root.append(c1, &mut arena);
+    root.append(c2, &mut arena);
+    root.append(c3, &mut arena);
+
+    let forward: Vec<_> = c3.preceding_siblings(&arena).collect();
+    assert_eq!(forward, vec![c3, c2, c1]);
+
+    let backward: Vec<_> = c3.preceding_siblings(&arena).rev().collect();
+    assert_eq!(backward, vec![c1, c2, c3]);
+}

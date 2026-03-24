@@ -692,8 +692,9 @@ impl NodeId {
     ///
     /// // arena
     /// // `-- 1
-    /// //     |-- 1_1
-    /// //  1_1_1 --|-- 1_1_2
+    /// //     `-- 1_1
+    /// //         |-- 1_1_1
+    /// //         `-- 1_1_2
     ///
     /// let mut iter = n1.descendants(&arena);
     /// assert_eq!(iter.next(), Some(n1));
@@ -1286,7 +1287,7 @@ impl NodeId {
     ///
     /// # (No) guarantees
     ///
-    /// This is provided mainly for debugging purpose. Node that the output
+    /// This is provided mainly for debugging purpose. Note that the output
     /// format is not guaranteed to be stable, and any format changes won't be
     /// considered as breaking changes.
     ///

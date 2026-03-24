@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["NodeEdge","NodeError"],"struct":["Ancestors","Arena","Children","DebugPrettyPrint","Descendants","FollowingSiblings","Node","NodeId","PrecedingSiblings","Predecessors","ReverseChildren","ReverseTraverse","Traverse"]};
+window.SIDEBAR_ITEMS = {"enum":["NodeEdge","NodeError"],"struct":["Ancestors","Arena","Children","DebugPrettyPrint","Descendants","FollowingSiblings","Node","NodeId","PrecedingSiblings","Predecessors","ReverseTraverse","Traverse"]};

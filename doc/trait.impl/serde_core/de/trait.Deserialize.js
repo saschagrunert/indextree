@@ -1,0 +1,9 @@
+(function() {
+    const implementors = Object.fromEntries([["indextree",[["impl&lt;'de&gt; <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html\" title=\"trait serde_core::de::Deserialize\">Deserialize</a>&lt;'de&gt; for <a class=\"struct\" href=\"indextree/struct.NodeId.html\" title=\"struct indextree::NodeId\">NodeId</a>",0],["impl&lt;'de, T&gt; <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html\" title=\"trait serde_core::de::Deserialize\">Deserialize</a>&lt;'de&gt; for <a class=\"struct\" href=\"indextree/struct.Arena.html\" title=\"struct indextree::Arena\">Arena</a>&lt;T&gt;<div class=\"where\">where\n    T: <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html\" title=\"trait serde_core::de::Deserialize\">Deserialize</a>&lt;'de&gt;,</div>",0],["impl&lt;'de, T&gt; <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html\" title=\"trait serde_core::de::Deserialize\">Deserialize</a>&lt;'de&gt; for <a class=\"struct\" href=\"indextree/struct.Node.html\" title=\"struct indextree::Node\">Node</a>&lt;T&gt;<div class=\"where\">where\n    T: <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/de/trait.Deserialize.html\" title=\"trait serde_core::de::Deserialize\">Deserialize</a>&lt;'de&gt;,</div>",0]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":59,"fragment_lengths":[1357]}

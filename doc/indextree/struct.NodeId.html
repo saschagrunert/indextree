@@ -21,7 +21,7 @@ the node itself.</p>
 //     |-- 1_1                                          // #2
 //     |   `-- 1_1_1 *                                  // #1
 //     |       `-- 1_1_1_1
-//     _-- 1_2
+//     |-- 1_2
 //     `-- 1_3
 
 </span><span class="kw">let </span><span class="kw-2">mut </span>iter = n1_1_1.ancestors(<span class="kw-2">&amp;</span>arena);
@@ -37,7 +37,7 @@ the node itself.</p>
 //     |-- 1_1                                          // #2
 //     |   `-- 1_1_1 *                                  // #1
 //     |       `-- 1_1_1_1
-//     _-- 1_2
+//     |-- 1_2
 //     `-- 1_3
 
 </span><span class="kw">let </span><span class="kw-2">mut </span>iter = n1_1_1.predecessors(<span class="kw-2">&amp;</span>arena);
@@ -51,7 +51,7 @@ the node itself.</p>
 //     |-- 1_2                                          // #2
 //     |   `-- 1_2_1 *                                  // #1
 //     |       `-- 1_2_1_1
-//     _-- 1_3
+//     |-- 1_3
 //     `-- 1_4
 
 </span><span class="kw">let </span><span class="kw-2">mut </span>iter = n1_2_1.predecessors(<span class="kw-2">&amp;</span>arena);

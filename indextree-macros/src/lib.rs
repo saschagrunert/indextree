@@ -1,8 +1,5 @@
-use either::Either;
-use itertools::Itertools;
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
-use strum::EnumDiscriminants;
 use syn::{
     braced,
     parse::{Parse, ParseStream},
@@ -11,7 +8,7 @@ use syn::{
     Expr, Token,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 struct IndexNode {
     node: Expr,
     children: Punctuated<Self, Token![,]>,
@@ -36,7 +33,7 @@ impl Parse for IndexNode {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 struct IndexTree {
     arena: Expr,
     root_node: Expr,
@@ -69,21 +66,28 @@ impl Parse for IndexTree {
     }
 }
 
-#[derive(Clone, EnumDiscriminants, Debug)]
-#[strum_discriminants(name(ActionKind))]
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ActionKind {
+    Append,
+    Parent,
+    Nest,
+}
+
 enum Action {
     Append(Expr),
     Parent,
     Nest,
 }
 
-impl ToTokens for Action {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(self.to_stream())
-    }
-}
-
 impl Action {
+    fn kind(&self) -> ActionKind {
+        match self {
+            Action::Append(_) => ActionKind::Append,
+            Action::Parent => ActionKind::Parent,
+            Action::Nest => ActionKind::Nest,
+        }
+    }
+
     fn to_stream(&self) -> TokenStream {
         match self {
             Action::Append(expr) => quote! {
@@ -103,10 +107,11 @@ impl Action {
     }
 }
 
-#[derive(Clone, Debug)]
-struct NestingLevelMarker;
+enum StackItem {
+    Node(Box<IndexNode>),
+    NestingMarker,
+}
 
-#[derive(Clone, Debug)]
 struct ActionStream {
     count: usize,
     kind: ActionKind,
@@ -211,58 +216,61 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         nodes,
     } = parse_macro_input!(input as IndexTree);
 
-    let mut stack: Vec<Either<_, NestingLevelMarker>> =
-        nodes.into_iter().map(Either::Left).rev().collect();
+    let mut stack: Vec<StackItem> = nodes
+        .into_iter()
+        .map(|n| StackItem::Node(Box::new(n)))
+        .rev()
+        .collect();
 
     let mut action_buffer: Vec<Action> = Vec::new();
 
     while let Some(item) = stack.pop() {
-        let Either::Left(IndexNode { node, children }) = item else {
+        let StackItem::Node(index_node) = item else {
             action_buffer.push(Action::Parent);
             continue;
         };
 
-        action_buffer.push(Action::Append(node));
+        action_buffer.push(Action::Append(index_node.node));
 
-        if children.is_empty() {
+        if index_node.children.is_empty() {
             continue;
         }
 
-        // going one level deeper
-        stack.push(Either::Right(NestingLevelMarker));
+        stack.push(StackItem::NestingMarker);
         action_buffer.push(Action::Nest);
-        stack.extend(children.into_iter().map(Either::Left).rev());
+        stack.extend(
+            index_node
+                .children
+                .into_iter()
+                .map(|n| StackItem::Node(Box::new(n)))
+                .rev(),
+        );
     }
 
-    let mut actions: Vec<ActionStream> = action_buffer
-        .into_iter()
-        .map(|action| ActionStream {
-            count: 1,
-            kind: ActionKind::from(&action),
-            stream: action.to_stream(),
-        })
-        .coalesce(|action1, action2| {
-            if action1.kind != action2.kind {
-                return Err((action1, action2));
+    // Coalesce consecutive actions of the same kind.
+    let mut actions: Vec<ActionStream> = Vec::new();
+    for action in &action_buffer {
+        let kind = action.kind();
+        let stream = action.to_stream();
+        if let Some(last) = actions.last_mut() {
+            if last.kind == kind {
+                last.count += 1;
+                last.stream.extend(stream);
+                continue;
             }
+        }
+        actions.push(ActionStream {
+            count: 1,
+            kind,
+            stream,
+        });
+    }
 
-            let count = action1.count + action2.count;
-            let kind = action1.kind;
-            let mut stream = action1.stream;
-            stream.extend(action2.stream);
-            Ok(ActionStream {
-                count,
-                kind,
-                stream,
-            })
-        })
-        .collect();
-
-    let is_last_action_useless = actions
+    // Remove trailing Parent actions (they're unnecessary).
+    if actions
         .last()
-        .map(|last| last.kind == ActionKind::Parent)
-        .unwrap_or(false);
-    if is_last_action_useless {
+        .is_some_and(|last| last.kind == ActionKind::Parent)
+    {
         actions.pop();
     }
 

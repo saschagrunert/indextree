@@ -53,7 +53,7 @@ impl NodeStamp {
 
     pub fn reuseable(self) -> bool {
         debug_assert!(self.is_removed());
-        self.0 > i16::MIN
+        self.0 > i16::MIN + 1
     }
 
     pub fn reuse(&mut self) -> Self {

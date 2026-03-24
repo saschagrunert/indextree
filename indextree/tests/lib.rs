@@ -283,6 +283,17 @@ fn inaccessible_node() {
 }
 
 #[test]
+fn prepend_value() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(10);
+    let c1 = root.prepend_value(1, &mut arena);
+    let c2 = root.prepend_value(2, &mut arena);
+    let c3 = root.prepend_value(3, &mut arena);
+    let children: Vec<_> = root.children(&arena).collect();
+    assert_eq!(children, vec![c3, c2, c1]);
+}
+
+#[test]
 fn reverse_children() {
     let mut arena = Arena::new();
     let root = arena.new_node(10);

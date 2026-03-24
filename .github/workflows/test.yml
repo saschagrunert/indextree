@@ -1,4 +1,4 @@
-name: test
+name: ci
 on:
   push:
     tags:
@@ -63,24 +63,7 @@ jobs:
           restore-keys: rust-lint-clippy-
       - run: make lint-clippy
 
-  unit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: dtolnay/rust-toolchain@a54c7afa936fefeb4456b2dd8068152669aa8203
-        with:
-          toolchain: stable
-      - run: cargo generate-lockfile
-      - uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: |
-            target
-            ~/.cargo/registry
-          key: rust-test-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: rust-test-
-      - run: make test
-
-  coverage:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -88,6 +71,7 @@ jobs:
         uses: taiki-e/install-action@0d865d5cc6d507df4765f1f866bfae8bab4e2a73 # v2.69.7
         with:
           tool: cargo-llvm-cov
+      - run: cargo test --no-default-features
       - name: Generate code coverage
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info
       - name: Upload coverage to Codecov

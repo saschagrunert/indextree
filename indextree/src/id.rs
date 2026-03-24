@@ -23,8 +23,6 @@ use crate::{
 ///
 /// This ID is used to get [`Node`] references from an [`Arena`].
 ///
-/// [`Arena`]: struct.Arena.html
-/// [`Node`]: struct.Node.html
 pub struct NodeId {
     /// One-based index.
     index1: NonZeroUsize,
@@ -616,8 +614,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
         self.checked_append(new_child, arena)
             .expect("Preconditions not met: invalid argument");
@@ -648,10 +645,7 @@ impl NodeId {
     /// assert!(n1.checked_append(n1_1, &mut arena).is_ok());
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`NodeError::AppendSelf`]: enum.NodeError.html#variant.AppendSelf
-    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn checked_append<T>(
         self,
         new_child: NodeId,
@@ -703,7 +697,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), Some(n1_1_2));
     /// assert_eq!(iter.next(), None);
     /// ```
-    /// [`append`]: struct.NodeId.html#method.append
+    /// [`append`]: NodeId::append
     pub fn append_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
         let new_child = arena.new_node(value);
         self.append_new_node_unchecked(new_child, arena);
@@ -730,9 +724,47 @@ impl NodeId {
     /// assert!(n1.checked_append(n1_1, &mut arena).is_ok());
     /// ```
     ///
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     fn append_new_node_unchecked<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
         insert_last_unchecked(arena, new_child, self);
+    }
+
+    /// Creates and prepends a new node (from its associated data) as the first child.
+    /// A convenience shorthand for creating a node via [`Arena::new_node`] and prepending it via [`prepend`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if the arena already has `usize::max_value()` nodes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.prepend_value("1_1", &mut arena);
+    /// let n1_2 = n1.prepend_value("1_2", &mut arena);
+    /// let n1_3 = n1.prepend_value("1_3", &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_3
+    /// //     |-- 1_2
+    /// //     `-- 1_1
+    ///
+    /// let mut iter = n1.descendants(&arena);
+    /// assert_eq!(iter.next(), Some(n1));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    /// [`prepend`]: NodeId::prepend
+    pub fn prepend_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+        let new_child = arena.new_node(value);
+        self.checked_prepend(new_child, arena)
+            .expect("Preconditions not met: invalid argument");
+        new_child
     }
 
     /// Prepends a new child to this node, before existing children.
@@ -774,8 +806,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
         self.checked_prepend(new_child, arena)
             .expect("Preconditions not met: invalid argument");
@@ -806,10 +837,7 @@ impl NodeId {
     /// assert!(n1.checked_prepend(n1_1, &mut arena).is_ok());
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`NodeError::PrependSelf`]: enum.NodeError.html#variant.PrependSelf
-    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn checked_prepend<T>(
         self,
         new_child: NodeId,
@@ -874,8 +902,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         self.checked_insert_after(new_sibling, arena)
             .expect("Preconditions not met: invalid argument");
@@ -904,10 +931,7 @@ impl NodeId {
     /// assert!(n1.checked_insert_after(n2, &mut arena).is_ok());
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`NodeError::InsertAfterSelf`]: enum.NodeError.html#variant.InsertAfterSelf
-    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn checked_insert_after<T>(
         self,
         new_sibling: NodeId,
@@ -974,8 +998,7 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         self.checked_insert_before(new_sibling, arena)
             .expect("Preconditions not met: invalid argument");
@@ -1004,10 +1027,7 @@ impl NodeId {
     /// assert!(n1.checked_insert_before(n2, &mut arena).is_ok());
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
-    /// [`NodeError::InsertBeforeSelf`]: enum.NodeError.html#variant.InsertBeforeSelf
-    /// [`NodeError::Removed`]: enum.NodeError.html#variant.Removed
-    /// [`remove`]: struct.NodeId.html#method.remove
+    /// [`remove`]: NodeId::remove
     pub fn checked_insert_before<T>(
         self,
         new_sibling: NodeId,
@@ -1084,7 +1104,6 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     ///
-    /// [`Node::is_removed()`]: struct.Node.html#method.is_removed
     pub fn remove<T>(self, arena: &mut Arena<T>) {
         debug_assert_triangle_nodes!(
             arena,

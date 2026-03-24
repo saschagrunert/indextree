@@ -8,7 +8,7 @@ pub fn main() {
     let a = arena.new_node(1);
     let b = arena.new_node(2);
 
-    // Append a to b
+    // Append b to a
     a.append(b, arena);
     assert_eq!(b.ancestors(arena).count(), 2);
 }

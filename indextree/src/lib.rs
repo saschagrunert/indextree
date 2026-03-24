@@ -1,8 +1,8 @@
 //! # Arena based tree data structure
 //!
 //! This arena tree structure is using just a single `Vec` and numerical
-//! identifiers (indices in the vector) instead of reference counted pointers
-//! like. This means there is no `RefCell` and mutability is handled in a way
+//! identifiers (indices in the vector) instead of reference counted pointers.
+//! This means there is no `RefCell` and mutability is handled in a way
 //! much more idiomatic to Rust through unique (&mut) access to the arena. The
 //! tree can be sent or shared across threads like a `Vec`. This enables
 //! general multiprocessing support like parallel tree traversals.

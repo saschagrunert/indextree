@@ -309,8 +309,6 @@ fn prepare_next_node_printing<T>(
     writer: &mut IndentWriter<'_, '_>,
     traverser: &mut Traverse<'_, T>,
 ) -> Result<Option<NodeId>, fmt::Error> {
-    // Not using `for ev in traverser` in order to access to `traverser`
-    // directly in the loop.
     for ev in traverser.by_ref() {
         let id = match ev {
             NodeEdge::Start(id) => id,

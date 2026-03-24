@@ -218,7 +218,7 @@ impl fmt::Write for IndentWriter<'_, '_> {
 
 /// Tree printer for debugging.
 ///
-/// This is provided mainly for debugging purpose. Node that the output format
+/// This is provided mainly for debugging purpose. Note that the output format
 /// is not guaranteed to be stable, and any format changes won't be considered
 /// as breaking changes.
 ///

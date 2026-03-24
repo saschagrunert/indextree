@@ -6,7 +6,6 @@ use core::fmt;
 #[cfg(feature = "std")]
 use std::{error, fmt};
 
-#[non_exhaustive]
 #[derive(Debug, Clone, Copy)]
 /// Possible node failures.
 pub enum NodeError {

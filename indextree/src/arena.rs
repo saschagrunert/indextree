@@ -296,6 +296,37 @@ impl<T> Arena<T> {
         self.nodes.iter()
     }
 
+    /// Returns an iterator of [`NodeId`]s of all non-removed nodes in
+    /// the arena in storage-order.
+    ///
+    /// Unlike [`iter()`], this skips removed nodes and yields `NodeId`s
+    /// instead of `&Node<T>`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let bar = arena.new_node("bar");
+    /// let baz = arena.new_node("baz");
+    /// bar.remove(&mut arena);
+    ///
+    /// let ids: Vec<_> = arena.iter_node_ids().collect();
+    /// assert_eq!(ids, vec![foo, baz]);
+    /// ```
+    ///
+    /// [`iter()`]: Arena::iter
+    pub fn iter_node_ids(&self) -> impl Iterator<Item = NodeId> + '_ {
+        self.nodes.iter().enumerate().filter_map(|(i, node)| {
+            if node.is_removed() {
+                return None;
+            }
+            let index1 = NonZeroUsize::new(i.wrapping_add(1))?;
+            Some(NodeId::from_non_zero_usize(index1, node.stamp))
+        })
+    }
+
     /// Returns a mutable iterator of all nodes in the arena in storage-order.
     ///
     /// Note that this iterator returns also removed elements, which can be
@@ -456,4 +487,21 @@ fn conserve_capacity() {
     assert_eq!(n3_id.index0(), 2);
     assert_eq!(arena.count(), 3);
     assert_eq!(arena.capacity(), cap);
+}
+
+#[test]
+fn stamp_no_cycle() {
+    // Regression test for issue #95: stamps should never cycle back to
+    // a previously used value after many reuse rounds.
+    let mut arena = Arena::new();
+    for _ in 0..=i16::MAX as u32 + 1 {
+        let id = arena.new_node(42);
+        assert!(!id.is_removed(&arena));
+        id.remove(&mut arena);
+        assert!(id.is_removed(&arena));
+        let new_id = arena.new_node(42);
+        assert!(!new_id.is_removed(&arena));
+        assert!(id.is_removed(&arena));
+        new_id.remove(&mut arena);
+    }
 }

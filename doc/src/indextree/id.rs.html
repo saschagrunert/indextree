@@ -53,8 +53,8 @@
 <a href=#53 id=53 data-nosnippet>53</a>
 <a href=#54 id=54 data-nosnippet>54</a>    <span class="kw">pub fn </span>reuseable(<span class="self">self</span>) -&gt; bool {
 <a href=#55 id=55 data-nosnippet>55</a>        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_removed());
-<a href=#56 id=56 data-nosnippet>56</a>        <span class="self">self</span>.<span class="number">0 </span>&gt; i16::MIN
-<a href=#57 id=57 data-nosnippet>57</a>    }
+<a href=#56 id=56 data-nosnippet>56</a>        <span class="self">self</span>.<span class="number">0 </span>&gt; i16::MIN + <span class="number">1
+<a href=#57 id=57 data-nosnippet>57</a>    </span>}
 <a href=#58 id=58 data-nosnippet>58</a>
 <a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">pub fn </span>reuse(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
 <a href=#60 id=60 data-nosnippet>60</a>        <span class="macro">debug_assert!</span>(<span class="self">self</span>.reuseable());

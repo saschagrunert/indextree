@@ -1,9 +1,9 @@
 //! Utilities related to nodes relations.
 
 use crate::{
+    Arena, NodeId,
     error::ConsistencyError,
     siblings_range::{DetachedSiblingsRange, SiblingsRange},
-    Arena, NodeId,
 };
 
 /// Ensures the given parent, previous, and next nodes are consistent.

@@ -2,8 +2,13 @@
 name = "indextree-macros"
 version = "0.1.3"
 edition = "2024"
-description = "Macros for indextree"
 license = "MIT"
+authors = ["Sascha Grunert <mail@saschagrunert.de>"]
+repository = "https://github.com/saschagrunert/indextree"
+homepage = "https://github.com/saschagrunert/indextree"
+description = "Macros for indextree"
+keywords = ["tree", "arena", "index", "indextree"]
+categories = ["data-structures"]
 
 [lib]
 proc-macro = true

@@ -1,6 +1,6 @@
 //! Sibling nodes range.
 
-use crate::{error::ConsistencyError, relations::connect_neighbors, Arena, NodeId};
+use crate::{Arena, NodeId, error::ConsistencyError, relations::connect_neighbors};
 
 /// Siblings range.
 #[derive(Debug, Clone, Copy)]

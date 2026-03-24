@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "std")]
 use std::fmt;
 
-use crate::{id::NodeStamp, NodeId};
+use crate::{NodeId, id::NodeStamp};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]

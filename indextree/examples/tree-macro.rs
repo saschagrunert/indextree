@@ -1,4 +1,4 @@
-use indextree::{macros::tree, Arena};
+use indextree::{Arena, macros::tree};
 
 fn main() {
     let mut arena = Arena::new();

@@ -25,7 +25,7 @@ use std::{
     slice,
 };
 
-use crate::{node::NodeData, Node, NodeId};
+use crate::{Node, NodeId, node::NodeData};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]

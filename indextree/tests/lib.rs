@@ -546,3 +546,86 @@ fn preceding_siblings_reverse() {
     let backward: Vec<_> = c3.preceding_siblings(&arena).rev().collect();
     assert_eq!(backward, vec![c1, c2, c3]);
 }
+
+#[test]
+fn node_error_display_all_variants() {
+    let err = NodeError::PrependSelf;
+    assert_eq!(format!("{err}"), "Can not prepend a node to itself");
+
+    let err = NodeError::InsertBeforeSelf;
+    assert_eq!(format!("{err}"), "Can not insert a node before itself");
+
+    let err = NodeError::InsertAfterSelf;
+    assert_eq!(format!("{err}"), "Can not insert a node after itself");
+
+    let err = NodeError::AppendAncestor;
+    assert_eq!(format!("{err}"), "Can not append a node to its descendant");
+
+    let err = NodeError::PrependAncestor;
+    assert_eq!(format!("{err}"), "Can not prepend a node to its descendant");
+}
+
+#[test]
+fn panicking_wrappers() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = arena.new_node("c1");
+    let c2 = arena.new_node("c2");
+    let c3 = arena.new_node("c3");
+
+    root.prepend(c1, &mut arena);
+    root.prepend(c2, &mut arena);
+    let children: Vec<_> = root.children(&arena).collect();
+    assert_eq!(children, vec![c2, c1]);
+
+    c2.insert_after(c3, &mut arena);
+    let children: Vec<_> = root.children(&arena).collect();
+    assert_eq!(children, vec![c2, c3, c1]);
+
+    let c4 = arena.new_node("c4");
+    c3.insert_before(c4, &mut arena);
+    let children: Vec<_> = root.children(&arena).collect();
+    assert_eq!(children, vec![c2, c4, c3, c1]);
+}
+
+#[test]
+fn get_node_id_at() {
+    use std::num::NonZeroUsize;
+
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    let n2 = arena.new_node("2");
+    let n3 = arena.new_node("3");
+
+    let idx1: NonZeroUsize = n1.into();
+    let idx2: NonZeroUsize = n2.into();
+    let idx3: NonZeroUsize = n3.into();
+
+    assert_eq!(arena.get_node_id_at(idx1), Some(n1));
+    assert_eq!(arena.get_node_id_at(idx2), Some(n2));
+    assert_eq!(arena.get_node_id_at(idx3), Some(n3));
+
+    // Out of bounds index returns None
+    let out_of_bounds = NonZeroUsize::new(100).unwrap();
+    assert_eq!(arena.get_node_id_at(out_of_bounds), None);
+
+    // Removed node returns None
+    n2.remove(&mut arena);
+    assert_eq!(arena.get_node_id_at(idx2), None);
+}
+
+#[test]
+fn as_slice() {
+    let mut arena = Arena::new();
+    let n1 = arena.new_node(10);
+    let n2 = arena.new_node(20);
+    let n3 = arena.new_node(30);
+    n1.append(n2, &mut arena);
+    n1.append(n3, &mut arena);
+
+    let slice = arena.as_slice();
+    assert_eq!(slice.len(), 3);
+    assert_eq!(*slice[0].get(), 10);
+    assert_eq!(*slice[1].get(), 20);
+    assert_eq!(*slice[2].get(), 30);
+}

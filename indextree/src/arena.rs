@@ -30,8 +30,6 @@ use crate::{node::NodeData, Node, NodeId};
 #[derive(PartialEq, Eq, Clone, Debug)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// An `Arena` structure containing certain [`Node`]s.
-///
-/// [`Node`]: struct.Node.html
 pub struct Arena<T> {
     nodes: Vec<Node<T>>,
     first_free_slot: Option<usize>,
@@ -291,7 +289,7 @@ impl<T> Arena<T> {
     /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);
     /// ```
     ///
-    /// [`is_removed()`]: struct.Node.html#method.is_removed
+    /// [`is_removed()`]: Node::is_removed
     pub fn iter(&self) -> slice::Iter<'_, Node<T>> {
         self.nodes.iter()
     }
@@ -349,7 +347,7 @@ impl<T> Arena<T> {
     /// let node_refs = arena.iter().map(|i| i.get().clone()).collect::<Vec<_>>();
     /// assert_eq!(node_refs, vec![5, 6]);
     /// ```
-    /// [`is_removed()`]: struct.Node.html#method.is_removed
+    /// [`is_removed()`]: Node::is_removed
     pub fn iter_mut(&mut self) -> slice::IterMut<'_, Node<T>> {
         self.nodes.iter_mut()
     }
@@ -363,7 +361,7 @@ impl<T> Arena<T> {
     /// Any attempt to call the [`is_removed()`] method on the node id will
     /// result in panic behavior.
     ///
-    /// [`is_removed()`]: struct.NodeId.html#method.is_removed
+    /// [`is_removed()`]: NodeId::is_removed
     pub fn clear(&mut self) {
         self.nodes.clear();
         self.first_free_slot = None;
@@ -403,7 +401,7 @@ impl<T> Arena<T> {
             if let NodeData::NextFree(next_free) = self.nodes[index].data {
                 self.first_free_slot = next_free;
             } else {
-                unreachable!("A data node consider as a freed node");
+                unreachable!("A data node considered as a freed node");
             }
             if self.first_free_slot.is_none() {
                 self.last_free_slot = None;
@@ -421,7 +419,7 @@ impl<T: Sync> Arena<T> {
     /// Note that this iterator returns also removed elements, which can be
     /// tested with the [`is_removed()`] method on the node.
     ///
-    /// [`is_removed()`]: struct.Node.html#method.is_removed
+    /// [`is_removed()`]: Node::is_removed
     pub fn par_iter(&self) -> rayon::slice::Iter<'_, Node<T>> {
         self.nodes.par_iter()
     }

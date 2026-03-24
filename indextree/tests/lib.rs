@@ -295,3 +295,95 @@ fn reverse_children() {
     assert_eq!(iter.next(), Some(1));
     assert_eq!(iter.next(), None);
 }
+
+#[test]
+fn detach_children_no_children() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = arena.new_node("child");
+    root.append(child, &mut arena);
+
+    // Detach children of a leaf node (no-op)
+    child.detach_children(&mut arena);
+    assert_eq!(child.children(&arena).count(), 0);
+    // Parent relationship preserved
+    assert_eq!(child.parent(&arena), Some(root));
+}
+
+#[test]
+fn detach_children_single_child() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = arena.new_node("child");
+    root.append(child, &mut arena);
+
+    root.detach_children(&mut arena);
+    assert_eq!(root.children(&arena).count(), 0);
+    assert!(arena[child].parent().is_none());
+    assert!(!arena[child].is_removed());
+}
+
+#[test]
+fn detach_children_preserves_parent_position() {
+    let mut arena = Arena::new();
+    let grandparent = arena.new_node("gp");
+    let parent = arena.new_node("p");
+    let sibling = arena.new_node("s");
+    grandparent.append(parent, &mut arena);
+    grandparent.append(sibling, &mut arena);
+    let c1 = arena.new_node("c1");
+    let c2 = arena.new_node("c2");
+    parent.append(c1, &mut arena);
+    parent.append(c2, &mut arena);
+
+    parent.detach_children(&mut arena);
+
+    // Parent still in its original position
+    assert_eq!(parent.parent(&arena), Some(grandparent));
+    assert_eq!(arena[parent].next_sibling(), Some(sibling));
+    // Children are detached and independent
+    assert!(arena[c1].parent().is_none());
+    assert!(arena[c1].next_sibling().is_none());
+    assert!(arena[c2].parent().is_none());
+    assert!(arena[c2].previous_sibling().is_none());
+}
+
+#[test]
+fn remove_children_no_children() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = arena.new_node("child");
+    root.append(child, &mut arena);
+
+    // Remove children of a leaf node (no-op)
+    child.remove_children(&mut arena);
+    assert_eq!(child.children(&arena).count(), 0);
+    assert_eq!(child.parent(&arena), Some(root));
+}
+
+#[test]
+fn remove_children_preserves_parent_position() {
+    let mut arena = Arena::new();
+    let grandparent = arena.new_node("gp");
+    let parent = arena.new_node("p");
+    let sibling = arena.new_node("s");
+    grandparent.append(parent, &mut arena);
+    grandparent.append(sibling, &mut arena);
+    let c1 = arena.new_node("c1");
+    let c1_1 = arena.new_node("c1_1");
+    let c2 = arena.new_node("c2");
+    parent.append(c1, &mut arena);
+    c1.append(c1_1, &mut arena);
+    parent.append(c2, &mut arena);
+
+    parent.remove_children(&mut arena);
+
+    // Parent still in its original position
+    assert_eq!(parent.parent(&arena), Some(grandparent));
+    assert_eq!(arena[parent].next_sibling(), Some(sibling));
+    assert_eq!(parent.children(&arena).count(), 0);
+    // All children and grandchildren removed
+    assert!(c1.is_removed(&arena));
+    assert!(c1_1.is_removed(&arena));
+    assert!(c2.is_removed(&arena));
+}

@@ -1181,6 +1181,107 @@ impl NodeId {
         }
     }
 
+    /// Detaches all children of this node, leaving them as independent
+    /// toplevel nodes while keeping the node itself in its current position.
+    ///
+    /// The children retain their own subtrees and sibling relationships
+    /// with each other are removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_2_1 = arena.new_node("1_2_1");
+    /// # n1_2.append(n1_2_1, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     |   `-- 1_2_1
+    /// //     `-- 1_3
+    ///
+    /// n1.detach_children(&mut arena);
+    ///
+    /// // arena (all former children are now independent toplevel nodes)
+    /// // |-- 1
+    /// // |-- 1_1
+    /// // |-- 1_2
+    /// // |   `-- 1_2_1
+    /// // `-- 1_3
+    ///
+    /// assert_eq!(n1.children(&arena).count(), 0);
+    /// assert!(!arena[n1_1].is_removed());
+    /// assert!(arena[n1_1].parent().is_none());
+    /// // 1_2's subtree is preserved
+    /// assert_eq!(arena[n1_2_1].parent(), Some(n1_2));
+    /// ```
+    pub fn detach_children<T>(self, arena: &mut Arena<T>) {
+        let mut child_opt = arena[self].first_child;
+        while let Some(child) = child_opt {
+            let next = arena[child].next_sibling;
+            child.detach(arena);
+            child_opt = next;
+        }
+    }
+
+    /// Removes all children of this node from the arena, keeping the
+    /// node itself in its current position.
+    ///
+    /// This is equivalent to calling [`remove_subtree`] on each child.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_2_1 = arena.new_node("1_2_1");
+    /// # n1_2.append(n1_2_1, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// #
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     |   `-- 1_2_1
+    /// //     `-- 1_3
+    ///
+    /// n1.remove_children(&mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    ///
+    /// assert_eq!(n1.children(&arena).count(), 0);
+    /// assert!(n1_1.is_removed(&arena));
+    /// assert!(n1_2.is_removed(&arena));
+    /// assert!(n1_2_1.is_removed(&arena));
+    /// assert!(n1_3.is_removed(&arena));
+    /// ```
+    ///
+    /// [`remove_subtree`]: NodeId::remove_subtree
+    pub fn remove_children<T>(self, arena: &mut Arena<T>) {
+        let mut child_opt = arena[self].first_child;
+        while let Some(child) = child_opt {
+            let next = arena[child].next_sibling;
+            child.remove_subtree(arena);
+            child_opt = next;
+        }
+    }
+
     /// Returns the pretty-printable proxy object to the node and descendants.
     ///
     /// # (No) guarantees

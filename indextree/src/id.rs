@@ -1,4 +1,8 @@
-//! Node ID.
+//! Node identifier and tree manipulation methods.
+//!
+//! [`NodeId`] is a lightweight handle used to reference a [`Node`](crate::Node)
+//! within an [`Arena`](crate::Arena). Most tree operations (append, remove,
+//! traverse) are methods on `NodeId` that take an `&Arena` or `&mut Arena`.
 
 #[cfg(not(feature = "std"))]
 use core::{fmt, num::NonZeroUsize};
@@ -29,17 +33,29 @@ pub struct NodeId {
     stamp: NodeStamp,
 }
 
-/// A stamp for node reuse, use to detect if the node of a `NodeId` point to
+/// A stamp for node reuse, used to detect if the node a `NodeId` points to
 /// is still the same node.
+///
+/// Uses the sign of an `i16` as a removed flag: non-negative values represent
+/// live nodes, negative values represent removed nodes. Each remove/reuse
+/// cycle increments the effective generation by 1. After approximately
+/// 32,766 cycles the slot becomes permanently unreusable, preventing stamp
+/// value collisions.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 pub(crate) struct NodeStamp(i16);
 
 impl NodeStamp {
+    /// Returns `true` if this stamp represents a removed node (negative
+    /// value).
     pub fn is_removed(self) -> bool {
         self.0.is_negative()
     }
 
+    /// Marks this stamp as removed by negating and offsetting the value.
+    ///
+    /// The resulting negative value differs from the live stamp, allowing
+    /// `NodeId::is_removed` to detect stale references via inequality.
     pub fn as_removed(&mut self) {
         debug_assert!(!self.is_removed());
         self.0 = if self.0 < i16::MAX {
@@ -49,11 +65,19 @@ impl NodeStamp {
         };
     }
 
+    /// Returns `true` if the node slot can be recycled.
+    ///
+    /// A slot becomes permanently unreusable once its generation nears
+    /// `i16::MIN`, preventing stamp value collisions after many cycles.
     pub fn reuseable(self) -> bool {
         debug_assert!(self.is_removed());
         self.0 > i16::MIN + 1
     }
 
+    /// Recycles this stamp for a new node, incrementing the generation.
+    ///
+    /// Negates the value back to positive, producing a new generation
+    /// that differs from all previous stamps for this slot.
     pub fn reuse(&mut self) -> Self {
         debug_assert!(self.reuseable());
         self.0 = -self.0;
@@ -353,6 +377,36 @@ impl NodeId {
     /// ```
     pub fn children<T>(self, arena: &Arena<T>) -> Children<'_, T> {
         Children::new(arena, self)
+    }
+
+    /// Returns the number of children of this node.
+    ///
+    /// This traverses the sibling chain and is O(n) in the number of
+    /// children. If you only need to check whether a node has children,
+    /// prefer checking `first_child()` instead.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # let mut arena = Arena::new();
+    /// # let n1 = arena.new_node("1");
+    /// # let n1_1 = arena.new_node("1_1");
+    /// # n1.append(n1_1, &mut arena);
+    /// # let n1_2 = arena.new_node("1_2");
+    /// # n1.append(n1_2, &mut arena);
+    /// # let n1_3 = arena.new_node("1_3");
+    /// # n1.append(n1_3, &mut arena);
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    /// assert_eq!(n1.child_count(&arena), 3);
+    /// assert_eq!(n1_1.child_count(&arena), 0);
+    /// ```
+    pub fn child_count<T>(self, arena: &Arena<T>) -> usize {
+        self.children(arena).count()
     }
 
     /// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.

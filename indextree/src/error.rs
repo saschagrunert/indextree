@@ -1,4 +1,7 @@
-//! Errors.
+//! Error types for tree operations.
+//!
+//! [`NodeError`] is returned by the checked variants of tree mutation methods
+//! (e.g. [`NodeId::checked_append`](crate::NodeId::checked_append)).
 
 #[cfg(not(feature = "std"))]
 use core::fmt;
@@ -6,22 +9,47 @@ use core::fmt;
 #[cfg(feature = "std")]
 use std::{error, fmt};
 
+/// Errors returned by checked tree mutation methods.
+///
+/// The checked variants ([`NodeId::checked_append`](crate::NodeId::checked_append),
+/// [`NodeId::checked_prepend`](crate::NodeId::checked_prepend),
+/// [`NodeId::checked_insert_after`](crate::NodeId::checked_insert_after),
+/// [`NodeId::checked_insert_before`](crate::NodeId::checked_insert_before))
+/// return this error instead of panicking.
+///
+/// # Examples
+///
+/// ```
+/// use indextree::{Arena, NodeError};
+///
+/// let mut arena = Arena::new();
+/// let n1 = arena.new_node("1");
+/// let n2 = arena.new_node("2");
+/// n1.append(n2, &mut arena);
+///
+/// // Appending an ancestor to its descendant fails.
+/// assert!(matches!(
+///     n2.checked_append(n1, &mut arena),
+///     Err(NodeError::AppendAncestor)
+/// ));
+/// ```
 #[derive(Debug, Clone, Copy)]
-/// Possible node failures.
 pub enum NodeError {
-    /// Attempt to append a node to itself.
+    /// Attempted to append a node to itself.
     AppendSelf,
-    /// Attempt to prepend a node to itself.
+    /// Attempted to prepend a node to itself.
     PrependSelf,
-    /// Attempt to insert a node before itself.
+    /// Attempted to insert a node before itself.
     InsertBeforeSelf,
-    /// Attempt to insert a node after itself.
+    /// Attempted to insert a node after itself.
     InsertAfterSelf,
-    /// Attempt to insert a removed node, or insert to a removed node.
+    /// Attempted to operate on a removed node, or insert into a removed node.
     Removed,
-    /// Attempt to append an ancestor node to a descendant.
+    /// Attempted to append an ancestor as a child of its descendant,
+    /// which would create a cycle.
     AppendAncestor,
-    /// Attempt to prepend an ancestor node to a descendant.
+    /// Attempted to prepend an ancestor as a child of its descendant,
+    /// which would create a cycle.
     PrependAncestor,
 }
 

@@ -1,4 +1,8 @@
-//! Arena.
+//! Arena structure and node storage.
+//!
+//! The [`Arena`] is the central owner of all tree nodes. Nodes are stored
+//! contiguously in a single `Vec` and referenced by [`NodeId`](crate::NodeId).
+//! Removed nodes are recycled through an internal free list.
 
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
@@ -370,8 +374,10 @@ impl<T> Arena<T> {
 
     /// Returns a slice of the inner nodes collection.
     ///
-    /// Note that this **does not** return root elements, it simply
-    /// returns a slice into the internal representation of the arena.
+    /// The slice contains all nodes in storage order, including removed
+    /// nodes. Use [`Node::is_removed()`] to filter them out.
+    ///
+    /// [`Node::is_removed()`]: crate::Node::is_removed
     pub fn as_slice(&self) -> &[Node<T>] {
         self.nodes.as_slice()
     }
@@ -414,10 +420,27 @@ impl<T> Arena<T> {
 
 #[cfg(feature = "par_iter")]
 impl<T: Sync> Arena<T> {
-    /// Returns an parallel iterator over the whole arena.
+    /// Returns a parallel iterator over the whole arena.
+    ///
+    /// Requires the `par_iter` feature. Uses [rayon](https://docs.rs/rayon)
+    /// for data parallelism across all nodes in storage order.
     ///
     /// Note that this iterator returns also removed elements, which can be
     /// tested with the [`is_removed()`] method on the node.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// # use rayon::prelude::*;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node(1);
+    /// root.append_value(2, &mut arena);
+    /// root.append_value(3, &mut arena);
+    ///
+    /// let sum: i64 = arena.par_iter().map(|node| *node.get()).sum();
+    /// assert_eq!(sum, 6);
+    /// ```
     ///
     /// [`is_removed()`]: Node::is_removed
     pub fn par_iter(&self) -> rayon::slice::Iter<'_, Node<T>> {

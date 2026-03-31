@@ -1,4 +1,7 @@
-//! Debug printer.
+//! Pretty-printing support for tree debugging.
+//!
+//! Provides [`DebugPrettyPrint`], a proxy object that renders a subtree
+//! as indented ASCII art via [`fmt::Debug`] and [`fmt::Display`].
 
 use core::fmt::{self, Write as _};
 

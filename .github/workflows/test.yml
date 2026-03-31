@@ -10,6 +10,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 jobs:
+  prettier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
+        with:
+          dry: true
+          prettier_options: --check .
+
   rustfmt:
     runs-on: ubuntu-latest
     steps:
@@ -46,6 +55,42 @@ jobs:
           restore-keys: rust-lint-clippy-
       - run: make lint-clippy
 
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9
+        with:
+          toolchain: "1.85.0"
+      - run: cargo generate-lockfile
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+          key: rust-msrv-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-msrv-
+      - run: cargo test --all-features
+
+  test-no-std:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9
+        with:
+          toolchain: stable
+      - run: cargo generate-lockfile
+      - uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: |
+            target
+            ~/.cargo/registry
+          key: rust-test-no-std-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: rust-test-no-std-
+      - run: cargo test --no-default-features
+      - run: cargo test --no-default-features --features deser
+      - run: cargo test --no-default-features --features macros
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -54,7 +99,6 @@ jobs:
         uses: taiki-e/install-action@7627fb428e65e78e2ec9a24ae5c5bd5f8553f182 # v2.69.10
         with:
           tool: cargo-llvm-cov
-      - run: cargo test --no-default-features
       - name: Generate code coverage
         run: cargo llvm-cov --all-features --lcov --output-path lcov.info
       - name: Upload coverage to Codecov
@@ -79,7 +123,14 @@ jobs:
             ~/.cargo/registry
           key: rust-doc-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-doc-
-      - run: make build-doc
+      - name: Build docs (all features)
+        run: make build-doc
+        env:
+          RUSTDOCFLAGS: -D warnings
+      - name: Build docs (no default features)
+        run: cargo doc --no-deps --no-default-features
+        env:
+          RUSTDOCFLAGS: -D warnings
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: docs

@@ -1,4 +1,9 @@
-//! Iterators.
+//! Tree traversal iterators.
+//!
+//! Provides iterators for walking the tree in various orders: ancestors,
+//! predecessors, siblings, children, descendants, and depth-first traversal.
+//! All iterators are lazy, implement [`FusedIterator`](core::iter::FusedIterator),
+//! and provide [`size_hint`](Iterator::size_hint) bounds.
 
 #![allow(clippy::redundant_closure_call)]
 
@@ -70,6 +75,10 @@ macro_rules! new_iterator {
                 self.0.node = next(&self.0.arena[node]);
                 Some(node)
             }
+
+            fn size_hint(&self) -> (usize, Option<usize>) {
+                if self.0.node.is_some() { (1, None) } else { (0, Some(0)) }
+            }
         }
 
         impl<'a, T> core::iter::FusedIterator for $name<'a, T> {}
@@ -101,6 +110,10 @@ macro_rules! new_iterator {
                     }
                     (None, Some(_)) | (None, None) => None,
                 }
+            }
+
+            fn size_hint(&self) -> (usize, Option<usize>) {
+                if self.0.head.is_some() { (1, None) } else { (0, Some(0)) }
             }
         }
 
@@ -219,6 +232,13 @@ impl<T> Iterator for Descendants<'_, T> {
             NodeEdge::Start(node) => Some(node),
             NodeEdge::End(_) => None,
         })
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (low, _) = self.0.size_hint();
+        // Each descendant produces a Start and End edge, so at least low/2
+        // descendants remain, but at minimum 1 if any edges remain.
+        if low > 0 { (1, None) } else { (0, Some(0)) }
     }
 }
 
@@ -490,6 +510,14 @@ impl<T> Iterator for Traverse<'_, T> {
         self.next = self.next_of_next(next);
         Some(next)
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        if self.next.is_some() {
+            (1, None)
+        } else {
+            (0, Some(0))
+        }
+    }
 }
 
 impl<T> core::iter::FusedIterator for Traverse<'_, T> {}
@@ -530,6 +558,14 @@ impl<T> Iterator for ReverseTraverse<'_, T> {
         let next = self.next.take()?;
         self.next = self.next_of_next(next);
         Some(next)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        if self.next.is_some() {
+            (1, None)
+        } else {
+            (0, Some(0))
+        }
     }
 }
 

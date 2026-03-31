@@ -629,3 +629,91 @@ fn as_slice() {
     assert_eq!(*slice[1].get(), 20);
     assert_eq!(*slice[2].get(), 30);
 }
+
+#[test]
+fn child_count() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    assert_eq!(root.child_count(&arena), 0);
+
+    let c1 = arena.new_node("c1");
+    root.append(c1, &mut arena);
+    assert_eq!(root.child_count(&arena), 1);
+
+    root.append_value("c2", &mut arena);
+    root.append_value("c3", &mut arena);
+    assert_eq!(root.child_count(&arena), 3);
+
+    // Grandchildren don't count
+    c1.append_value("gc1", &mut arena);
+    assert_eq!(root.child_count(&arena), 3);
+    assert_eq!(c1.child_count(&arena), 1);
+}
+
+#[test]
+fn size_hint_iterators() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = root.append_value("c1", &mut arena);
+    let c2 = root.append_value("c2", &mut arena);
+    c1.append_value("gc1", &mut arena);
+
+    // Non-empty iterators have lower bound of 1
+    assert_eq!(root.ancestors(&arena).size_hint(), (1, None));
+    assert_eq!(root.children(&arena).size_hint(), (1, None));
+    assert_eq!(root.descendants(&arena).size_hint(), (1, None));
+    assert_eq!(root.traverse(&arena).size_hint(), (1, None));
+    assert_eq!(root.reverse_traverse(&arena).size_hint(), (1, None));
+    assert_eq!(c2.preceding_siblings(&arena).size_hint(), (1, None));
+    assert_eq!(c1.following_siblings(&arena).size_hint(), (1, None));
+    assert_eq!(c1.predecessors(&arena).size_hint(), (1, None));
+
+    // Exhausted iterators report exact zero
+    let mut iter = root.ancestors(&arena);
+    iter.next(); // root itself, no parent
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+
+    let mut iter = root.children(&arena);
+    iter.next(); // c1
+    iter.next(); // c2
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+
+    let mut iter = root.traverse(&arena);
+    while iter.next().is_some() {}
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+
+    let mut iter = root.reverse_traverse(&arena);
+    while iter.next().is_some() {}
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+
+    let mut iter = root.descendants(&arena);
+    while iter.next().is_some() {}
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+}
+
+#[test]
+fn node_display_with_siblings() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = arena.new_node("c1");
+    let c2 = arena.new_node("c2");
+    let c3 = arena.new_node("c3");
+    root.append(c1, &mut arena);
+    root.append(c2, &mut arena);
+    root.append(c3, &mut arena);
+
+    // Middle child has both previous and next siblings
+    let display = format!("{}", arena[c2]);
+    assert!(display.contains("previous sibling:"));
+    assert!(display.contains("next sibling:"));
+
+    // First child has next but no previous
+    let display = format!("{}", arena[c1]);
+    assert!(display.contains("no previous sibling"));
+    assert!(display.contains("next sibling:"));
+
+    // Last child has previous but no next
+    let display = format!("{}", arena[c3]);
+    assert!(display.contains("previous sibling:"));
+    assert!(display.contains("no next sibling"));
+}

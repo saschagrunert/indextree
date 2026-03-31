@@ -1,4 +1,8 @@
-//! Node.
+//! Tree node and its associated data.
+//!
+//! Each [`Node`] stores its data along with links to its parent, children,
+//! and siblings. Nodes are not accessed directly; instead, use
+//! [`NodeId`](crate::NodeId) to index into an [`Arena`](crate::Arena).
 
 #[cfg(not(feature = "std"))]
 use core::fmt;

@@ -1,4 +1,4 @@
-//! Sibling nodes range.
+//! Contiguous sibling range operations for bulk detach and transplant.
 
 use crate::{Arena, NodeId, error::ConsistencyError, relations::connect_neighbors};
 

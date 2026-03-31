@@ -1,4 +1,7 @@
-//! Utilities related to nodes relations.
+//! Internal utilities for maintaining parent-child-sibling relationships.
+//!
+//! These functions handle the low-level pointer updates when nodes are
+//! inserted, detached, or transplanted within the tree.
 
 use crate::{
     Arena, NodeId,

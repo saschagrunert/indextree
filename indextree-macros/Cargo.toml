@@ -19,4 +19,4 @@ quote = "1.0.40"
 syn = { version = "2.0.101", features = ["full"] }
 
 [dev-dependencies]
-indextree = { path = "../indextree", version = "4.8.0" }
+indextree = { path = "../indextree", version = "4.8.1" }

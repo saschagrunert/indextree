@@ -96,7 +96,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@d858f8113943481093e02986a7586a4819a3bfd6 # v2.71.2
+        uses: taiki-e/install-action@0abfcd587b70a713fdaa7fb502c885e2112acb15 # v2.75.7
         with:
           tool: cargo-llvm-cov
       - name: Generate code coverage

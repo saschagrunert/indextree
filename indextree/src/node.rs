@@ -42,20 +42,28 @@ pub struct Node<T> {
 
 impl<T> Node<T> {
     /// Returns a reference to the node data.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the node has been removed.
     pub fn get(&self) -> &T {
         if let NodeData::Data(ref data) = self.data {
             data
         } else {
-            unreachable!("Try to access a freed node")
+            panic!("attempted to access a freed node")
         }
     }
 
     /// Returns a mutable reference to the node data.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the node has been removed.
     pub fn get_mut(&mut self) -> &mut T {
         if let NodeData::Data(ref mut data) = self.data {
             data
         } else {
-            unreachable!("Try to access a freed node")
+            panic!("attempted to access a freed node")
         }
     }
 

@@ -4,7 +4,7 @@
 //! inserted, detached, or transplanted within the tree.
 
 use crate::{
-    Arena, NodeId,
+    Arena, Node, NodeId,
     error::ConsistencyError,
     siblings_range::{DetachedSiblingsRange, SiblingsRange},
 };
@@ -31,7 +31,7 @@ pub(crate) fn assert_triangle_nodes<T>(
     previous: Option<NodeId>,
     next: Option<NodeId>,
 ) {
-    if let Some(previous_node) = previous.map(|id| &arena[id]) {
+    if let Some(previous_node) = previous.and_then(|id| arena.get(id)) {
         assert_eq!(
             previous_node.parent, parent,
             "`prev->parent` must equal to `parent`"
@@ -41,7 +41,7 @@ pub(crate) fn assert_triangle_nodes<T>(
             "`prev->next` must equal to `next`"
         );
     }
-    if let Some(next_node) = next.map(|id| &arena[id]) {
+    if let Some(next_node) = next.and_then(|id| arena.get(id)) {
         assert_eq!(
             next_node.parent, parent,
             "`next->parent` must equal to `parent`"
@@ -71,38 +71,38 @@ pub(crate) fn connect_neighbors<T>(
     next: Option<NodeId>,
 ) {
     if cfg!(debug_assertions) {
-        if let Some(parent_node) = parent.map(|id| &arena[id]) {
+        if let Some(parent_node) = parent.and_then(|id| arena.get(id)) {
             debug_assert_eq!(
                 parent_node.first_child.is_some(),
                 parent_node.last_child.is_some()
             );
             debug_assert!(!parent_node.is_removed());
         }
-        debug_assert!(!previous.is_some_and(|id| arena[id].is_removed()));
-        debug_assert!(!next.is_some_and(|id| arena[id].is_removed()));
     }
 
     let (mut parent_first_child, mut parent_last_child) = parent
-        .map(|id| &arena[id])
+        .map(|id| &arena.nodes[id.index0()])
         .map_or((None, None), |node| (node.first_child, node.last_child));
+
     if let Some(previous) = previous {
         // `previous` ==> `next`
-        arena[previous].next_sibling = next;
+        arena.nodes[previous.index0()].next_sibling = next;
         parent_first_child = parent_first_child.or(Some(previous));
     } else {
         // `next` is the first child of the parent.
         parent_first_child = next;
     }
+
     if let Some(next) = next {
         // `previous` <== `next`
-        arena[next].previous_sibling = previous;
+        arena.nodes[next.index0()].previous_sibling = previous;
         parent_last_child = parent_last_child.or(Some(next));
     } else {
         // `previous` is the last child of the parent.
         parent_last_child = previous;
     }
 
-    if let Some(parent_node) = parent.map(|id| &mut arena[id]) {
+    if let Some(parent_node) = parent.map(|id| &mut arena.nodes[id.index0()]) {
         debug_assert_eq!(parent_first_child.is_some(), parent_last_child.is_some());
         parent_node.first_child = parent_first_child;
         parent_node.last_child = parent_last_child;
@@ -174,7 +174,7 @@ pub(crate) fn insert_with_neighbors<T>(
 /// ... -> prev -> (new)
 /// ```
 pub(crate) fn insert_last_unchecked<T>(arena: &mut Arena<T>, new: NodeId, parent: NodeId) {
-    let previous_sibling = arena[parent].last_child;
+    let previous_sibling = arena.get(parent).and_then(Node::last_child);
     DetachedSiblingsRange::new(new, new)
         .transplant(arena, Some(parent), previous_sibling, None)
         .expect(

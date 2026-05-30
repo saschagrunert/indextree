@@ -72,11 +72,12 @@ macro_rules! new_iterator {
                 let next: fn(&Node<T>) -> Option<NodeId> = $next;
 
                 let node = self.0.node.take()?;
-                self.0.node = next(&self.0.arena.nodes[node.index0()]);
 
                 if node.is_removed(self.0.arena) {
                     return None;
                 }
+
+                self.0.node = next(&self.0.arena.nodes[node.index0()]);
 
                 Some(node)
             }
@@ -114,11 +115,11 @@ macro_rules! new_iterator {
                     (Some(head), None) | (Some(head), Some(_)) => {
                         let next: fn(&Node<T>) -> Option<NodeId> = $next;
 
-                        self.0.head = next(&self.0.arena.nodes[head.index0()]);
-
                         if head.is_removed(self.0.arena) {
                             return None;
                         }
+
+                        self.0.head = next(&self.0.arena.nodes[head.index0()]);
 
                         Some(head)
                     }
@@ -147,11 +148,11 @@ macro_rules! new_iterator {
                     (None, Some(tail)) | (Some(_), Some(tail)) => {
                         let next_back: fn(&Node<T>) -> Option<NodeId> = $next_back;
 
-                        self.0.tail = next_back(&self.0.arena.nodes[tail.index0()]);
-
                         if tail.is_removed(self.0.arena) {
                             return None;
                         }
+
+                        self.0.tail = next_back(&self.0.arena.nodes[tail.index0()]);
 
                         Some(tail)
                     }

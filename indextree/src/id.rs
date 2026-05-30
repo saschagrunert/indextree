@@ -910,7 +910,7 @@ impl NodeId {
         if new_child == self {
             return Err(NodeError::PrependSelf);
         }
-        if arena.nodes[self.index0()].is_removed() || arena.nodes[new_child.index0()].is_removed() {
+        if arena.get(self).is_none() || arena.get(new_child).is_none() {
             return Err(NodeError::Removed);
         }
         if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
@@ -921,7 +921,7 @@ impl NodeId {
             new_child,
             Some(self),
             None,
-            arena.nodes[self.index0()].first_child,
+            arena.get(self).and_then(Node::first_child),
         )
         .expect("Should never fail: `new_child` is not `self` and they are not removed");
 
@@ -1334,15 +1334,15 @@ impl NodeId {
     /// // `-- 1_3
     ///
     /// assert_eq!(n1.children(&arena).count(), 0);
-    /// assert!(!arena.get(n1_1).is_none());
+    /// assert!(arena.get(n1_1).is_some());
     /// assert!(arena.get(n1_1).and_then(Node::parent).is_none());
     /// // 1_2's subtree is preserved
     /// assert_eq!(arena.get(n1_2_1).and_then(Node::parent), Some(n1_2));
     /// ```
     pub fn detach_children<T>(self, arena: &mut Arena<T>) {
-        let mut child_opt = arena.nodes[self.index0()].first_child;
+        let mut child_opt = arena.get(self).and_then(Node::first_child);
         while let Some(child) = child_opt {
-            let next = arena.nodes[child.index0()].next_sibling;
+            let next = arena.get(child).and_then(Node::next_sibling);
             child.detach(arena);
             child_opt = next;
         }

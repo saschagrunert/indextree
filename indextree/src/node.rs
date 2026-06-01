@@ -42,28 +42,20 @@ pub struct Node<T> {
 
 impl<T> Node<T> {
     /// Returns a reference to the node data.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the node has been removed.
     pub fn get(&self) -> &T {
         if let NodeData::Data(ref data) = self.data {
             data
         } else {
-            panic!("attempted to access a freed node")
+            unreachable!("&Node<T> will always be a non-removed node");
         }
     }
 
     /// Returns a mutable reference to the node data.
-    ///
-    /// # Panics
-    ///
-    /// Panics if the node has been removed.
     pub fn get_mut(&mut self) -> &mut T {
         if let NodeData::Data(ref mut data) = self.data {
             data
         } else {
-            panic!("attempted to access a freed node")
+            unreachable!("&Node<T> will always be a non-removed node");
         }
     }
 
@@ -99,7 +91,7 @@ impl<T> Node<T> {
     /// # Examples
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
@@ -113,12 +105,13 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].parent(), None);
-    /// assert_eq!(arena[n1_1].parent(), Some(n1));
-    /// assert_eq!(arena[n1_2].parent(), Some(n1));
-    /// assert_eq!(arena[n1_3].parent(), Some(n1));
+    /// assert_eq!(arena.get(n1).and_then(Node::parent), None);
+    /// assert_eq!(arena.get(n1_1).and_then(Node::parent), Some(n1));
+    /// assert_eq!(arena.get(n1_2).and_then(Node::parent), Some(n1));
+    /// assert_eq!(arena.get(n1_3).and_then(Node::parent), Some(n1));
     /// ```
-    pub fn parent(&self) -> Option<NodeId> {
+    #[inline]
+    pub const fn parent(&self) -> Option<NodeId> {
         self.parent
     }
 
@@ -127,7 +120,7 @@ impl<T> Node<T> {
     /// # Examples
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
@@ -141,12 +134,13 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].first_child(), Some(n1_1));
-    /// assert_eq!(arena[n1_1].first_child(), None);
-    /// assert_eq!(arena[n1_2].first_child(), None);
-    /// assert_eq!(arena[n1_3].first_child(), None);
+    /// assert_eq!(arena.get(n1).and_then(Node::first_child), Some(n1_1));
+    /// assert_eq!(arena.get(n1_1).and_then(Node::first_child), None);
+    /// assert_eq!(arena.get(n1_2).and_then(Node::first_child), None);
+    /// assert_eq!(arena.get(n1_3).and_then(Node::first_child), None);
     /// ```
-    pub fn first_child(&self) -> Option<NodeId> {
+    #[inline]
+    pub const fn first_child(&self) -> Option<NodeId> {
         self.first_child
     }
 
@@ -155,7 +149,7 @@ impl<T> Node<T> {
     /// # Examples
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
@@ -169,12 +163,13 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].last_child(), Some(n1_3));
-    /// assert_eq!(arena[n1_1].last_child(), None);
-    /// assert_eq!(arena[n1_2].last_child(), None);
-    /// assert_eq!(arena[n1_3].last_child(), None);
+    /// assert_eq!(arena.get(n1).and_then(Node::last_child), Some(n1_3));
+    /// assert_eq!(arena.get(n1_1).and_then(Node::last_child), None);
+    /// assert_eq!(arena.get(n1_2).and_then(Node::last_child), None);
+    /// assert_eq!(arena.get(n1_3).and_then(Node::last_child), None);
     /// ```
-    pub fn last_child(&self) -> Option<NodeId> {
+    #[inline]
+    pub const fn last_child(&self) -> Option<NodeId> {
         self.last_child
     }
 
@@ -184,7 +179,7 @@ impl<T> Node<T> {
     /// # Examples
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
@@ -198,17 +193,17 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].previous_sibling(), None);
-    /// assert_eq!(arena[n1_1].previous_sibling(), None);
-    /// assert_eq!(arena[n1_2].previous_sibling(), Some(n1_1));
-    /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_2));
+    /// assert_eq!(arena.get(n1).and_then(Node::previous_sibling), None);
+    /// assert_eq!(arena.get(n1_1).and_then(Node::previous_sibling), None);
+    /// assert_eq!(arena.get(n1_2).and_then(Node::previous_sibling), Some(n1_1));
+    /// assert_eq!(arena.get(n1_3).and_then(Node::previous_sibling), Some(n1_2));
     /// ```
     ///
     /// Note that newly created nodes are independent toplevel nodes, and they
     /// are not siblings by default.
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n2 = arena.new_node("2");
@@ -217,18 +212,19 @@ impl<T> Node<T> {
     /// // |   `-- 1
     /// // `-- (implicit)
     /// //     `-- 2
-    /// assert_eq!(arena[n1].previous_sibling(), None);
-    /// assert_eq!(arena[n2].previous_sibling(), None);
+    /// assert_eq!(arena.get(n1).and_then(Node::previous_sibling), None);
+    /// assert_eq!(arena.get(n2).and_then(Node::previous_sibling), None);
     ///
     /// n1.insert_after(n2, &mut arena);
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
     /// //     `-- 2
-    /// assert_eq!(arena[n1].previous_sibling(), None);
-    /// assert_eq!(arena[n2].previous_sibling(), Some(n1));
+    /// assert_eq!(arena.get(n1).and_then(Node::previous_sibling), None);
+    /// assert_eq!(arena.get(n2).and_then(Node::previous_sibling), Some(n1));
     /// ```
-    pub fn previous_sibling(&self) -> Option<NodeId> {
+    #[inline]
+    pub const fn previous_sibling(&self) -> Option<NodeId> {
         self.previous_sibling
     }
 
@@ -238,7 +234,7 @@ impl<T> Node<T> {
     /// # Examples
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
@@ -252,17 +248,17 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1].next_sibling(), None);
-    /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_2));
-    /// assert_eq!(arena[n1_2].next_sibling(), Some(n1_3));
-    /// assert_eq!(arena[n1_3].next_sibling(), None);
+    /// assert_eq!(arena.get(n1).and_then(Node::next_sibling), None);
+    /// assert_eq!(arena.get(n1_1).and_then(Node::next_sibling), Some(n1_2));
+    /// assert_eq!(arena.get(n1_2).and_then(Node::next_sibling), Some(n1_3));
+    /// assert_eq!(arena.get(n1_3).and_then(Node::next_sibling), None);
     /// ```
     ///
     /// Note that newly created nodes are independent toplevel nodes, and they
     /// are not siblings by default.
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// let mut arena = Arena::new();
     /// let n1 = arena.new_node("1");
     /// let n2 = arena.new_node("2");
@@ -271,18 +267,19 @@ impl<T> Node<T> {
     /// // |   `-- 1
     /// // `-- (implicit)
     /// //     `-- 2
-    /// assert_eq!(arena[n1].next_sibling(), None);
-    /// assert_eq!(arena[n2].next_sibling(), None);
+    /// assert_eq!(arena.get(n1).and_then(Node::next_sibling), None);
+    /// assert_eq!(arena.get(n2).and_then(Node::next_sibling), None);
     ///
     /// n1.insert_after(n2, &mut arena);
     /// // arena
     /// // `-- (implicit)
     /// //     |-- 1
     /// //     `-- 2
-    /// assert_eq!(arena[n1].next_sibling(), Some(n2));
-    /// assert_eq!(arena[n2].next_sibling(), None);
+    /// assert_eq!(arena.get(n1).and_then(Node::next_sibling), Some(n2));
+    /// assert_eq!(arena.get(n2).and_then(Node::next_sibling), None);
     /// ```
-    pub fn next_sibling(&self) -> Option<NodeId> {
+    #[inline]
+    pub const fn next_sibling(&self) -> Option<NodeId> {
         self.next_sibling
     }
 
@@ -291,7 +288,7 @@ impl<T> Node<T> {
     /// # Examples
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1");
     /// # let n1_1 = arena.new_node("1_1");
@@ -305,27 +302,28 @@ impl<T> Node<T> {
     /// //     |-- 1_1
     /// //     |-- 1_2 *
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_2));
-    /// assert_eq!(arena[n1_2].parent(), Some(n1));
-    /// assert!(!arena[n1_2].is_removed());
-    /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_2));
+    /// assert_eq!(arena.get(n1_1).and_then(Node::next_sibling), Some(n1_2));
+    /// assert_eq!(arena.get(n1_2).and_then(Node::parent), Some(n1));
+    /// assert!(arena.get(n1_2).is_some());
+    /// assert_eq!(arena.get(n1_3).and_then(Node::previous_sibling), Some(n1_2));
     ///
     /// n1_2.remove(&mut arena);
     /// // arena
     /// // `-- 1
     /// //     |-- 1_1
     /// //     `-- 1_3
-    /// assert_eq!(arena[n1_1].next_sibling(), Some(n1_3));
-    /// assert_eq!(arena[n1_2].parent(), None);
-    /// assert!(arena[n1_2].is_removed());
-    /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_1));
+    /// assert_eq!(arena.get(n1_1).and_then(Node::next_sibling), Some(n1_3));
+    /// assert_eq!(arena.get(n1_2).and_then(Node::parent), None);
+    /// assert!(arena.get(n1_2).is_none());
+    /// assert_eq!(arena.get(n1_3).and_then(Node::previous_sibling), Some(n1_1));
     /// ```
-    pub fn is_removed(&self) -> bool {
+    #[inline]
+    pub const fn is_removed(&self) -> bool {
         self.stamp.is_removed()
     }
 
     /// Checks if the node is detached.
-    pub(crate) fn is_detached(&self) -> bool {
+    pub(crate) const fn is_detached(&self) -> bool {
         self.parent.is_none() && self.previous_sibling.is_none() && self.next_sibling.is_none()
     }
 }

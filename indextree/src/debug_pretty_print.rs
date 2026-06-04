@@ -326,8 +326,10 @@ fn prepare_next_node_printing<T>(
                 }
             }
         };
-        let is_last_sibling = traverser.arena().nodes[id.index0()]
-            .next_sibling()
+        let is_last_sibling = traverser
+            .arena()
+            .get(id)
+            .and_then(Node::next_sibling)
             .is_none();
         writer.open_item(is_last_sibling)?;
 

@@ -46,7 +46,7 @@ impl<T> Node<T> {
         if let NodeData::Data(ref data) = self.data {
             data
         } else {
-            unreachable!("&Node<T> will always be a non-removed node");
+            panic!("attempted to access a freed node");
         }
     }
 
@@ -55,7 +55,7 @@ impl<T> Node<T> {
         if let NodeData::Data(ref mut data) = self.data {
             data
         } else {
-            unreachable!("&Node<T> will always be a non-removed node");
+            panic!("attempted to access a freed node");
         }
     }
 

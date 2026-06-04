@@ -272,6 +272,18 @@ fn reserve() {
 }
 
 #[test]
+fn inaccessible_node() {
+    let mut arena = Arena::new();
+    let n1_id = arena.new_node("1");
+    let n2_id = arena.new_node("2");
+    arena.clear();
+    assert!(arena.get(n1_id).is_none());
+    let n1_id = arena.new_node("1");
+    assert_eq!(arena.get(n1_id).map(Node::get), Some(&"1"));
+    assert!(n2_id.is_removed(&arena));
+}
+
+#[test]
 fn prepend_value() {
     let mut arena = Arena::new();
     let root = arena.new_node(10);

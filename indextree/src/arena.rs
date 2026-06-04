@@ -181,6 +181,9 @@ impl<T> Arena<T> {
 
     /// Returns the number of non-removed nodes in the arena.
     ///
+    /// This function has a time complexity of O(n) since it needs to iterate
+    /// through the nodes to determine whether they have been removed.
+    ///
     /// # Examples
     ///
     /// ```

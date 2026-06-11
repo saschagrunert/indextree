@@ -72,7 +72,13 @@ macro_rules! new_iterator {
                 let next: fn(&Node<T>) -> Option<NodeId> = $next;
 
                 let node = self.0.node.take()?;
-                self.0.node = next(&self.0.arena[node]);
+
+                if node.is_removed(self.0.arena) {
+                    return None;
+                }
+
+                self.0.node = next(&self.0.arena.nodes[node.index0()]);
+
                 Some(node)
             }
 
@@ -97,15 +103,24 @@ macro_rules! new_iterator {
             fn next(&mut self) -> Option<NodeId> {
                 match (self.0.head, self.0.tail) {
                     (Some(head), Some(tail)) if head == tail => {
-                        let result = head;
                         self.0.head = None;
                         self.0.tail = None;
-                        Some(result)
+
+                        if head.is_removed(self.0.arena) {
+                            return None;
+                        }
+
+                        Some(head)
                     }
                     (Some(head), None) | (Some(head), Some(_)) => {
                         let next: fn(&Node<T>) -> Option<NodeId> = $next;
 
-                        self.0.head = next(&self.0.arena[head]);
+                        if head.is_removed(self.0.arena) {
+                            return None;
+                        }
+
+                        self.0.head = next(&self.0.arena.nodes[head.index0()]);
+
                         Some(head)
                     }
                     (None, Some(_)) | (None, None) => None,
@@ -121,15 +136,24 @@ macro_rules! new_iterator {
             fn next_back(&mut self) -> Option<Self::Item> {
                 match (self.0.head, self.0.tail) {
                     (Some(head), Some(tail)) if head == tail => {
-                        let result = head;
                         self.0.head = None;
                         self.0.tail = None;
-                        Some(result)
+
+                        if tail.is_removed(self.0.arena) {
+                            return None;
+                        }
+
+                        Some(tail)
                     }
                     (None, Some(tail)) | (Some(_), Some(tail)) => {
                         let next_back: fn(&Node<T>) -> Option<NodeId> = $next_back;
 
-                        self.0.tail = next_back(&self.0.arena[tail]);
+                        if tail.is_removed(self.0.arena) {
+                            return None;
+                        }
+
+                        self.0.tail = next_back(&self.0.arena.nodes[tail.index0()]);
+
                         Some(tail)
                     }
                     (Some(_), None) | (None, None) => None,
@@ -161,7 +185,7 @@ macro_rules! new_iterator {
 new_iterator!(
     /// An iterator of the IDs of the ancestors of a given node.
     Ancestors,
-    next = |node| node.parent,
+    next = Node::parent,
 );
 
 new_iterator!(
@@ -176,40 +200,41 @@ new_iterator!(
     new = |arena, node| {
         let first = arena
             .get(node)
-            .unwrap()
-            .parent
-            .and_then(|parent_id| arena.get(parent_id))
-            .and_then(|parent| parent.first_child);
+            .and_then(Node::parent)
+            .and_then(|parent_id| arena.get(parent_id)?.first_child());
 
         DoubleEndedIter::new(arena, node, first)
     },
-    next = |head| head.previous_sibling,
-    next_back = |tail| tail.next_sibling,
+    next = Node::previous_sibling,
+    next_back = Node::next_sibling,
 );
 
 new_iterator!(
     /// An iterator of the IDs of the siblings after a given node.
     FollowingSiblings,
     new = |arena, node| {
-        let last = arena
-            .get(node)
-            .unwrap()
-            .parent
-            .and_then(|parent_id| arena.get(parent_id))
-            .and_then(|parent| parent.last_child);
+        let last = arena.get(node)
+            .and_then(Node::parent)
+            .and_then(|parent_id| arena.get(parent_id)?.last_child());
 
         DoubleEndedIter::new(arena, node, last)
     },
-    next = |head| head.next_sibling,
-    next_back = |tail| tail.previous_sibling,
+    next = Node::next_sibling,
+    next_back = Node::previous_sibling,
 );
 
 new_iterator!(
     /// An iterator of the IDs of the children of a given node, in insertion order.
     Children,
-    new = |arena, node| DoubleEndedIter::new(arena, arena[node].first_child, arena[node].last_child),
-    next = |node| node.next_sibling,
-    next_back = |tail| tail.previous_sibling,
+    new = |arena, node| {
+        DoubleEndedIter::new(
+            arena,
+            arena.get(node).and_then(Node::first_child),
+            arena.get(node).and_then(Node::last_child)
+        )
+    },
+    next = Node::next_sibling,
+    next_back = Node::previous_sibling,
 );
 
 #[derive(Clone)]
@@ -229,7 +254,13 @@ impl<T> Iterator for Descendants<'_, T> {
 
     fn next(&mut self) -> Option<NodeId> {
         self.0.find_map(|edge| match edge {
-            NodeEdge::Start(node) => Some(node),
+            NodeEdge::Start(node) => {
+                if node.is_removed(self.0.arena) {
+                    None
+                } else {
+                    Some(node)
+                }
+            }
             NodeEdge::End(_) => None,
         })
     }
@@ -302,7 +333,7 @@ impl NodeEdge {
     /// being traversed.
     ///
     /// ```
-    /// # use indextree::{Arena, NodeEdge};
+    /// # use indextree::{Arena, Node, NodeEdge};
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1".to_owned());
     /// # let n1_1 = arena.new_node("1_1".to_owned());
@@ -321,9 +352,9 @@ impl NodeEdge {
     /// //     |-- 1_2
     /// //     `-- 1_3
     ///
-    /// assert_eq!(*arena[n1].get(), "1");
-    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1");
-    /// assert_eq!(*arena[n1_3].get(), "1_3");
+    /// assert_eq!(arena.get(n1).map(|n| n.get().as_str()), Some("1"));
+    /// assert_eq!(arena.get(n1_1_1).map(|n| n.get().as_str()), Some("1_1_1"));
+    /// assert_eq!(arena.get(n1_3).map(|n| n.get().as_str()), Some("1_3"));
     ///
     /// let mut next = Some(NodeEdge::Start(n1));
     /// let mut count = 0;
@@ -334,29 +365,31 @@ impl NodeEdge {
     ///         NodeEdge::End(_) => continue,
     ///     };
     ///
-    ///     arena[current].get_mut().push_str(&format!(" (count={})", count));
+    ///     if let Some(string) = arena.get_mut(current).map(Node::get_mut) {
+    ///         string.push_str(&format!(" (count={count})"));
+    ///     }
     ///     count += 1;
     /// }
     ///
-    /// assert_eq!(*arena[n1].get(), "1 (count=0)");
-    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1 (count=2)");
-    /// assert_eq!(*arena[n1_3].get(), "1_3 (count=4)");
+    /// assert_eq!(arena.get(n1).map(|n| n.get().as_str()), Some("1 (count=0)"));
+    /// assert_eq!(arena.get(n1_1_1).map(|n| n.get().as_str()), Some("1_1_1 (count=2)"));
+    /// assert_eq!(arena.get(n1_3).map(|n| n.get().as_str()), Some("1_3 (count=4)"));
     /// ```
     #[must_use]
     pub fn next_traverse<T>(self, arena: &Arena<T>) -> Option<Self> {
         match self {
-            NodeEdge::Start(node) => match arena[node].first_child {
+            NodeEdge::Start(node) => match arena.get(node).and_then(Node::first_child) {
                 Some(first_child) => Some(NodeEdge::Start(first_child)),
                 None => Some(NodeEdge::End(node)),
             },
             NodeEdge::End(node) => {
-                let node = &arena[node];
-                match node.next_sibling {
+                let node = arena.get(node);
+                match node.and_then(Node::next_sibling) {
                     Some(next_sibling) => Some(NodeEdge::Start(next_sibling)),
                     // `node.parent()` here can only be `None` if the tree has
                     // been modified during iteration, but silently stopping
                     // iteration seems a more sensible behavior than panicking.
-                    None => node.parent.map(NodeEdge::End),
+                    None => node.and_then(Node::parent).map(NodeEdge::End),
                 }
             }
         }
@@ -404,7 +437,7 @@ impl NodeEdge {
     /// being traversed.
     ///
     /// ```
-    /// use indextree::{Arena, NodeEdge};
+    /// use indextree::{Arena, Node, NodeEdge};
     ///
     /// # let mut arena = Arena::new();
     /// # let n1 = arena.new_node("1".to_owned());
@@ -424,9 +457,9 @@ impl NodeEdge {
     /// //     |-- 1_2
     /// //     `-- 1_3
     ///
-    /// assert_eq!(*arena[n1_3].get(), "1_3");
-    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1");
-    /// assert_eq!(*arena[n1].get(), "1");
+    /// assert_eq!(arena.get(n1_3).map(|n| n.get().as_str()), Some("1_3"));
+    /// assert_eq!(arena.get(n1_1_1).map(|n| n.get().as_str()), Some("1_1_1"));
+    /// assert_eq!(arena.get(n1).map(|n| n.get().as_str()), Some("1"));
     ///
     /// let mut next = Some(NodeEdge::End(n1_3));
     /// let mut count = 0;
@@ -437,29 +470,31 @@ impl NodeEdge {
     ///         NodeEdge::End(_) => continue,
     ///     };
     ///
-    ///     arena[current].get_mut().push_str(&format!(" (count={})", count));
+    ///     if let Some(string) = arena.get_mut(current).map(Node::get_mut) {
+    ///         string.push_str(&format!(" (count={count})"));
+    ///     }
     ///     count += 1;
     /// }
     ///
-    /// assert_eq!(*arena[n1_3].get(), "1_3 (count=0)");
-    /// assert_eq!(*arena[n1_1_1].get(), "1_1_1 (count=2)");
-    /// assert_eq!(*arena[n1].get(), "1 (count=4)");
+    /// assert_eq!(arena.get(n1_3).map(|n| n.get().as_str()), Some("1_3 (count=0)"));
+    /// assert_eq!(arena.get(n1_1_1).map(|n| n.get().as_str()), Some("1_1_1 (count=2)"));
+    /// assert_eq!(arena.get(n1).map(|n| n.get().as_str()), Some("1 (count=4)"));
     /// ```
     #[must_use]
     pub fn prev_traverse<T>(self, arena: &Arena<T>) -> Option<Self> {
         match self {
-            NodeEdge::End(node) => match arena[node].last_child {
+            NodeEdge::End(node) => match arena.get(node).and_then(Node::last_child) {
                 Some(last_child) => Some(NodeEdge::End(last_child)),
                 None => Some(NodeEdge::Start(node)),
             },
             NodeEdge::Start(node) => {
-                let node = &arena[node];
-                match node.previous_sibling {
+                let node = arena.get(node);
+                match node.and_then(Node::previous_sibling) {
                     Some(previous_sibling) => Some(NodeEdge::End(previous_sibling)),
                     // `node.parent()` here can only be `None` if the tree has
                     // been modified during iteration, but silently stopping
                     // iteration seems a more sensible behavior than panicking.
-                    None => node.parent.map(NodeEdge::Start),
+                    None => node.and_then(Node::parent).map(NodeEdge::Start),
                 }
             }
         }
@@ -570,3 +605,78 @@ impl<T> Iterator for ReverseTraverse<'_, T> {
 }
 
 impl<T> core::iter::FusedIterator for ReverseTraverse<'_, T> {}
+
+#[cfg(test)]
+mod tests {
+    use crate::Arena;
+
+    #[test]
+    fn preceding_siblings() {
+        let mut arena = Arena::new();
+
+        let n1 = arena.new_node(1);
+
+        let n1_1 = n1.append_value(1, &mut arena);
+        let n1_2 = n1.append_value(2, &mut arena);
+        let n1_3 = n1.append_value(3, &mut arena);
+
+        /*
+        1
+        |-- 1
+        |-- 2
+        `-- 3
+        */
+
+        assert_eq!(n1_1.preceding_siblings(&arena).collect::<Vec<_>>(), [n1_1]);
+        assert_eq!(
+            n1_1.preceding_siblings(&arena).rev().collect::<Vec<_>>(),
+            [n1_1]
+        );
+
+        assert_eq!(
+            n1_2.preceding_siblings(&arena).collect::<Vec<_>>(),
+            [n1_2, n1_1]
+        );
+        assert_eq!(
+            n1_2.preceding_siblings(&arena).rev().collect::<Vec<_>>(),
+            [n1_1, n1_2]
+        );
+
+        assert_eq!(
+            n1_3.preceding_siblings(&arena).collect::<Vec<_>>(),
+            [n1_3, n1_2, n1_1]
+        );
+        assert_eq!(
+            n1_3.preceding_siblings(&arena).rev().collect::<Vec<_>>(),
+            [n1_1, n1_2, n1_3]
+        );
+
+        n1_2.remove(&mut arena);
+
+        /*
+        1
+        |-- 1
+        `-- 3
+        */
+
+        assert_eq!(n1_1.preceding_siblings(&arena).collect::<Vec<_>>(), [n1_1]);
+        assert_eq!(
+            n1_1.preceding_siblings(&arena).rev().collect::<Vec<_>>(),
+            [n1_1]
+        );
+
+        // n1_2 is removed and so does not have any preceding siblings
+        assert!(n1_2.preceding_siblings(&arena).next().is_none());
+        assert!(n1_2.preceding_siblings(&arena).next_back().is_none());
+
+        // n1_2 is omitted
+        assert_eq!(
+            n1_3.preceding_siblings(&arena).collect::<Vec<_>>(),
+            [n1_3, n1_1]
+        );
+        assert_eq!(
+            n1_3.preceding_siblings(&arena).rev().collect::<Vec<_>>(),
+            [n1_1, n1_3]
+        );
+    }
+}

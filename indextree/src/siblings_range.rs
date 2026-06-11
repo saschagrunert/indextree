@@ -16,7 +16,7 @@ impl SiblingsRange {
     ///
     /// It is user's responsibility to guarantee that `first` to `last` is a
     /// correct range.
-    pub(crate) fn new(first: NodeId, last: NodeId) -> Self {
+    pub(crate) const fn new(first: NodeId, last: NodeId) -> Self {
         Self { first, last }
     }
 
@@ -25,19 +25,20 @@ impl SiblingsRange {
     pub(crate) fn detach_from_siblings<T>(self, arena: &mut Arena<T>) -> DetachedSiblingsRange {
         // Update children's parents, siblings relations outside the range, and
         // old parent's first and last child nodes.
-        let parent = arena[self.first].parent;
+        let parent = arena.nodes[self.first.index0()].parent;
 
         // Update siblings relations outside the range and old parent's
         // children if necessary.
-        let prev_of_range = arena[self.first].previous_sibling.take();
-        let next_of_range = arena[self.last].next_sibling.take();
+        let prev_of_range = arena.nodes[self.first.index0()].previous_sibling.take();
+        let next_of_range = arena.nodes[self.last.index0()].next_sibling.take();
+
         connect_neighbors(arena, parent, prev_of_range, next_of_range);
 
         if cfg!(debug_assertions) {
-            debug_assert_eq!(arena[self.first].previous_sibling, None);
-            debug_assert_eq!(arena[self.last].next_sibling, None);
+            debug_assert_eq!(arena.nodes[self.first.index0()].previous_sibling(), None);
+            debug_assert_eq!(arena.nodes[self.last.index0()].next_sibling(), None);
             debug_assert_triangle_nodes!(arena, parent, prev_of_range, next_of_range);
-            if let Some(parent_node) = parent.map(|id| &arena[id]) {
+            if let Some(parent_node) = parent.and_then(|id| arena.get(id)) {
                 debug_assert_eq!(
                     parent_node.first_child.is_some(),
                     parent_node.last_child.is_some()
@@ -73,7 +74,7 @@ impl DetachedSiblingsRange {
     ///
     /// It is user's responsibility to guarantee that `first` to `last` is a
     /// correct range.
-    pub(crate) fn new(first: NodeId, last: NodeId) -> Self {
+    pub(crate) const fn new(first: NodeId, last: NodeId) -> Self {
         Self { first, last }
     }
 
@@ -94,7 +95,7 @@ impl DetachedSiblingsRange {
                 // Attempt to set the node itself as its parent.
                 return Err(ConsistencyError::ParentChildLoop);
             }
-            let child_node = &mut arena[child];
+            let child_node = &mut arena.nodes[child.index0()];
             child_node.parent = new_parent;
             child_opt = child_node.next_sibling;
         }
@@ -121,13 +122,13 @@ impl DetachedSiblingsRange {
         // Check that the given arguments are consistent.
         if cfg!(debug_assertions) {
             if let Some(previous_sibling) = previous_sibling {
-                debug_assert_eq!(arena[previous_sibling].parent, parent);
+                debug_assert_eq!(arena.nodes[previous_sibling.index0()].parent(), parent);
             }
             if let Some(next_sibling) = next_sibling {
-                debug_assert_eq!(arena[next_sibling].parent, parent);
+                debug_assert_eq!((arena.nodes[next_sibling.index0()]).parent(), parent);
             }
             debug_assert_triangle_nodes!(arena, parent, previous_sibling, next_sibling);
-            if let Some(parent_node) = parent.map(|id| &arena[id]) {
+            if let Some(parent_node) = parent.and_then(|id| arena.get(id)) {
                 debug_assert_eq!(
                     parent_node.first_child.is_some(),
                     parent_node.last_child.is_some()
@@ -149,7 +150,7 @@ impl DetachedSiblingsRange {
         if cfg!(debug_assertions) {
             debug_assert_triangle_nodes!(arena, parent, previous_sibling, Some(self.first));
             debug_assert_triangle_nodes!(arena, parent, Some(self.last), next_sibling);
-            if let Some(parent_node) = parent.map(|id| &arena[id]) {
+            if let Some(parent_node) = parent.and_then(|id| arena.get(id)) {
                 debug_assert!(
                     parent_node.first_child.is_some() && parent_node.last_child.is_some(),
                     "parent should have children (at least `self.first`)"

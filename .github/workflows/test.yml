@@ -28,7 +28,7 @@ jobs:
           toolchain: stable
           components: rustfmt
       - run: cargo generate-lockfile
-      - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             target
@@ -46,7 +46,7 @@ jobs:
           toolchain: stable
           components: clippy
       - run: cargo generate-lockfile
-      - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             target
@@ -63,7 +63,7 @@ jobs:
         with:
           toolchain: "1.85.0"
       - run: cargo generate-lockfile
-      - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             target
@@ -80,7 +80,7 @@ jobs:
         with:
           toolchain: stable
       - run: cargo generate-lockfile
-      - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             target
@@ -116,7 +116,7 @@ jobs:
         with:
           toolchain: stable
       - run: cargo generate-lockfile
-      - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             target

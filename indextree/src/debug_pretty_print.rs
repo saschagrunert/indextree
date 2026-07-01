@@ -11,6 +11,7 @@ use alloc::vec::Vec;
 use std::vec::Vec;
 
 use crate::{
+    Node,
     arena::Arena,
     id::NodeId,
     traverse::{NodeEdge, Traverse},
@@ -238,7 +239,7 @@ pub struct DebugPrettyPrint<'a, T> {
 impl<'a, T> DebugPrettyPrint<'a, T> {
     /// Creates a new `DebugPrettyPrint` object for the node.
     #[inline]
-    pub(crate) fn new(id: &'a NodeId, arena: &'a Arena<T>) -> Self {
+    pub(crate) const fn new(id: &'a NodeId, arena: &'a Arena<T>) -> Self {
         Self { id, arena }
     }
 }
@@ -251,8 +252,7 @@ impl<T: fmt::Display> fmt::Display for DebugPrettyPrint<'_, T> {
 
         // Print the first (root) node.
         traverser.next();
-        {
-            let data = self.arena[*self.id].get();
+        if let Some(data) = self.arena.get(*self.id).map(Node::get) {
             if is_alternate {
                 write!(writer, "{data:#}")?
             } else {
@@ -262,11 +262,12 @@ impl<T: fmt::Display> fmt::Display for DebugPrettyPrint<'_, T> {
 
         // Print the descendants.
         while let Some(id) = prepare_next_node_printing(&mut writer, &mut traverser)? {
-            let data = traverser.arena()[id].get();
-            if is_alternate {
-                write!(writer, "{data:#}")?
-            } else {
-                write!(writer, "{data}")?
+            if let Some(data) = traverser.arena().get(id).map(Node::get) {
+                if is_alternate {
+                    write!(writer, "{data:#}")?
+                } else {
+                    write!(writer, "{data}")?
+                }
             }
         }
 
@@ -282,8 +283,7 @@ impl<T: fmt::Debug> fmt::Debug for DebugPrettyPrint<'_, T> {
 
         // Print the first (root) node.
         traverser.next();
-        {
-            let data = self.arena[*self.id].get();
+        if let Some(data) = self.arena.get(*self.id).map(Node::get) {
             if is_alternate {
                 write!(writer, "{data:#?}")?
             } else {
@@ -293,11 +293,12 @@ impl<T: fmt::Debug> fmt::Debug for DebugPrettyPrint<'_, T> {
 
         // Print the descendants.
         while let Some(id) = prepare_next_node_printing(&mut writer, &mut traverser)? {
-            let data = traverser.arena()[id].get();
-            if is_alternate {
-                write!(writer, "{data:#?}")?
-            } else {
-                write!(writer, "{data:?}")?
+            if let Some(data) = traverser.arena().get(id).map(Node::get) {
+                if is_alternate {
+                    write!(writer, "{data:#?}")?
+                } else {
+                    write!(writer, "{data:?}")?
+                }
             }
         }
 
@@ -325,7 +326,11 @@ fn prepare_next_node_printing<T>(
                 }
             }
         };
-        let is_last_sibling = traverser.arena()[id].next_sibling().is_none();
+        let is_last_sibling = traverser
+            .arena()
+            .get(id)
+            .and_then(Node::next_sibling)
+            .is_none();
         writer.open_item(is_last_sibling)?;
 
         return Ok(Some(id));

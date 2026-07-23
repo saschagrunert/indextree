@@ -8,12 +8,7 @@
 use alloc::vec::Vec;
 
 #[cfg(not(feature = "std"))]
-use core::{
-    mem,
-    num::NonZeroUsize,
-    ops::{Index, IndexMut},
-    slice,
-};
+use core::{mem, num::NonZeroUsize};
 
 #[cfg(feature = "par_iter")]
 use rayon::prelude::*;
@@ -22,12 +17,7 @@ use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
-use std::{
-    mem,
-    num::NonZeroUsize,
-    ops::{Index, IndexMut},
-    slice,
-};
+use std::{mem, num::NonZeroUsize};
 
 use crate::{Node, NodeId, node::NodeData};
 
@@ -35,7 +25,7 @@ use crate::{Node, NodeId, node::NodeData};
 #[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
 /// An `Arena` structure containing certain [`Node`]s.
 pub struct Arena<T> {
-    nodes: Vec<Node<T>>,
+    pub(crate) nodes: Vec<Node<T>>,
     first_free_slot: Option<usize>,
     last_free_slot: Option<usize>,
 }
@@ -84,7 +74,7 @@ impl<T> Arena<T> {
     /// let node = arena.get(foo).unwrap();
     ///
     /// let node_id = arena.get_node_id(node).unwrap();
-    /// assert_eq!(*arena[node_id].get(), "foo");
+    /// assert_eq!(arena.get(node_id).map(|node| *node.get()), Some("foo"));
     /// ```
     pub fn get_node_id(&self, node: &Node<T>) -> Option<NodeId> {
         let nodes_range = self.nodes.as_ptr_range();
@@ -128,7 +118,7 @@ impl<T> Arena<T> {
         let index0 = index.get() - 1; // we use 1 based indexing.
         self.nodes
             .get(index0)
-            .filter(|n| !n.is_removed())
+            .filter(|node| !node.is_removed())
             .map(|node| NodeId::from_non_zero_usize(index, node.stamp))
     }
 
@@ -141,11 +131,11 @@ impl<T> Arena<T> {
     /// # Examples
     ///
     /// ```
-    /// # use indextree::Arena;
+    /// # use indextree::{Arena, Node};
     /// let mut arena = Arena::new();
     /// let foo = arena.new_node("foo");
     ///
-    /// assert_eq!(*arena[foo].get(), "foo");
+    /// assert_eq!(arena.get(foo).map(Node::get), Some(&"foo"));
     /// ```
     pub fn new_node(&mut self, data: T) -> NodeId {
         let (index, stamp) = if let Some(index) = self.pop_front_free_node() {
@@ -167,11 +157,32 @@ impl<T> Arena<T> {
     /// Returns the number of nodes in the arena, including removed nodes.
     ///
     /// Removed nodes are still counted because they remain in the
-    /// internal storage. Use [`iter()`] with [`Node::is_removed()`]
-    /// to count only live nodes.
+    /// internal storage. Use [`count()`] to count only live nodes.
     ///
-    /// [`iter()`]: Arena::iter
-    /// [`Node::is_removed()`]: crate::Node::is_removed
+    /// [`count()`]: Arena::count
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let _bar = arena.new_node("bar");
+    /// assert_eq!(arena.len(), 2);
+    ///
+    /// foo.remove(&mut arena);
+    /// // The removed node is still counted.
+    /// assert_eq!(arena.len(), 2);
+    /// ```
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.nodes.len()
+    }
+
+    /// Returns the number of non-removed nodes in the arena.
+    ///
+    /// This function has a time complexity of O(n) since it needs to iterate
+    /// through the nodes to determine whether they have been removed.
     ///
     /// # Examples
     ///
@@ -183,14 +194,13 @@ impl<T> Arena<T> {
     /// assert_eq!(arena.count(), 2);
     ///
     /// foo.remove(&mut arena);
-    /// // The removed node is still counted.
-    /// assert_eq!(arena.count(), 2);
+    /// assert_eq!(arena.count(), 1);
     /// ```
     pub fn count(&self) -> usize {
-        self.nodes.len()
+        self.iter().count()
     }
 
-    /// Returns `true` if arena has no nodes, `false` otherwise.
+    /// Returns `true` if the arena has no nodes, `false` otherwise.
     ///
     /// # Examples
     ///
@@ -205,13 +215,14 @@ impl<T> Arena<T> {
     /// foo.remove(&mut arena);
     /// assert!(!arena.is_empty());
     /// ```
+    #[inline]
     pub fn is_empty(&self) -> bool {
-        self.count() == 0
+        self.nodes.is_empty()
     }
 
     /// Returns a reference to the node with the given id if in the arena.
     ///
-    /// Returns `None` if not available.
+    /// Returns `None` if the node does not exist or has been removed.
     ///
     /// # Examples
     ///
@@ -238,13 +249,15 @@ impl<T> Arena<T> {
     /// assert!(another_arena.get(bar).is_none());
     /// ```
     pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
-        self.nodes.get(id.index0())
+        self.nodes
+            .get(id.index0())
+            .filter(|node| !node.is_removed())
     }
 
     /// Returns a mutable reference to the node with the given id if in the
     /// arena.
     ///
-    /// Returns `None` if not available.
+    /// Returns `None` if the node does not exist or has been removed.
     ///
     /// # Examples
     ///
@@ -258,13 +271,12 @@ impl<T> Arena<T> {
     /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some("FOO!"));
     /// ```
     pub fn get_mut(&mut self, id: NodeId) -> Option<&mut Node<T>> {
-        self.nodes.get_mut(id.index0())
+        self.nodes
+            .get_mut(id.index0())
+            .filter(|node| !node.is_removed())
     }
 
     /// Returns an iterator of all nodes in the arena in storage-order.
-    ///
-    /// Note that this iterator returns also removed elements, which can be
-    /// tested with the [`is_removed()`] method on the node.
     ///
     /// # Examples
     ///
@@ -288,21 +300,17 @@ impl<T> Arena<T> {
     /// bar.remove(&mut arena);
     ///
     /// let mut iter = arena.iter();
-    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), Some(("foo", false)));
-    /// assert_eq!(iter.next().map_or(false, |node| node.is_removed()), true);
-    /// assert_eq!(iter.next().map(|node| (*node.get(), node.is_removed())), None);
+    /// assert_eq!(iter.next().map(|node| *node.get()), Some("foo"));
+    /// assert_eq!(iter.next(), None);
     /// ```
-    ///
-    /// [`is_removed()`]: Node::is_removed
-    pub fn iter(&self) -> slice::Iter<'_, Node<T>> {
-        self.nodes.iter()
+    pub fn iter(&self) -> impl Iterator<Item = &Node<T>> {
+        self.nodes.iter().filter(|node| !node.is_removed())
     }
 
     /// Returns an iterator of [`NodeId`]s of all non-removed nodes in
     /// the arena in storage-order.
     ///
-    /// Unlike [`iter()`], this skips removed nodes and yields `NodeId`s
-    /// instead of `&Node<T>`.
+    /// Unlike [`iter()`], yields `NodeId`s instead of `&Node<T>`.
     ///
     /// # Examples
     ///
@@ -331,9 +339,6 @@ impl<T> Arena<T> {
 
     /// Returns a mutable iterator of all nodes in the arena in storage-order.
     ///
-    /// Note that this iterator returns also removed elements, which can be
-    /// tested with the [`is_removed()`] method on the node.
-    ///
     /// # Example
     ///
     /// ```
@@ -351,9 +356,8 @@ impl<T> Arena<T> {
     /// let node_refs = arena.iter().map(|i| i.get().clone()).collect::<Vec<_>>();
     /// assert_eq!(node_refs, vec![5, 6]);
     /// ```
-    /// [`is_removed()`]: Node::is_removed
-    pub fn iter_mut(&mut self) -> slice::IterMut<'_, Node<T>> {
-        self.nodes.iter_mut()
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Node<T>> {
+        self.nodes.iter_mut().filter(|node| !node.is_removed())
     }
 
     /// Clears all the nodes in the arena, but retains its allocated capacity.
@@ -372,22 +376,12 @@ impl<T> Arena<T> {
         self.last_free_slot = None;
     }
 
-    /// Returns a slice of the inner nodes collection.
-    ///
-    /// The slice contains all nodes in storage order, including removed
-    /// nodes. Use [`Node::is_removed()`] to filter them out.
-    ///
-    /// [`Node::is_removed()`]: crate::Node::is_removed
-    pub fn as_slice(&self) -> &[Node<T>] {
-        self.nodes.as_slice()
-    }
-
     pub(crate) fn free_node(&mut self, id: NodeId) {
-        let node = &mut self[id];
+        let node = &mut self.nodes[id.index0()];
         node.data = NodeData::NextFree(None);
         node.stamp.as_removed();
         let stamp = node.stamp;
-        if stamp.reuseable() {
+        if stamp.reusable() {
             if let Some(index) = self.last_free_slot {
                 let new_last = id.index0();
                 self.nodes[index].data = NodeData::NextFree(Some(new_last));
@@ -407,7 +401,7 @@ impl<T> Arena<T> {
             if let NodeData::NextFree(next_free) = self.nodes[index].data {
                 self.first_free_slot = next_free;
             } else {
-                unreachable!("A data node considered as a freed node");
+                unreachable!("a data node considered as a freed node");
             }
             if self.first_free_slot.is_none() {
                 self.last_free_slot = None;
@@ -425,9 +419,6 @@ impl<T: Sync> Arena<T> {
     /// Requires the `par_iter` feature. Uses [rayon](https://docs.rs/rayon)
     /// for data parallelism across all nodes in storage order.
     ///
-    /// Note that this iterator returns also removed elements, which can be
-    /// tested with the [`is_removed()`] method on the node.
-    ///
     /// # Examples
     ///
     /// ```
@@ -441,10 +432,8 @@ impl<T: Sync> Arena<T> {
     /// let sum: i64 = arena.par_iter().map(|node| *node.get()).sum();
     /// assert_eq!(sum, 6);
     /// ```
-    ///
-    /// [`is_removed()`]: Node::is_removed
-    pub fn par_iter(&self) -> rayon::slice::Iter<'_, Node<T>> {
-        self.nodes.par_iter()
+    pub fn par_iter(&self) -> impl ParallelIterator<Item = &Node<T>> {
+        self.nodes.par_iter().filter(|node| !node.is_removed())
     }
 }
 
@@ -455,20 +444,6 @@ impl<T> Default for Arena<T> {
             first_free_slot: None,
             last_free_slot: None,
         }
-    }
-}
-
-impl<T> Index<NodeId> for Arena<T> {
-    type Output = Node<T>;
-
-    fn index(&self, node: NodeId) -> &Node<T> {
-        &self.nodes[node.index0()]
-    }
-}
-
-impl<T> IndexMut<NodeId> for Arena<T> {
-    fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {
-        &mut self.nodes[node.index0()]
     }
 }
 

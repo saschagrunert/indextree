@@ -64,44 +64,45 @@
 <a href=#64 id=64 data-nosnippet>64</a>//! ));
 <a href=#65 id=65 data-nosnippet>65</a>//! ```
 <a href=#66 id=66 data-nosnippet>66</a></span><span class="attr">#![forbid(unsafe_code)]
-<a href=#67 id=67 data-nosnippet>67</a>#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
-<a href=#68 id=68 data-nosnippet>68</a>
-<a href=#69 id=69 data-nosnippet>69</a>#[cfg(not(feature = <span class="string">"std"</span>))]
-<a href=#70 id=70 data-nosnippet>70</a></span><span class="kw">extern crate </span>alloc;
-<a href=#71 id=71 data-nosnippet>71</a>
-<a href=#72 id=72 data-nosnippet>72</a><span class="kw">pub use crate</span>::{
-<a href=#73 id=73 data-nosnippet>73</a>    arena::Arena,
-<a href=#74 id=74 data-nosnippet>74</a>    debug_pretty_print::DebugPrettyPrint,
-<a href=#75 id=75 data-nosnippet>75</a>    error::NodeError,
-<a href=#76 id=76 data-nosnippet>76</a>    id::NodeId,
-<a href=#77 id=77 data-nosnippet>77</a>    node::Node,
-<a href=#78 id=78 data-nosnippet>78</a>    traverse::{
-<a href=#79 id=79 data-nosnippet>79</a>        Ancestors, Children, Descendants, FollowingSiblings, NodeEdge, PrecedingSiblings,
-<a href=#80 id=80 data-nosnippet>80</a>        Predecessors, ReverseTraverse, Traverse,
-<a href=#81 id=81 data-nosnippet>81</a>    },
-<a href=#82 id=82 data-nosnippet>82</a>};
-<a href=#83 id=83 data-nosnippet>83</a>
-<a href=#84 id=84 data-nosnippet>84</a><span class="attr">#[cfg(feature = <span class="string">"macros"</span>)]
-<a href=#85 id=85 data-nosnippet>85</a></span><span class="kw">pub use </span>indextree_macros <span class="kw">as </span>macros;
-<a href=#86 id=86 data-nosnippet>86</a>
-<a href=#87 id=87 data-nosnippet>87</a><span class="comment">// Compile-time assertions that Arena and NodeId are Send + Sync.
-<a href=#88 id=88 data-nosnippet>88</a></span><span class="attr">#[allow(dead_code)]
-<a href=#89 id=89 data-nosnippet>89</a></span><span class="kw">const _</span>: () = {
-<a href=#90 id=90 data-nosnippet>90</a>    <span class="kw">fn </span>assert_send_sync&lt;T: Send + Sync&gt;() {}
-<a href=#91 id=91 data-nosnippet>91</a>    <span class="kw">fn </span>assertions() {
-<a href=#92 id=92 data-nosnippet>92</a>        assert_send_sync::&lt;Arena&lt;u32&gt;&gt;();
-<a href=#93 id=93 data-nosnippet>93</a>        assert_send_sync::&lt;NodeId&gt;();
-<a href=#94 id=94 data-nosnippet>94</a>    }
-<a href=#95 id=95 data-nosnippet>95</a>};
-<a href=#96 id=96 data-nosnippet>96</a>
-<a href=#97 id=97 data-nosnippet>97</a><span class="attr">#[macro_use]
-<a href=#98 id=98 data-nosnippet>98</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>relations;
-<a href=#99 id=99 data-nosnippet>99</a>
-<a href=#100 id=100 data-nosnippet>100</a><span class="kw">mod </span>arena;
-<a href=#101 id=101 data-nosnippet>101</a><span class="kw">mod </span>debug_pretty_print;
-<a href=#102 id=102 data-nosnippet>102</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>error;
-<a href=#103 id=103 data-nosnippet>103</a><span class="kw">mod </span>id;
-<a href=#104 id=104 data-nosnippet>104</a><span class="kw">mod </span>node;
-<a href=#105 id=105 data-nosnippet>105</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>siblings_range;
-<a href=#106 id=106 data-nosnippet>106</a><span class="kw">mod </span>traverse;
+<a href=#67 id=67 data-nosnippet>67</a>#![warn(missing_docs)]
+<a href=#68 id=68 data-nosnippet>68</a>#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
+<a href=#69 id=69 data-nosnippet>69</a>
+<a href=#70 id=70 data-nosnippet>70</a>#[cfg(not(feature = <span class="string">"std"</span>))]
+<a href=#71 id=71 data-nosnippet>71</a></span><span class="kw">extern crate </span>alloc;
+<a href=#72 id=72 data-nosnippet>72</a>
+<a href=#73 id=73 data-nosnippet>73</a><span class="kw">pub use crate</span>::{
+<a href=#74 id=74 data-nosnippet>74</a>    arena::Arena,
+<a href=#75 id=75 data-nosnippet>75</a>    debug_pretty_print::DebugPrettyPrint,
+<a href=#76 id=76 data-nosnippet>76</a>    error::NodeError,
+<a href=#77 id=77 data-nosnippet>77</a>    id::NodeId,
+<a href=#78 id=78 data-nosnippet>78</a>    node::Node,
+<a href=#79 id=79 data-nosnippet>79</a>    traverse::{
+<a href=#80 id=80 data-nosnippet>80</a>        Ancestors, Children, Descendants, FollowingSiblings, NodeEdge, PrecedingSiblings,
+<a href=#81 id=81 data-nosnippet>81</a>        Predecessors, ReverseTraverse, Traverse,
+<a href=#82 id=82 data-nosnippet>82</a>    },
+<a href=#83 id=83 data-nosnippet>83</a>};
+<a href=#84 id=84 data-nosnippet>84</a>
+<a href=#85 id=85 data-nosnippet>85</a><span class="attr">#[cfg(feature = <span class="string">"macros"</span>)]
+<a href=#86 id=86 data-nosnippet>86</a></span><span class="kw">pub use </span>indextree_macros <span class="kw">as </span>macros;
+<a href=#87 id=87 data-nosnippet>87</a>
+<a href=#88 id=88 data-nosnippet>88</a><span class="comment">// Compile-time assertions that Arena and NodeId are Send + Sync.
+<a href=#89 id=89 data-nosnippet>89</a></span><span class="attr">#[allow(dead_code)]
+<a href=#90 id=90 data-nosnippet>90</a></span><span class="kw">const _</span>: () = {
+<a href=#91 id=91 data-nosnippet>91</a>    <span class="kw">fn </span>assert_send_sync&lt;T: Send + Sync&gt;() {}
+<a href=#92 id=92 data-nosnippet>92</a>    <span class="kw">fn </span>assertions() {
+<a href=#93 id=93 data-nosnippet>93</a>        assert_send_sync::&lt;Arena&lt;u32&gt;&gt;();
+<a href=#94 id=94 data-nosnippet>94</a>        assert_send_sync::&lt;NodeId&gt;();
+<a href=#95 id=95 data-nosnippet>95</a>    }
+<a href=#96 id=96 data-nosnippet>96</a>};
+<a href=#97 id=97 data-nosnippet>97</a>
+<a href=#98 id=98 data-nosnippet>98</a><span class="attr">#[macro_use]
+<a href=#99 id=99 data-nosnippet>99</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>relations;
+<a href=#100 id=100 data-nosnippet>100</a>
+<a href=#101 id=101 data-nosnippet>101</a><span class="kw">mod </span>arena;
+<a href=#102 id=102 data-nosnippet>102</a><span class="kw">mod </span>debug_pretty_print;
+<a href=#103 id=103 data-nosnippet>103</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>error;
+<a href=#104 id=104 data-nosnippet>104</a><span class="kw">mod </span>id;
+<a href=#105 id=105 data-nosnippet>105</a><span class="kw">mod </span>node;
+<a href=#106 id=106 data-nosnippet>106</a><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>siblings_range;
+<a href=#107 id=107 data-nosnippet>107</a><span class="kw">mod </span>traverse;
 </code></pre></div></section></main></body></html>

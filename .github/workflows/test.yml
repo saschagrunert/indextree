@@ -80,7 +80,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: features
         run: |
-          features=$(awk '/^\[features\]/{f=1;next} /^\[/{f=0} f && /^[a-z_]+ =/ && !/^default / && !/^std /{print $1}' \
+          features=$(awk '/^\[features\]/{f=1;next} /^\[/{f=0} f && /^[a-z_]+ =/ && !/^default / && !/^std / && !/^deser /{print $1}' \
             indextree/Cargo.toml | jq -Rsc 'split("\n") | map(select(length > 0)) | [""] + .')
           echo "features=$features" >> "$GITHUB_OUTPUT"
 

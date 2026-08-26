@@ -17,7 +17,7 @@ use crate::{
     Ancestors, Arena, Children, Descendants, FollowingSiblings, NodeError, PrecedingSiblings,
     Predecessors, ReverseTraverse, Traverse,
     debug_pretty_print::DebugPrettyPrint,
-    relations::{insert_last_unchecked, insert_with_neighbors},
+    relations::{insert_first_unchecked, insert_last_unchecked, insert_with_neighbors},
     siblings_range::SiblingsRange,
 };
 
@@ -48,6 +48,7 @@ pub(crate) struct NodeStamp(i16);
 impl NodeStamp {
     /// Returns `true` if this stamp represents a removed node (negative
     /// value).
+    #[inline]
     pub fn is_removed(self) -> bool {
         self.0.is_negative()
     }
@@ -105,6 +106,7 @@ impl From<NodeId> for usize {
 
 impl NodeId {
     /// Returns zero-based index.
+    #[inline]
     pub(crate) fn index0(self) -> usize {
         // This is totally safe because `self.index1 >= 1` is guaranteed by
         // `NonZeroUsize` type.
@@ -117,6 +119,7 @@ impl NodeId {
     }
 
     /// Returns the stamp associated with this node ID.
+    #[inline]
     pub(crate) fn stamp(self) -> NodeStamp {
         self.stamp
     }
@@ -888,7 +891,7 @@ impl NodeId {
     }
 
     /// Creates and prepends a new node (from its associated data) as the first child.
-    /// A convenience shorthand for creating a node via [`Arena::new_node`] and prepending it via [`prepend`].
+    /// This method is a fast path for the common case of prepending a new node. It is quicker than [`prepend`].
     ///
     /// # Panics
     ///
@@ -920,8 +923,7 @@ impl NodeId {
     /// [`prepend`]: NodeId::prepend
     pub fn prepend_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
         let new_child = arena.new_node(value);
-        self.checked_prepend(new_child, arena)
-            .expect("Preconditions not met: invalid argument");
+        insert_first_unchecked(arena, new_child, self);
         new_child
     }
 
@@ -1066,6 +1068,50 @@ impl NodeId {
             .expect("Preconditions not met: invalid argument");
     }
 
+    /// Creates and inserts a new sibling node after this node.
+    ///
+    /// A convenience shorthand for creating a node via [`Arena::new_node`]
+    /// and inserting it via [`insert_after`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    ///
+    /// * the arena already has `usize::max_value()` nodes, or
+    /// * `self` was already [`remove`]d.
+    ///
+    /// [`remove`]: NodeId::remove
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    /// let n1_3 = n1.append_value("1_3", &mut arena);
+    /// let n1_2 = n1_1.insert_after_value("1_2", &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.children(&arena);
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`insert_after`]: NodeId::insert_after
+    pub fn insert_after_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+        let new_sibling = arena.new_node(value);
+        self.insert_after(new_sibling, arena);
+        new_sibling
+    }
+
     /// Inserts a new sibling after this node.
     ///
     /// # Failures
@@ -1160,6 +1206,50 @@ impl NodeId {
     pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         self.checked_insert_before(new_sibling, arena)
             .expect("Preconditions not met: invalid argument");
+    }
+
+    /// Creates and inserts a new sibling node before this node.
+    ///
+    /// A convenience shorthand for creating a node via [`Arena::new_node`]
+    /// and inserting it via [`insert_before`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if:
+    ///
+    /// * the arena already has `usize::max_value()` nodes, or
+    /// * `self` was already [`remove`]d.
+    ///
+    /// [`remove`]: NodeId::remove
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    /// let n1_3 = n1.append_value("1_3", &mut arena);
+    /// let n1_2 = n1_3.insert_before_value("1_2", &mut arena);
+    ///
+    /// // arena
+    /// // `-- 1
+    /// //     |-- 1_1
+    /// //     |-- 1_2
+    /// //     `-- 1_3
+    ///
+    /// let mut iter = n1.children(&arena);
+    /// assert_eq!(iter.next(), Some(n1_1));
+    /// assert_eq!(iter.next(), Some(n1_2));
+    /// assert_eq!(iter.next(), Some(n1_3));
+    /// assert_eq!(iter.next(), None);
+    /// ```
+    ///
+    /// [`insert_before`]: NodeId::insert_before
+    pub fn insert_before_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+        let new_sibling = arena.new_node(value);
+        self.insert_before(new_sibling, arena);
+        new_sibling
     }
 
     /// Inserts a new sibling before this node.
@@ -1345,7 +1435,10 @@ impl NodeId {
     pub fn remove_subtree<T>(self, arena: &mut Arena<T>) {
         self.detach(arena);
 
-        // use a preorder traversal to remove node.
+        // Preorder traversal to remove all nodes. After free_node(id), we
+        // still read arena[id]'s link fields (first_child, next_sibling).
+        // This works because free_node only changes data to NextFree and
+        // the stamp; it does not clear structural link fields.
         let mut cursor = Some(self);
         while let Some(id) = cursor {
             arena.free_node(id);

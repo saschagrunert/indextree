@@ -914,3 +914,61 @@ fn get_returns_none_for_removed() {
     assert!(arena.get(n1).is_none());
     assert!(arena.get_mut(n1).is_none());
 }
+
+#[test]
+#[should_panic(expected = "Preconditions not met")]
+fn append_self_panics() {
+    let mut arena = Arena::new();
+    let n = arena.new_node("x");
+    n.append(n, &mut arena);
+}
+
+#[test]
+#[should_panic(expected = "Preconditions not met")]
+fn prepend_self_panics() {
+    let mut arena = Arena::new();
+    let n = arena.new_node("x");
+    n.prepend(n, &mut arena);
+}
+
+#[test]
+#[should_panic(expected = "Preconditions not met")]
+fn insert_after_self_panics() {
+    let mut arena = Arena::new();
+    let n = arena.new_node("x");
+    n.insert_after(n, &mut arena);
+}
+
+#[test]
+#[should_panic(expected = "Preconditions not met")]
+fn insert_before_self_panics() {
+    let mut arena = Arena::new();
+    let n = arena.new_node("x");
+    n.insert_before(n, &mut arena);
+}
+
+#[test]
+fn insert_after_value() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = root.append_value("c1", &mut arena);
+    let c3 = root.append_value("c3", &mut arena);
+    let c2 = c1.insert_after_value("c2", &mut arena);
+
+    let children: Vec<_> = root.children(&arena).collect();
+    assert_eq!(children, vec![c1, c2, c3]);
+    assert_eq!(*arena[c2].get(), "c2");
+}
+
+#[test]
+fn insert_before_value() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = root.append_value("c1", &mut arena);
+    let c3 = root.append_value("c3", &mut arena);
+    let c2 = c3.insert_before_value("c2", &mut arena);
+
+    let children: Vec<_> = root.children(&arena).collect();
+    assert_eq!(children, vec![c1, c2, c3]);
+    assert_eq!(*arena[c2].get(), "c2");
+}

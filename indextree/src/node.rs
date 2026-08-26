@@ -131,6 +131,30 @@ impl<T> Node<T> {
         }
     }
 
+    /// Consumes the node and returns the contained data, or `None` if
+    /// the node has been removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// arena.new_node(42);
+    /// arena.new_node(99);
+    ///
+    /// let values: Vec<_> = arena
+    ///     .into_iter()
+    ///     .filter_map(|n| n.into_data())
+    ///     .collect();
+    /// assert_eq!(values, vec![42, 99]);
+    /// ```
+    pub fn into_data(self) -> Option<T> {
+        match self.data {
+            NodeData::Data(data) => Some(data),
+            NodeData::NextFree(_) => None,
+        }
+    }
+
     /// Creates a new `Node` with the default state and the given data.
     pub(crate) fn new(data: T) -> Self {
         Self {

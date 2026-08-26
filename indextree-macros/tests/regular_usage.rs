@@ -90,3 +90,35 @@ fn mild_nesting() {
 
     compare_nodes(&arena, root_proc, root_macro);
 }
+
+#[test]
+fn integer_values() {
+    let mut arena = Arena::new();
+
+    let root_macro = tree! {
+        &mut arena,
+        0i32 => {
+            1,
+            2 => { 3 },
+            4,
+        }
+    };
+
+    let root_proc = arena.new_node(0i32);
+    root_proc.append_value(1, &mut arena);
+    let node_2 = root_proc.append_value(2, &mut arena);
+    node_2.append_value(3, &mut arena);
+    root_proc.append_value(4, &mut arena);
+
+    compare_nodes(&arena, root_proc, root_macro);
+}
+
+#[test]
+fn single_leaf_node() {
+    let mut arena: Arena<&str> = Arena::new();
+
+    let leaf = tree!(&mut arena, "lonely");
+
+    assert_eq!(*arena[leaf].get(), "lonely");
+    assert_eq!(leaf.children(&arena).count(), 0);
+}

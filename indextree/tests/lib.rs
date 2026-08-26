@@ -1149,3 +1149,189 @@ fn arena_into_iterator_owned() {
     let values: Vec<_> = arena.into_iter().map(|n| *n.get()).collect();
     assert_eq!(values, vec![1, 2, 3]);
 }
+
+#[test]
+fn descendants_single_node() {
+    let mut arena = Arena::new();
+    let leaf = arena.new_node("leaf");
+
+    let mut iter = leaf.descendants(&arena);
+    assert_eq!(iter.next(), Some(leaf));
+    assert_eq!(iter.next(), None);
+    // FusedIterator: stays None
+    assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn descendants_subtree_root() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let a = root.append_value("a", &mut arena);
+    let b = a.append_value("b", &mut arena);
+    let c = a.append_value("c", &mut arena);
+    root.append_value("d", &mut arena);
+
+    let sub: Vec<_> = a.descendants(&arena).collect();
+    assert_eq!(sub, vec![a, b, c]);
+}
+
+#[test]
+fn fused_iterators() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = root.append_value("c1", &mut arena);
+
+    let mut children = root.children(&arena);
+    assert_eq!(children.next(), Some(c1));
+    assert_eq!(children.next(), None);
+    assert_eq!(children.next(), None);
+
+    let mut ancestors = c1.ancestors(&arena);
+    assert_eq!(ancestors.next(), Some(c1));
+    assert_eq!(ancestors.next(), Some(root));
+    assert_eq!(ancestors.next(), None);
+    assert_eq!(ancestors.next(), None);
+
+    let mut siblings = c1.following_siblings(&arena);
+    assert_eq!(siblings.next(), Some(c1));
+    assert_eq!(siblings.next(), None);
+    assert_eq!(siblings.next(), None);
+}
+
+#[test]
+fn clear_then_reuse() {
+    let mut arena = Arena::new();
+    let a = arena.new_node("a");
+    let b = arena.new_node("b");
+    a.append(b, &mut arena);
+    arena.new_node("c");
+
+    arena.clear();
+    assert!(arena.is_empty());
+    assert_eq!(arena.len(), 0);
+
+    let d = arena.new_node("d");
+    let e = arena.new_node("e");
+    d.append(e, &mut arena);
+
+    assert_eq!(arena.len(), 2);
+    assert_eq!(*arena[d].get(), "d");
+    assert_eq!(arena[e].parent(), Some(d));
+}
+
+#[test]
+fn remove_children_single_child() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let only = root.append_value("only", &mut arena);
+    let gc = only.append_value("gc", &mut arena);
+
+    root.remove_children(&mut arena);
+
+    assert_eq!(root.children(&arena).count(), 0);
+    assert!(only.is_removed(&arena));
+    assert!(gc.is_removed(&arena));
+}
+
+#[test]
+fn detach_on_root_is_noop() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = root.append_value("child", &mut arena);
+
+    root.detach(&mut arena);
+
+    assert!(root.parent(&arena).is_none());
+    assert_eq!(root.first_child(&arena), Some(child));
+}
+
+#[test]
+fn arena_extend_and_from_iterator() {
+    let arena: Arena<i32> = (1..=5).collect();
+    assert_eq!(arena.len(), 5);
+
+    let values: Vec<_> = arena.iter().map(|n| *n.get()).collect();
+    assert_eq!(values, vec![1, 2, 3, 4, 5]);
+
+    let mut arena2 = Arena::new();
+    arena2.new_node(0);
+    arena2.extend(10..=12);
+    assert_eq!(arena2.len(), 4);
+}
+
+#[test]
+fn arena_roots() {
+    let mut arena = Arena::new();
+    let a = arena.new_node("a");
+    let b = arena.new_node("b");
+    let c = arena.new_node("c");
+    a.append(c, &mut arena);
+
+    let roots: Vec<_> = arena.roots().collect();
+    assert_eq!(roots, vec![a, b]);
+}
+
+#[test]
+fn node_into_data() {
+    let mut arena = Arena::new();
+    arena.new_node(String::from("hello"));
+    let id = arena.new_node(String::from("world"));
+    id.remove(&mut arena);
+
+    let data: Vec<_> = arena.into_iter().filter_map(|n| n.into_data()).collect();
+    assert_eq!(data, vec!["hello"]);
+}
+
+#[test]
+fn reparent_node() {
+    let mut arena = Arena::new();
+    let a = arena.new_node("a");
+    let b = a.append_value("b", &mut arena);
+    let c = arena.new_node("c");
+
+    b.reparent(c, &mut arena);
+
+    assert_eq!(b.parent(&arena), Some(c));
+    assert_eq!(a.children(&arena).count(), 0);
+    assert_eq!(c.first_child(&arena), Some(b));
+}
+
+#[test]
+fn remove_children_preserves_parent() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let parent = arena.new_node("parent");
+    root.append(parent, &mut arena);
+    let c1 = parent.append_value("c1", &mut arena);
+    let c2 = parent.append_value("c2", &mut arena);
+    let gc = c1.append_value("gc", &mut arena);
+
+    parent.remove_children(&mut arena);
+
+    assert_eq!(parent.parent(&arena), Some(root));
+    assert_eq!(parent.children(&arena).count(), 0);
+    assert!(c1.is_removed(&arena));
+    assert!(c2.is_removed(&arena));
+    assert!(gc.is_removed(&arena));
+}
+
+#[test]
+fn remove_children_deep_tree() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = root.append_value("c1", &mut arena);
+    let gc1 = c1.append_value("gc1", &mut arena);
+    let ggc1 = gc1.append_value("ggc1", &mut arena);
+    let gc2 = c1.append_value("gc2", &mut arena);
+    let c2 = root.append_value("c2", &mut arena);
+    let c3 = root.append_value("c3", &mut arena);
+    let gc3 = c3.append_value("gc3", &mut arena);
+
+    root.remove_children(&mut arena);
+
+    assert_eq!(root.children(&arena).count(), 0);
+    assert!(!root.is_removed(&arena));
+    for &id in &[c1, gc1, ggc1, gc2, c2, c3, gc3] {
+        assert!(id.is_removed(&arena));
+    }
+}

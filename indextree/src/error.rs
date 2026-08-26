@@ -33,7 +33,7 @@ use std::{error, fmt};
 ///     Err(NodeError::AppendAncestor)
 /// ));
 /// ```
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NodeError {
     /// Attempted to append a node to itself.
     AppendSelf,

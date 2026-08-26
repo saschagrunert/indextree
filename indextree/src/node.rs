@@ -5,18 +5,18 @@
 //! [`NodeId`](crate::NodeId) to index into an [`Arena`](crate::Arena).
 
 #[cfg(not(feature = "std"))]
-use core::fmt;
+use core::{fmt, hash};
 
-#[cfg(feature = "deser")]
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
-use std::fmt;
+use std::{fmt, hash};
 
 use crate::{NodeId, id::NodeStamp};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub(crate) enum NodeData<T> {
     /// The actual data store
     Data(T),
@@ -25,7 +25,7 @@ pub(crate) enum NodeData<T> {
 }
 
 #[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 /// A node within a particular `Arena`.
 pub struct Node<T> {
     // Keep these private (with read-only accessors) so that we can keep them
@@ -54,6 +54,16 @@ impl<T> Node<T> {
         }
     }
 
+    /// Returns a reference to the node data, or `None` if the node has
+    /// been removed.
+    pub fn try_get(&self) -> Option<&T> {
+        if let NodeData::Data(ref data) = self.data {
+            Some(data)
+        } else {
+            None
+        }
+    }
+
     /// Returns a mutable reference to the node data.
     ///
     /// # Panics
@@ -64,6 +74,16 @@ impl<T> Node<T> {
             data
         } else {
             panic!("attempted to access a freed node")
+        }
+    }
+
+    /// Returns a mutable reference to the node data, or `None` if the
+    /// node has been removed.
+    pub fn try_get_mut(&mut self) -> Option<&mut T> {
+        if let NodeData::Data(ref mut data) = self.data {
+            Some(data)
+        } else {
+            None
         }
     }
 
@@ -327,6 +347,27 @@ impl<T> Node<T> {
     /// Checks if the node is detached.
     pub(crate) fn is_detached(&self) -> bool {
         self.parent.is_none() && self.previous_sibling.is_none() && self.next_sibling.is_none()
+    }
+}
+
+impl<T: hash::Hash> hash::Hash for Node<T> {
+    fn hash<H: hash::Hasher>(&self, state: &mut H) {
+        self.parent.hash(state);
+        self.previous_sibling.hash(state);
+        self.next_sibling.hash(state);
+        self.first_child.hash(state);
+        self.last_child.hash(state);
+        self.stamp.hash(state);
+        match self.data {
+            NodeData::Data(ref data) => {
+                0u8.hash(state);
+                data.hash(state);
+            }
+            NodeData::NextFree(ref next) => {
+                1u8.hash(state);
+                next.hash(state);
+            }
+        }
     }
 }
 

@@ -174,9 +174,7 @@ new_iterator!(
     /// An iterator of the IDs of the siblings before a given node.
     PrecedingSiblings,
     new = |arena, node| {
-        let first = arena
-            .get(node)
-            .unwrap()
+        let first = arena[node]
             .parent
             .and_then(|parent_id| arena.get(parent_id))
             .and_then(|parent| parent.first_child);
@@ -191,9 +189,7 @@ new_iterator!(
     /// An iterator of the IDs of the siblings after a given node.
     FollowingSiblings,
     new = |arena, node| {
-        let last = arena
-            .get(node)
-            .unwrap()
+        let last = arena[node]
             .parent
             .and_then(|parent_id| arena.get(parent_id))
             .and_then(|parent| parent.last_child);

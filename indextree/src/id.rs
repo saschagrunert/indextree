@@ -7,7 +7,7 @@
 #[cfg(not(feature = "std"))]
 use core::{fmt, num::NonZeroUsize};
 
-#[cfg(feature = "deser")]
+#[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "std")]
@@ -22,7 +22,7 @@ use crate::{
 };
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash)]
-#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 /// A node identifier within a particular [`Arena`].
 ///
 /// This ID is used to get [`Node`](crate::Node) references from an [`Arena`].
@@ -42,7 +42,7 @@ pub struct NodeId {
 /// 32,766 cycles the slot becomes permanently unreusable, preventing stamp
 /// value collisions.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
-#[cfg_attr(feature = "deser", derive(Deserialize, Serialize))]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub(crate) struct NodeStamp(i16);
 
 impl NodeStamp {
@@ -56,7 +56,7 @@ impl NodeStamp {
     ///
     /// The resulting negative value differs from the live stamp, allowing
     /// `NodeId::is_removed` to detect stale references via inequality.
-    pub fn as_removed(&mut self) {
+    pub fn mark_removed(&mut self) {
         debug_assert!(!self.is_removed());
         self.0 = if self.0 < i16::MAX {
             -self.0 - 1
@@ -116,9 +116,23 @@ impl NodeId {
         NodeId { index1, stamp }
     }
 
-    /// Return if the `Node` of NodeId point to is removed.
+    /// Returns the stamp associated with this node ID.
+    pub(crate) fn stamp(self) -> NodeStamp {
+        self.stamp
+    }
+
+    /// Returns `true` if the node this ID points to has been removed or
+    /// is no longer present in the arena.
+    ///
+    /// Unlike indexing with `arena[id]`, this method does not panic when
+    /// the node ID is out of bounds (e.g. after [`Arena::clear`]).
+    ///
+    /// [`Arena::clear`]: crate::Arena::clear
     pub fn is_removed<T>(self, arena: &Arena<T>) -> bool {
-        arena[self].stamp != self.stamp
+        match arena.as_slice().get(self.index0()) {
+            Some(node) => node.stamp != self.stamp,
+            None => true,
+        }
     }
 
     /// Returns the ID of the parent node, unless this node is the root of the
@@ -407,6 +421,96 @@ impl NodeId {
     /// ```
     pub fn child_count<T>(self, arena: &Arena<T>) -> usize {
         self.children(arena).count()
+    }
+
+    /// Returns the depth (level) of this node in the tree.
+    ///
+    /// A root node (no parent) has depth 0, its children have depth 1, etc.
+    /// This traverses ancestors and is O(depth).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// let child = root.append_value("child", &mut arena);
+    /// let grandchild = child.append_value("grandchild", &mut arena);
+    ///
+    /// assert_eq!(root.depth(&arena), 0);
+    /// assert_eq!(child.depth(&arena), 1);
+    /// assert_eq!(grandchild.depth(&arena), 2);
+    /// ```
+    pub fn depth<T>(self, arena: &Arena<T>) -> usize {
+        self.ancestors(arena).count() - 1
+    }
+
+    /// Returns the nth child of this node (zero-indexed).
+    ///
+    /// Returns `None` if the node has fewer than `n + 1` children.
+    /// This is O(n) as it walks the sibling chain.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// let c0 = root.append_value("c0", &mut arena);
+    /// let c1 = root.append_value("c1", &mut arena);
+    /// let c2 = root.append_value("c2", &mut arena);
+    ///
+    /// assert_eq!(root.nth_child(0, &arena), Some(c0));
+    /// assert_eq!(root.nth_child(1, &arena), Some(c1));
+    /// assert_eq!(root.nth_child(2, &arena), Some(c2));
+    /// assert_eq!(root.nth_child(3, &arena), None);
+    /// ```
+    pub fn nth_child<T>(self, n: usize, arena: &Arena<T>) -> Option<NodeId> {
+        self.children(arena).nth(n)
+    }
+
+    /// Returns `true` if this node is an ancestor of `other`.
+    ///
+    /// A node is not considered an ancestor of itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// let child = root.append_value("child", &mut arena);
+    /// let grandchild = child.append_value("grandchild", &mut arena);
+    ///
+    /// assert!(root.is_ancestor_of(child, &arena));
+    /// assert!(root.is_ancestor_of(grandchild, &arena));
+    /// assert!(!child.is_ancestor_of(root, &arena));
+    /// assert!(!root.is_ancestor_of(root, &arena));
+    /// ```
+    pub fn is_ancestor_of<T>(self, other: NodeId, arena: &Arena<T>) -> bool {
+        other.ancestors(arena).skip(1).any(|a| a == self)
+    }
+
+    /// Returns `true` if this node is a descendant of `other`.
+    ///
+    /// A node is not considered a descendant of itself.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// let child = root.append_value("child", &mut arena);
+    /// let grandchild = child.append_value("grandchild", &mut arena);
+    ///
+    /// assert!(grandchild.is_descendant_of(root, &arena));
+    /// assert!(child.is_descendant_of(root, &arena));
+    /// assert!(!root.is_descendant_of(child, &arena));
+    /// assert!(!root.is_descendant_of(root, &arena));
+    /// ```
+    pub fn is_descendant_of<T>(self, other: NodeId, arena: &Arena<T>) -> bool {
+        other.is_ancestor_of(self, arena)
     }
 
     /// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.

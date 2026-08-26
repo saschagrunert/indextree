@@ -1,6 +1,6 @@
 [package]
 name = "indextree"
-version = "4.8.1"
+version = "4.9.0"
 license = "MIT"
 readme = "../README.md"
 keywords = ["tree", "arena", "index", "indextree"]
@@ -16,6 +16,7 @@ rust-version = "1.85.0"
 [features]
 default = ["std", "macros"]
 serde = ["dep:serde"]
+# Deprecated alias for `serde`. Use `serde` instead.
 deser = ["serde"]
 par_iter = ["rayon"]
 std = []

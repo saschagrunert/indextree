@@ -49,7 +49,7 @@ impl NodeStamp {
     /// Returns `true` if this stamp represents a removed node (negative
     /// value).
     #[inline]
-    pub fn is_removed(self) -> bool {
+    pub(crate) fn is_removed(self) -> bool {
         self.0.is_negative()
     }
 
@@ -57,7 +57,7 @@ impl NodeStamp {
     ///
     /// The resulting negative value differs from the live stamp, allowing
     /// `NodeId::is_removed` to detect stale references via inequality.
-    pub fn mark_removed(&mut self) {
+    pub(crate) fn mark_removed(&mut self) {
         debug_assert!(!self.is_removed());
         self.0 = if self.0 < i16::MAX {
             -self.0 - 1
@@ -70,7 +70,7 @@ impl NodeStamp {
     ///
     /// A slot becomes permanently unreusable once its generation nears
     /// `i16::MIN`, preventing stamp value collisions after many cycles.
-    pub fn reuseable(self) -> bool {
+    pub(crate) fn reuseable(self) -> bool {
         debug_assert!(self.is_removed());
         self.0 > i16::MIN + 1
     }
@@ -79,7 +79,7 @@ impl NodeStamp {
     ///
     /// Negates the value back to positive, producing a new generation
     /// that differs from all previous stamps for this slot.
-    pub fn reuse(&mut self) -> Self {
+    pub(crate) fn reuse(&mut self) -> Self {
         debug_assert!(self.reuseable());
         self.0 = -self.0;
         *self
@@ -165,6 +165,143 @@ impl NodeId {
     /// ```
     pub fn parent<T>(self, arena: &Arena<T>) -> Option<Self> {
         arena[self].parent()
+    }
+
+    /// Returns the ID of the first child of this node, unless it has no child.
+    ///
+    /// Shorthand for `arena[self].first_child()`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    ///
+    /// assert_eq!(n1.first_child(&arena), Some(n1_1));
+    /// assert_eq!(n1_1.first_child(&arena), None);
+    /// ```
+    #[inline]
+    pub fn first_child<T>(self, arena: &Arena<T>) -> Option<Self> {
+        arena[self].first_child()
+    }
+
+    /// Returns the ID of the last child of this node, unless it has no child.
+    ///
+    /// Shorthand for `arena[self].last_child()`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    /// let n1_2 = n1.append_value("1_2", &mut arena);
+    ///
+    /// assert_eq!(n1.last_child(&arena), Some(n1_2));
+    /// assert_eq!(n1_1.last_child(&arena), None);
+    /// ```
+    #[inline]
+    pub fn last_child<T>(self, arena: &Arena<T>) -> Option<Self> {
+        arena[self].last_child()
+    }
+
+    /// Returns the ID of the next sibling of this node.
+    ///
+    /// Shorthand for `arena[self].next_sibling()`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    /// let n1_2 = n1.append_value("1_2", &mut arena);
+    ///
+    /// assert_eq!(n1_1.next_sibling(&arena), Some(n1_2));
+    /// assert_eq!(n1_2.next_sibling(&arena), None);
+    /// ```
+    #[inline]
+    pub fn next_sibling<T>(self, arena: &Arena<T>) -> Option<Self> {
+        arena[self].next_sibling()
+    }
+
+    /// Returns the ID of the previous sibling of this node.
+    ///
+    /// Shorthand for `arena[self].previous_sibling()`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    /// let n1_2 = n1.append_value("1_2", &mut arena);
+    ///
+    /// assert_eq!(n1_2.previous_sibling(&arena), Some(n1_1));
+    /// assert_eq!(n1_1.previous_sibling(&arena), None);
+    /// ```
+    #[inline]
+    pub fn previous_sibling<T>(self, arena: &Arena<T>) -> Option<Self> {
+        arena[self].previous_sibling()
+    }
+
+    /// Returns `true` if this node has at least one child.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    ///
+    /// assert!(n1.has_children(&arena));
+    /// assert!(!n1_1.has_children(&arena));
+    /// ```
+    #[inline]
+    pub fn has_children<T>(self, arena: &Arena<T>) -> bool {
+        arena[self].first_child().is_some()
+    }
+
+    /// Returns `true` if this node has no children.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    ///
+    /// assert!(!n1.is_leaf(&arena));
+    /// assert!(n1_1.is_leaf(&arena));
+    /// ```
+    #[inline]
+    pub fn is_leaf<T>(self, arena: &Arena<T>) -> bool {
+        !self.has_children(arena)
+    }
+
+    /// Returns `true` if this node has no parent.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let n1 = arena.new_node("1");
+    /// let n1_1 = n1.append_value("1_1", &mut arena);
+    ///
+    /// assert!(n1.is_root(&arena));
+    /// assert!(!n1_1.is_root(&arena));
+    /// ```
+    #[inline]
+    pub fn is_root<T>(self, arena: &Arena<T>) -> bool {
+        arena[self].parent().is_none()
     }
 
     /// Returns an iterator of IDs of this node and its ancestors.
@@ -1496,10 +1633,14 @@ impl NodeId {
     /// assert_eq!(arena[n1_2_1].parent(), Some(n1_2));
     /// ```
     pub fn detach_children<T>(self, arena: &mut Arena<T>) {
-        let mut child_opt = arena[self].first_child;
+        let first = arena[self].first_child.take();
+        arena[self].last_child = None;
+
+        let mut child_opt = first;
         while let Some(child) = child_opt {
-            let next = arena[child].next_sibling;
-            child.detach(arena);
+            let next = arena[child].next_sibling.take();
+            arena[child].previous_sibling = None;
+            arena[child].parent = None;
             child_opt = next;
         }
     }

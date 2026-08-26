@@ -243,13 +243,13 @@ impl<T> core::iter::FusedIterator for Descendants<'_, T> {}
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// Indicator if the node is at a start or endpoint of the tree
 pub enum NodeEdge {
-    /// Indicates that start of a node that has children.
+    /// Indicates the start of visiting a node.
     ///
     /// Yielded by `Traverse::next()` before the node’s descendants. In HTML or
     /// XML, this corresponds to an opening tag like `<div>`.
     Start(NodeId),
 
-    /// Indicates that end of a node that has children.
+    /// Indicates the end of visiting a node.
     ///
     /// Yielded by `Traverse::next()` after the node’s descendants. In HTML or
     /// XML, this corresponds to a closing tag like `</div>`

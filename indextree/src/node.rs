@@ -46,6 +46,7 @@ impl<T> Node<T> {
     /// # Panics
     ///
     /// Panics if the node has been removed.
+    #[inline]
     pub fn get(&self) -> &T {
         if let NodeData::Data(ref data) = self.data {
             data
@@ -56,6 +57,7 @@ impl<T> Node<T> {
 
     /// Returns a reference to the node data, or `None` if the node has
     /// been removed.
+    #[inline]
     pub fn try_get(&self) -> Option<&T> {
         if let NodeData::Data(ref data) = self.data {
             Some(data)
@@ -69,6 +71,7 @@ impl<T> Node<T> {
     /// # Panics
     ///
     /// Panics if the node has been removed.
+    #[inline]
     pub fn get_mut(&mut self) -> &mut T {
         if let NodeData::Data(ref mut data) = self.data {
             data
@@ -79,6 +82,7 @@ impl<T> Node<T> {
 
     /// Returns a mutable reference to the node data, or `None` if the
     /// node has been removed.
+    #[inline]
     pub fn try_get_mut(&mut self) -> Option<&mut T> {
         if let NodeData::Data(ref mut data) = self.data {
             Some(data)
@@ -138,6 +142,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_2].parent(), Some(n1));
     /// assert_eq!(arena[n1_3].parent(), Some(n1));
     /// ```
+    #[inline]
     pub fn parent(&self) -> Option<NodeId> {
         self.parent
     }
@@ -166,6 +171,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_2].first_child(), None);
     /// assert_eq!(arena[n1_3].first_child(), None);
     /// ```
+    #[inline]
     pub fn first_child(&self) -> Option<NodeId> {
         self.first_child
     }
@@ -194,6 +200,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1_2].last_child(), None);
     /// assert_eq!(arena[n1_3].last_child(), None);
     /// ```
+    #[inline]
     pub fn last_child(&self) -> Option<NodeId> {
         self.last_child
     }
@@ -248,6 +255,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1].previous_sibling(), None);
     /// assert_eq!(arena[n2].previous_sibling(), Some(n1));
     /// ```
+    #[inline]
     pub fn previous_sibling(&self) -> Option<NodeId> {
         self.previous_sibling
     }
@@ -302,6 +310,7 @@ impl<T> Node<T> {
     /// assert_eq!(arena[n1].next_sibling(), Some(n2));
     /// assert_eq!(arena[n2].next_sibling(), None);
     /// ```
+    #[inline]
     pub fn next_sibling(&self) -> Option<NodeId> {
         self.next_sibling
     }
@@ -340,6 +349,7 @@ impl<T> Node<T> {
     /// assert!(arena[n1_2].is_removed());
     /// assert_eq!(arena[n1_3].previous_sibling(), Some(n1_1));
     /// ```
+    #[inline]
     pub fn is_removed(&self) -> bool {
         self.stamp.is_removed()
     }

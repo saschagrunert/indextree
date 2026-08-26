@@ -188,14 +188,33 @@ impl<T> Arena<T> {
     /// assert_eq!(arena.count(), 2);
     /// assert_eq!(arena.len(), 2);
     /// ```
+    #[deprecated(since = "4.9.0", note = "use len() instead")]
     pub fn count(&self) -> usize {
         self.nodes.len()
     }
 
     /// Returns the number of slots in the arena, including removed nodes.
     ///
-    /// This is an alias for [`count()`](Arena::count) following the Rust
-    /// naming convention for collection lengths.
+    /// Removed nodes are still counted because they remain in the
+    /// internal storage. Use [`iter()`] with [`Node::is_removed()`]
+    /// to count only live nodes.
+    ///
+    /// [`iter()`]: Arena::iter
+    /// [`Node::is_removed()`]: crate::Node::is_removed
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let _bar = arena.new_node("bar");
+    /// assert_eq!(arena.len(), 2);
+    ///
+    /// foo.remove(&mut arena);
+    /// // The removed node is still counted.
+    /// assert_eq!(arena.len(), 2);
+    /// ```
     pub fn len(&self) -> usize {
         self.nodes.len()
     }
@@ -216,7 +235,7 @@ impl<T> Arena<T> {
     /// assert!(!arena.is_empty());
     /// ```
     pub fn is_empty(&self) -> bool {
-        self.count() == 0
+        self.nodes.is_empty()
     }
 
     /// Returns a reference to the node with the given id if in the arena.
@@ -242,6 +261,7 @@ impl<T> Arena<T> {
     /// foo.remove(&mut arena);
     /// assert!(arena.get(foo).is_none());
     /// ```
+    #[inline]
     pub fn get(&self, id: NodeId) -> Option<&Node<T>> {
         self.nodes
             .get(id.index0())
@@ -265,6 +285,7 @@ impl<T> Arena<T> {
     /// *arena.get_mut(foo).expect("The `foo` node exists").get_mut() = "FOO!";
     /// assert_eq!(arena.get(foo).map(|node| *node.get()), Some("FOO!"));
     /// ```
+    #[inline]
     pub fn get_mut(&mut self, id: NodeId) -> Option<&mut Node<T>> {
         let stamp = id.stamp();
         self.nodes
@@ -528,12 +549,14 @@ impl<T> Default for Arena<T> {
 impl<T> Index<NodeId> for Arena<T> {
     type Output = Node<T>;
 
+    #[inline]
     fn index(&self, node: NodeId) -> &Node<T> {
         &self.nodes[node.index0()]
     }
 }
 
 impl<T> IndexMut<NodeId> for Arena<T> {
+    #[inline]
     fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {
         &mut self.nodes[node.index0()]
     }
@@ -573,7 +596,7 @@ fn conserve_capacity() {
     assert_eq!(n1_id.index0(), 0);
     assert_eq!(n2_id.index0(), 1);
     assert_eq!(n3_id.index0(), 2);
-    assert_eq!(arena.count(), 3);
+    assert_eq!(arena.len(), 3);
     assert_eq!(arena.capacity(), cap);
 }
 

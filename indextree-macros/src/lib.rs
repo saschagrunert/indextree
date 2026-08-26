@@ -17,12 +17,13 @@ impl Parse for IndexNode {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let node = input.parse::<Expr>()?;
 
-        if input.parse::<Token![=>]>().is_err() {
+        if !input.peek(Token![=]) || !input.peek2(Token![>]) {
             return Ok(IndexNode {
                 node,
                 children: Punctuated::new(),
             });
         }
+        input.parse::<Token![=>]>()?;
 
         let children_stream;
         braced!(children_stream in input);
@@ -47,7 +48,8 @@ impl Parse for IndexTree {
 
         let root_node = input.parse::<Expr>()?;
 
-        let nodes = if input.parse::<Token![=>]>().is_ok() {
+        let nodes = if input.peek(Token![=]) && input.peek2(Token![>]) {
+            input.parse::<Token![=>]>()?;
             let braced_nodes;
             braced!(braced_nodes in input);
             braced_nodes.parse_terminated(IndexNode::parse, Token![,])?
@@ -291,12 +293,16 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
         impl<__T> __NodeIdToNodeId<__T> for __Wrapping<::indextree::NodeId> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
+                // SAFETY: `take` is called exactly once per macro invocation;
+                // the `ManuallyDrop` wrapper is never read again afterwards.
                 unsafe { ::core::mem::ManuallyDrop::take(&mut self.0) }
             }
         }
 
         impl<__T> __ToNodeId<__T> for &mut __Wrapping<__T> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
+                // SAFETY: `take` is called exactly once per macro invocation;
+                // the `ManuallyDrop` wrapper is never read again afterwards.
                 ::indextree::Arena::new_node(__arena, unsafe { ::core::mem::ManuallyDrop::take(&mut self.0) })
             }
         }

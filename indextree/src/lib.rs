@@ -13,8 +13,9 @@
 //!   environments (requires `alloc`).
 //! * `macros` (default) - Enable the `tree!` macro for declarative tree
 //!   construction.
-//! * `deser` - Enable `serde` serialization and deserialization for
-//!   [`Arena`], [`Node`], and [`NodeId`].
+//! * `serde` - Enable `serde` serialization and deserialization for
+//!   [`Arena`], [`Node`], and [`NodeId`]. (The legacy name `deser` is
+//!   still accepted as an alias.)
 //! * `par_iter` - Enable parallel iteration via `Arena::par_iter()` using
 //!   [rayon](https://docs.rs/rayon).
 //!

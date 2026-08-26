@@ -17,14 +17,20 @@ through unique (&mut) access to the arena. The tree can be sent or shared across
 threads like a `Vec`. This enables general multiprocessing support like
 parallel tree traversals.
 
+### Minimum Supported Rust Version (MSRV)
+
+The current MSRV is **1.85.0**.
+
 ### Features
 
 | Feature    | Default | Description                                                        |
 | ---------- | ------- | ------------------------------------------------------------------ |
 | `std`      | yes     | Standard library support. Disable for `no_std` (requires `alloc`). |
 | `macros`   | yes     | `tree!` macro for declarative tree construction.                   |
-| `deser`    | no      | Serde serialization and deserialization.                           |
+| `serde`    | no      | Serde serialization and deserialization.                           |
 | `par_iter` | no      | Parallel iteration via rayon.                                      |
+
+The legacy feature name `deser` is still accepted as an alias for `serde`.
 
 ### Example usage
 
@@ -109,4 +115,14 @@ for i in 1..=1000 {
 
 let sum: i64 = arena.par_iter().map(|node| *node.get()).sum();
 assert_eq!(sum, 500500);
+```
+
+### `no_std` usage
+
+Disable default features and the crate works in `no_std` environments
+(requires `alloc`):
+
+```toml
+[dependencies]
+indextree = { version = "4", default-features = false }
 ```

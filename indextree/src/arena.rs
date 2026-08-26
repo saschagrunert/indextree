@@ -5,7 +5,7 @@
 //! Removed nodes are recycled through an internal free list.
 
 #[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
+use alloc::vec::{self, Vec};
 
 #[cfg(not(feature = "std"))]
 use core::{
@@ -26,7 +26,7 @@ use std::{
     mem,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
-    slice,
+    slice, vec,
 };
 
 use crate::{Node, NodeId, node::NodeData};
@@ -48,6 +48,14 @@ impl<T> Arena<T> {
     }
 
     /// Creates a new empty `Arena` with enough capacity to store `n` nodes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let arena: Arena<i32> = Arena::with_capacity(10);
+    /// assert!(arena.capacity() >= 10);
+    /// ```
     #[must_use]
     pub fn with_capacity(n: usize) -> Self {
         Self {
@@ -58,6 +66,14 @@ impl<T> Arena<T> {
     }
 
     /// Returns the number of nodes the arena can hold without reallocating.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let arena: Arena<i32> = Arena::with_capacity(10);
+    /// assert!(arena.capacity() >= 10);
+    /// ```
     pub fn capacity(&self) -> usize {
         self.nodes.capacity()
     }
@@ -69,6 +85,15 @@ impl<T> Arena<T> {
     /// # Panics
     ///
     /// Panics if the new capacity exceeds isize::MAX bytes.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena: Arena<i32> = Arena::new();
+    /// arena.reserve(100);
+    /// assert!(arena.capacity() >= 100);
+    /// ```
     pub fn reserve(&mut self, additional: usize) {
         self.nodes.reserve(additional);
     }
@@ -298,6 +323,9 @@ impl<T> Arena<T> {
     /// Note that this iterator returns also removed elements, which can be
     /// tested with the [`is_removed()`] method on the node.
     ///
+    /// To iterate over only live nodes by their [`NodeId`], use
+    /// [`iter_node_ids()`](Arena::iter_node_ids) instead.
+    ///
     /// # Examples
     ///
     /// ```
@@ -388,6 +416,35 @@ impl<T> Arena<T> {
         self.nodes.iter_mut()
     }
 
+    /// Shrinks the internal storage to fit the current number of nodes.
+    ///
+    /// Calls [`Vec::shrink_to_fit`] on the underlying node storage.
+    pub fn shrink_to_fit(&mut self) {
+        self.nodes.shrink_to_fit();
+    }
+
+    /// Returns the number of live (non-removed) nodes in the arena.
+    ///
+    /// This is O(n) as it scans all slots. For the total slot count
+    /// (including removed nodes), use [`len()`](Arena::len).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// let bar = arena.new_node("bar");
+    /// assert_eq!(arena.live_count(), 2);
+    ///
+    /// foo.remove(&mut arena);
+    /// assert_eq!(arena.live_count(), 1);
+    /// assert_eq!(arena.len(), 2);
+    /// ```
+    pub fn live_count(&self) -> usize {
+        self.nodes.iter().filter(|n| !n.is_removed()).count()
+    }
+
     /// Clears all the nodes in the arena, but retains its allocated capacity.
     ///
     /// Note that this does not mark all nodes as removed, but completely
@@ -397,6 +454,17 @@ impl<T> Arena<T> {
     /// After clearing, [`NodeId::is_removed`] returns `true` for any
     /// previously created ID (without panicking), and [`Arena::get`]
     /// returns `None`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// arena.clear();
+    /// assert!(arena.is_empty());
+    /// assert!(foo.is_removed(&arena));
+    /// ```
     pub fn clear(&mut self) {
         self.nodes.clear();
         self.first_free_slot = None;
@@ -409,6 +477,16 @@ impl<T> Arena<T> {
     /// nodes. Use [`Node::is_removed()`] to filter them out.
     ///
     /// [`Node::is_removed()`]: crate::Node::is_removed
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// arena.new_node("foo");
+    /// arena.new_node("bar");
+    /// assert_eq!(arena.as_slice().len(), 2);
+    /// ```
     pub fn as_slice(&self) -> &[Node<T>] {
         self.nodes.as_slice()
     }
@@ -536,6 +614,16 @@ impl<'a, T> IntoIterator for &'a mut Arena<T> {
     }
 }
 
+/// Consumes the arena, returning an iterator over all nodes (including removed ones).
+impl<T> IntoIterator for Arena<T> {
+    type Item = Node<T>;
+    type IntoIter = vec::IntoIter<Node<T>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.nodes.into_iter()
+    }
+}
+
 impl<T> Default for Arena<T> {
     fn default() -> Self {
         Self {
@@ -546,6 +634,11 @@ impl<T> Default for Arena<T> {
     }
 }
 
+/// Index by [`NodeId`] for convenient `arena[id]` access.
+///
+/// Unlike [`Arena::get`], this does **not** validate the node's stamp,
+/// so it may silently return data from a reused slot if the `NodeId`
+/// is stale. For safe access, prefer [`Arena::get`] or [`Arena::get_mut`].
 impl<T> Index<NodeId> for Arena<T> {
     type Output = Node<T>;
 

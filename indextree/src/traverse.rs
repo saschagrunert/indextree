@@ -5,8 +5,6 @@
 //! All iterators are lazy, implement [`FusedIterator`](core::iter::FusedIterator),
 //! and provide [`size_hint`](Iterator::size_hint) bounds.
 
-#![allow(clippy::redundant_closure_call)]
-
 use crate::{Arena, Node, NodeId};
 
 #[derive(Clone)]
@@ -51,6 +49,7 @@ macro_rules! new_iterator {
         pub struct $name<'a, T>($inner<'a, T>);
 
         impl<'a, T> $name<'a, T> {
+            #[allow(clippy::redundant_closure_call)]
             pub(crate) fn new(arena: &'a Arena<T>, node: NodeId) -> Self {
                 let new: fn(&'a Arena<T>, NodeId) -> $inner<'a, T> = $new;
                 Self(new(arena, node))
@@ -65,6 +64,7 @@ macro_rules! new_iterator {
             new = $new,
         );
 
+        #[allow(clippy::redundant_closure_call)]
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
@@ -91,6 +91,7 @@ macro_rules! new_iterator {
             new = $new,
         );
 
+        #[allow(clippy::redundant_closure_call)]
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
@@ -117,6 +118,7 @@ macro_rules! new_iterator {
             }
         }
 
+        #[allow(clippy::redundant_closure_call)]
         impl<'a, T> ::core::iter::DoubleEndedIterator for $name<'a, T> {
             fn next_back(&mut self) -> Option<Self::Item> {
                 match (self.0.head, self.0.tail) {
@@ -209,14 +211,23 @@ new_iterator!(
 );
 
 #[derive(Clone)]
-/// An iterator of the IDs of a given node and its descendants, as a pre-order depth-first search where children are visited in insertion order.
+/// An iterator of the IDs of a given node and its descendants, as a
+/// pre-order depth-first search where children are visited in insertion order.
 ///
 /// i.e. node -> first child -> second child
-pub struct Descendants<'a, T>(Traverse<'a, T>);
+pub struct Descendants<'a, T> {
+    arena: &'a Arena<T>,
+    root: NodeId,
+    next: Option<NodeId>,
+}
 
 impl<'a, T> Descendants<'a, T> {
     pub(crate) fn new(arena: &'a Arena<T>, current: NodeId) -> Self {
-        Self(Traverse::new(arena, current))
+        Self {
+            arena,
+            root: current,
+            next: Some(current),
+        }
     }
 }
 
@@ -224,17 +235,37 @@ impl<T> Iterator for Descendants<'_, T> {
     type Item = NodeId;
 
     fn next(&mut self) -> Option<NodeId> {
-        self.0.find_map(|edge| match edge {
-            NodeEdge::Start(node) => Some(node),
-            NodeEdge::End(_) => None,
-        })
+        let current = self.next.take()?;
+        let node = &self.arena[current];
+
+        self.next = node.first_child.or_else(|| {
+            if current == self.root {
+                return None;
+            }
+            node.next_sibling.or_else(|| {
+                let mut ancestor = node.parent;
+                while let Some(a) = ancestor {
+                    if a == self.root {
+                        return None;
+                    }
+                    if let Some(sib) = self.arena[a].next_sibling {
+                        return Some(sib);
+                    }
+                    ancestor = self.arena[a].parent;
+                }
+                None
+            })
+        });
+
+        Some(current)
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let (low, _) = self.0.size_hint();
-        // Each descendant produces a Start and End edge, so at least low/2
-        // descendants remain, but at minimum 1 if any edges remain.
-        if low > 0 { (1, None) } else { (0, Some(0)) }
+        if self.next.is_some() {
+            (1, None)
+        } else {
+            (0, Some(0))
+        }
     }
 }
 

@@ -46,6 +46,15 @@ impl<T> Node<T> {
     /// # Panics
     ///
     /// Panics if the node has been removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let id = arena.new_node(42);
+    /// assert_eq!(*arena[id].get(), 42);
+    /// ```
     #[inline]
     pub fn get(&self) -> &T {
         if let NodeData::Data(ref data) = self.data {
@@ -57,6 +66,15 @@ impl<T> Node<T> {
 
     /// Returns a reference to the node data, or `None` if the node has
     /// been removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let id = arena.new_node(42);
+    /// assert_eq!(arena[id].try_get(), Some(&42));
+    /// ```
     #[inline]
     pub fn try_get(&self) -> Option<&T> {
         if let NodeData::Data(ref data) = self.data {
@@ -71,6 +89,16 @@ impl<T> Node<T> {
     /// # Panics
     ///
     /// Panics if the node has been removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let id = arena.new_node(42);
+    /// *arena[id].get_mut() = 99;
+    /// assert_eq!(*arena[id].get(), 99);
+    /// ```
     #[inline]
     pub fn get_mut(&mut self) -> &mut T {
         if let NodeData::Data(ref mut data) = self.data {
@@ -82,6 +110,18 @@ impl<T> Node<T> {
 
     /// Returns a mutable reference to the node data, or `None` if the
     /// node has been removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let id = arena.new_node(42);
+    /// if let Some(data) = arena[id].try_get_mut() {
+    ///     *data = 99;
+    /// }
+    /// assert_eq!(*arena[id].get(), 99);
+    /// ```
     #[inline]
     pub fn try_get_mut(&mut self) -> Option<&mut T> {
         if let NodeData::Data(ref mut data) = self.data {

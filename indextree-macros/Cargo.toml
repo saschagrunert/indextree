@@ -2,6 +2,7 @@
 name = "indextree-macros"
 version = "0.1.3"
 edition = "2024"
+rust-version = "1.85.0"
 license = "MIT"
 authors = ["Sascha Grunert <mail@saschagrunert.de>"]
 repository = "https://github.com/saschagrunert/indextree"
@@ -19,4 +20,4 @@ quote = "1.0.40"
 syn = { version = "3.0.2", features = ["full"] }
 
 [dev-dependencies]
-indextree = { path = "../indextree", version = "4.8.1" }
+indextree = { path = "../indextree", version = "4.9.0" }

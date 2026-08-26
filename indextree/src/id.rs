@@ -1572,19 +1572,21 @@ impl NodeId {
     pub fn remove_subtree<T>(self, arena: &mut Arena<T>) {
         self.detach(arena);
 
-        // Preorder traversal to remove all nodes. After free_node(id), we
-        // still read arena[id]'s link fields (first_child, next_sibling).
-        // This works because free_node only changes data to NextFree and
-        // the stamp; it does not clear structural link fields.
         let mut cursor = Some(self);
         while let Some(id) = cursor {
+            let first_child = arena[id].first_child;
+            let next_sibling = arena[id].next_sibling;
+            let parent = arena[id].parent;
             arena.free_node(id);
-            let node = &arena[id];
-            cursor = node.first_child.or(node.next_sibling).or_else(|| {
-                id.ancestors(arena) // traverse ancestors upwards
-                    .skip(1) // skip the starting node itself
-                    .find(|n| arena[*n].next_sibling.is_some()) // first ancestor with a sibling
-                    .and_then(|n| arena[n].next_sibling) // the sibling is the new cursor
+            cursor = first_child.or(next_sibling).or_else(|| {
+                let mut ancestor = parent;
+                while let Some(a) = ancestor {
+                    if let Some(sib) = arena[a].next_sibling {
+                        return Some(sib);
+                    }
+                    ancestor = arena[a].parent;
+                }
+                None
             });
         }
     }
@@ -1686,12 +1688,62 @@ impl NodeId {
     ///
     /// [`remove_subtree`]: NodeId::remove_subtree
     pub fn remove_children<T>(self, arena: &mut Arena<T>) {
-        let mut child_opt = arena[self].first_child;
-        while let Some(child) = child_opt {
-            let next = arena[child].next_sibling;
-            child.remove_subtree(arena);
-            child_opt = next;
+        let first = arena[self].first_child.take();
+        arena[self].last_child = None;
+
+        let mut cursor = first;
+        while let Some(id) = cursor {
+            let first_child = arena[id].first_child;
+            let next_sibling = arena[id].next_sibling;
+            let parent = arena[id].parent;
+            arena.free_node(id);
+            cursor = first_child.or(next_sibling).or_else(|| {
+                let mut ancestor = parent;
+                while let Some(a) = ancestor {
+                    if a == self {
+                        return None;
+                    }
+                    if let Some(sib) = arena[a].next_sibling {
+                        return Some(sib);
+                    }
+                    ancestor = arena[a].parent;
+                }
+                None
+            });
         }
+    }
+
+    /// Moves this node (and its subtree) to become the last child of
+    /// `new_parent`.
+    ///
+    /// This is a convenience wrapper around [`detach`] followed by
+    /// [`append`].
+    ///
+    /// # Panics
+    ///
+    /// Panics if `new_parent` is `self` or a descendant of `self`, or
+    /// if either node has been removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let a = arena.new_node("a");
+    /// let b = a.append_value("b", &mut arena);
+    /// let c = arena.new_node("c");
+    ///
+    /// b.reparent(c, &mut arena);
+    ///
+    /// assert_eq!(b.parent(&arena), Some(c));
+    /// assert_eq!(a.children(&arena).count(), 0);
+    /// assert_eq!(c.first_child(&arena), Some(b));
+    /// ```
+    ///
+    /// [`detach`]: NodeId::detach
+    /// [`append`]: NodeId::append
+    pub fn reparent<T>(self, new_parent: NodeId, arena: &mut Arena<T>) {
+        new_parent.append(self, arena);
     }
 
     /// Returns the pretty-printable proxy object to the node and descendants.

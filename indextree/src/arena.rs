@@ -43,8 +43,12 @@ pub struct Arena<T> {
 impl<T> Arena<T> {
     /// Creates a new empty `Arena`.
     #[must_use]
-    pub fn new() -> Arena<T> {
-        Self::default()
+    pub const fn new() -> Arena<T> {
+        Self {
+            nodes: Vec::new(),
+            first_free_slot: None,
+            last_free_slot: None,
+        }
     }
 
     /// Creates a new empty `Arena` with enough capacity to store `n` nodes.
@@ -416,6 +420,27 @@ impl<T> Arena<T> {
         self.nodes.iter_mut()
     }
 
+    /// Returns an iterator of [`NodeId`]s of all root nodes (nodes with
+    /// no parent) that are not removed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let a = arena.new_node("a");
+    /// let b = arena.new_node("b");
+    /// let c = arena.new_node("c");
+    /// a.append(c, &mut arena);
+    ///
+    /// let roots: Vec<_> = arena.roots().collect();
+    /// assert_eq!(roots, vec![a, b]);
+    /// ```
+    pub fn roots(&self) -> impl Iterator<Item = NodeId> + '_ {
+        self.iter_node_ids()
+            .filter(|&id| self[id].parent().is_none())
+    }
+
     /// Shrinks the internal storage to fit the current number of nodes.
     ///
     /// Calls [`Vec::shrink_to_fit`] on the underlying node storage.
@@ -611,6 +636,22 @@ impl<'a, T> IntoIterator for &'a mut Arena<T> {
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter_mut()
+    }
+}
+
+impl<T> Extend<T> for Arena<T> {
+    fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        for item in iter {
+            self.new_node(item);
+        }
+    }
+}
+
+impl<T> core::iter::FromIterator<T> for Arena<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut arena = Arena::new();
+        arena.extend(iter);
+        arena
     }
 }
 

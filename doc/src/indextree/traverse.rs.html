@@ -243,13 +243,13 @@
 <a href=#243 id=243 data-nosnippet>243</a><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 <a href=#244 id=244 data-nosnippet>244</a></span><span class="doccomment">/// Indicator if the node is at a start or endpoint of the tree
 <a href=#245 id=245 data-nosnippet>245</a></span><span class="kw">pub enum </span>NodeEdge {
-<a href=#246 id=246 data-nosnippet>246</a>    <span class="doccomment">/// Indicates that start of a node that has children.
+<a href=#246 id=246 data-nosnippet>246</a>    <span class="doccomment">/// Indicates the start of visiting a node.
 <a href=#247 id=247 data-nosnippet>247</a>    ///
 <a href=#248 id=248 data-nosnippet>248</a>    /// Yielded by `Traverse::next()` before the node’s descendants. In HTML or
 <a href=#249 id=249 data-nosnippet>249</a>    /// XML, this corresponds to an opening tag like `&lt;div&gt;`.
 <a href=#250 id=250 data-nosnippet>250</a>    </span>Start(NodeId),
 <a href=#251 id=251 data-nosnippet>251</a>
-<a href=#252 id=252 data-nosnippet>252</a>    <span class="doccomment">/// Indicates that end of a node that has children.
+<a href=#252 id=252 data-nosnippet>252</a>    <span class="doccomment">/// Indicates the end of visiting a node.
 <a href=#253 id=253 data-nosnippet>253</a>    ///
 <a href=#254 id=254 data-nosnippet>254</a>    /// Yielded by `Traverse::next()` after the node’s descendants. In HTML or
 <a href=#255 id=255 data-nosnippet>255</a>    /// XML, this corresponds to a closing tag like `&lt;/div&gt;`

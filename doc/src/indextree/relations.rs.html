@@ -156,7 +156,7 @@
 <a href=#156 id=156 data-nosnippet>156</a>    <span class="prelude-val">Ok</span>(())
 <a href=#157 id=157 data-nosnippet>157</a>}
 <a href=#158 id=158 data-nosnippet>158</a>
-<a href=#159 id=159 data-nosnippet>159</a><span class="doccomment">/// Inserts, and updates the given detached node to the parent, after all of it's existing children
+<a href=#159 id=159 data-nosnippet>159</a><span class="doccomment">/// Inserts, and updates the given detached node to the parent, after all of its existing children
 <a href=#160 id=160 data-nosnippet>160</a>///
 <a href=#161 id=161 data-nosnippet>161</a>/// ```text
 <a href=#162 id=162 data-nosnippet>162</a>/// Before:
@@ -184,4 +184,33 @@
 <a href=#184 id=184 data-nosnippet>184</a>
 <a href=#185 id=185 data-nosnippet>185</a>    <span class="macro">debug_assert_triangle_nodes!</span>(arena, <span class="prelude-val">Some</span>(parent), previous_sibling, <span class="prelude-val">Some</span>(new));
 <a href=#186 id=186 data-nosnippet>186</a>}
+<a href=#187 id=187 data-nosnippet>187</a>
+<a href=#188 id=188 data-nosnippet>188</a><span class="doccomment">/// Inserts, and updates the given detached node to the parent, before all of its existing children.
+<a href=#189 id=189 data-nosnippet>189</a>///
+<a href=#190 id=190 data-nosnippet>190</a>/// ```text
+<a href=#191 id=191 data-nosnippet>191</a>/// Before:
+<a href=#192 id=192 data-nosnippet>192</a>///
+<a href=#193 id=193 data-nosnippet>193</a>///       parent
+<a href=#194 id=194 data-nosnippet>194</a>///      /     \
+<a href=#195 id=195 data-nosnippet>195</a>///     /       \
+<a href=#196 id=196 data-nosnippet>196</a>/// next_sibling -&gt; ...
+<a href=#197 id=197 data-nosnippet>197</a>///
+<a href=#198 id=198 data-nosnippet>198</a>/// After:
+<a href=#199 id=199 data-nosnippet>199</a>///
+<a href=#200 id=200 data-nosnippet>200</a>///         parent
+<a href=#201 id=201 data-nosnippet>201</a>///    _____/|\_____
+<a href=#202 id=202 data-nosnippet>202</a>///   /      |      \
+<a href=#203 id=203 data-nosnippet>203</a>/// (new) -&gt; next -&gt; ...
+<a href=#204 id=204 data-nosnippet>204</a>/// ```
+<a href=#205 id=205 data-nosnippet>205</a></span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>insert_first_unchecked&lt;T&gt;(arena: <span class="kw-2">&amp;mut </span>Arena&lt;T&gt;, new: NodeId, parent: NodeId) {
+<a href=#206 id=206 data-nosnippet>206</a>    <span class="kw">let </span>next_sibling = arena[parent].first_child;
+<a href=#207 id=207 data-nosnippet>207</a>    DetachedSiblingsRange::new(new, new)
+<a href=#208 id=208 data-nosnippet>208</a>        .transplant(arena, <span class="prelude-val">Some</span>(parent), <span class="prelude-val">None</span>, next_sibling)
+<a href=#209 id=209 data-nosnippet>209</a>        .expect(
+<a href=#210 id=210 data-nosnippet>210</a>            <span class="string">"Should never fail, callers must verify assumptions when using fast path prepend.
+<a href=#211 id=211 data-nosnippet>211</a>                 `expect` only needed due to usage of shared functions that return a `Result`."</span>,
+<a href=#212 id=212 data-nosnippet>212</a>        );
+<a href=#213 id=213 data-nosnippet>213</a>
+<a href=#214 id=214 data-nosnippet>214</a>    <span class="macro">debug_assert_triangle_nodes!</span>(arena, <span class="prelude-val">Some</span>(parent), <span class="prelude-val">Some</span>(new), next_sibling);
+<a href=#215 id=215 data-nosnippet>215</a>}
 </code></pre></div></section></main></body></html>

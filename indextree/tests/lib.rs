@@ -3,6 +3,201 @@ use indextree::{Arena, NodeError};
 use rayon::prelude::*;
 
 #[test]
+fn leaves_iterator() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let a = root.append_value("a", &mut arena);
+    let b = a.append_value("b", &mut arena);
+    let c = root.append_value("c", &mut arena);
+    let d = c.append_value("d", &mut arena);
+    let e = c.append_value("e", &mut arena);
+
+    let leaves: Vec<_> = root.leaves(&arena).collect();
+    assert_eq!(leaves, vec![b, d, e]);
+}
+
+#[test]
+fn leaves_single_node() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let leaves: Vec<_> = root.leaves(&arena).collect();
+    assert_eq!(leaves, vec![root]);
+}
+
+#[test]
+fn breadth_first_traversal() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(1);
+    let a = root.append_value(2, &mut arena);
+    let b = root.append_value(3, &mut arena);
+    a.append_value(4, &mut arena);
+    a.append_value(5, &mut arena);
+    b.append_value(6, &mut arena);
+
+    let bfs: Vec<i32> = root
+        .breadth_first(&arena)
+        .map(|id| *arena[id].get())
+        .collect();
+    assert_eq!(bfs, vec![1, 2, 3, 4, 5, 6]);
+}
+
+#[test]
+fn breadth_first_single_node() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(42);
+    let bfs: Vec<_> = root.breadth_first(&arena).collect();
+    assert_eq!(bfs, vec![root]);
+}
+
+#[test]
+fn descendant_count() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let a = root.append_value("a", &mut arena);
+    a.append_value("b", &mut arena);
+    root.append_value("c", &mut arena);
+
+    assert_eq!(root.descendant_count(&arena), 4);
+    assert_eq!(a.descendant_count(&arena), 2);
+}
+
+#[test]
+fn arena_map() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(1);
+    let child = root.append_value(2, &mut arena);
+
+    let mapped: Arena<String> = arena.map(|x| x.to_string());
+    assert_eq!(mapped.get_data(root), Some(&"1".to_string()));
+    assert_eq!(mapped.get_data(child), Some(&"2".to_string()));
+    assert_eq!(mapped[child].parent(), Some(root));
+}
+
+#[test]
+fn arena_map_with_removed() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(1);
+    let child = root.append_value(2, &mut arena);
+    child.remove(&mut arena);
+
+    let mapped: Arena<String> = arena.map(|x| x.to_string());
+    assert_eq!(mapped.get_data(root), Some(&"1".to_string()));
+    assert!(child.is_removed(&mapped));
+}
+
+#[test]
+fn subtree_eq_same_arena() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(1);
+    let a = root.append_value(2, &mut arena);
+    let b = root.append_value(3, &mut arena);
+    a.append_value(4, &mut arena);
+    b.append_value(4, &mut arena);
+
+    // a and b have different data (2 vs 3)
+    assert!(!a.subtree_eq(b, &arena, &arena));
+}
+
+#[test]
+fn subtree_eq_different_arenas() {
+    let mut a1 = Arena::new();
+    let r1 = a1.new_node(1);
+    r1.append_value(2, &mut a1);
+    r1.append_value(3, &mut a1);
+
+    let mut a2 = Arena::new();
+    let r2 = a2.new_node(1);
+    r2.append_value(2, &mut a2);
+    r2.append_value(3, &mut a2);
+
+    assert!(r1.subtree_eq(r2, &a1, &a2));
+}
+
+#[test]
+fn subtree_eq_different_structure() {
+    let mut a1 = Arena::new();
+    let r1 = a1.new_node(1);
+    r1.append_value(2, &mut a1);
+
+    let mut a2 = Arena::new();
+    let r2 = a2.new_node(1);
+    let c = r2.append_value(2, &mut a2);
+    c.append_value(3, &mut a2);
+
+    assert!(!r1.subtree_eq(r2, &a1, &a2));
+}
+
+#[test]
+fn get_data_shorthand() {
+    let mut arena = Arena::new();
+    let id = arena.new_node(42);
+    assert_eq!(arena.get_data(id), Some(&42));
+    *arena.get_data_mut(id).unwrap() = 99;
+    assert_eq!(arena.get_data(id), Some(&99));
+    id.remove(&mut arena);
+    assert_eq!(arena.get_data(id), None);
+    assert_eq!(arena.get_data_mut(id), None);
+}
+
+#[test]
+fn checked_remove_on_stale_id() {
+    let mut arena = Arena::new();
+    let original = arena.new_node("original");
+    original.remove(&mut arena);
+    let _reused = arena.new_node("reused");
+
+    assert!(matches!(
+        original.checked_remove(&mut arena),
+        Err(NodeError::Removed)
+    ));
+}
+
+#[test]
+fn checked_detach() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = root.append_value("child", &mut arena);
+    assert!(child.checked_detach(&mut arena).is_ok());
+    assert!(child.parent(&arena).is_none());
+}
+
+#[test]
+fn checked_reparent() {
+    let mut arena = Arena::new();
+    let a = arena.new_node("a");
+    let b = a.append_value("b", &mut arena);
+    let c = arena.new_node("c");
+    assert!(b.checked_reparent(c, &mut arena).is_ok());
+    assert_eq!(b.parent(&arena), Some(c));
+}
+
+#[test]
+fn arena_validate() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(1);
+    root.append_value(2, &mut arena);
+    root.append_value(3, &mut arena);
+    assert!(arena.validate());
+}
+
+#[test]
+fn stale_id_checked_append_detects_reuse() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let original = arena.new_node("original");
+    root.append(original, &mut arena);
+    original.remove(&mut arena);
+    let _reused = arena.new_node("reused");
+
+    // original is a stale ID pointing to a reused slot
+    let fresh = arena.new_node("fresh");
+    assert!(matches!(
+        original.checked_append(fresh, &mut arena),
+        Err(NodeError::Removed)
+    ));
+}
+
+#[test]
 fn success_create() {
     let mut new_counter = 0;
     let arena = &mut Arena::new();
@@ -667,6 +862,13 @@ fn size_hint_iterators() {
     assert_eq!(c1.following_siblings(&arena).size_hint(), (1, None));
     assert_eq!(c1.predecessors(&arena).size_hint(), (1, None));
 
+    // Leaves: lower bound is 0 (filtering), upper bound from descendants
+    let (lo, _) = root.leaves(&arena).size_hint();
+    assert_eq!(lo, 0);
+
+    // BFS: lower bound is queue length
+    assert_eq!(root.breadth_first(&arena).size_hint(), (1, None));
+
     // Exhausted iterators report exact zero
     let mut iter = root.ancestors(&arena);
     iter.next(); // root itself, no parent
@@ -686,6 +888,14 @@ fn size_hint_iterators() {
     assert_eq!(iter.size_hint(), (0, Some(0)));
 
     let mut iter = root.descendants(&arena);
+    while iter.next().is_some() {}
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+
+    let mut iter = root.leaves(&arena);
+    while iter.next().is_some() {}
+    assert_eq!(iter.size_hint(), (0, Some(0)));
+
+    let mut iter = root.breadth_first(&arena);
     while iter.next().is_some() {}
     assert_eq!(iter.size_hint(), (0, Some(0)));
 }
@@ -1196,6 +1406,17 @@ fn fused_iterators() {
     assert_eq!(siblings.next(), Some(c1));
     assert_eq!(siblings.next(), None);
     assert_eq!(siblings.next(), None);
+
+    let mut leaves = root.leaves(&arena);
+    assert_eq!(leaves.next(), Some(c1));
+    assert_eq!(leaves.next(), None);
+    assert_eq!(leaves.next(), None);
+
+    let mut bfs = root.breadth_first(&arena);
+    assert_eq!(bfs.next(), Some(root));
+    assert_eq!(bfs.next(), Some(c1));
+    assert_eq!(bfs.next(), None);
+    assert_eq!(bfs.next(), None);
 }
 
 #[test]

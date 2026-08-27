@@ -14,8 +14,8 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, num::NonZeroUsize};
 
 use crate::{
-    Ancestors, Arena, Children, Descendants, FollowingSiblings, NodeError, PrecedingSiblings,
-    Predecessors, ReverseTraverse, Traverse,
+    Ancestors, Arena, BreadthFirstTraversal, Children, Descendants, FollowingSiblings, Leaves,
+    NodeError, PrecedingSiblings, Predecessors, ReverseTraverse, Traverse,
     debug_pretty_print::DebugPrettyPrint,
     relations::{insert_first_unchecked, insert_last_unchecked, insert_with_neighbors},
     siblings_range::SiblingsRange,
@@ -27,6 +27,13 @@ use crate::{
 ///
 /// This ID is used to get [`Node`](crate::Node) references from an [`Arena`].
 ///
+/// # Cross-arena safety
+///
+/// A `NodeId` does not carry a reference to the arena it was created in.
+/// Using an ID from one arena to index into a different arena will either
+/// panic (if the index is out of bounds) or silently access the wrong node.
+/// It is the caller's responsibility to use each `NodeId` only with its
+/// originating arena.
 pub struct NodeId {
     /// One-based index.
     index1: NonZeroUsize,
@@ -38,9 +45,12 @@ pub struct NodeId {
 ///
 /// Uses the sign of an `i16` as a removed flag: non-negative values represent
 /// live nodes, negative values represent removed nodes. Each remove/reuse
-/// cycle increments the effective generation by 1. After approximately
-/// 32,766 cycles the slot becomes permanently unreusable, preventing stamp
-/// value collisions.
+/// cycle increments the effective generation by 1.
+///
+/// After approximately 32,766 remove/reuse cycles on the same slot, the
+/// stamp saturates and the slot becomes permanently unreusable. New nodes
+/// will be appended to the end of the arena instead. In practice this is
+/// unlikely to matter unless a single slot is recycled in a tight loop.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug, Hash, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub(crate) struct NodeStamp(i16);
@@ -701,6 +711,69 @@ impl NodeId {
         Descendants::new(arena, self)
     }
 
+    /// Returns an iterator over the leaf nodes (nodes with no children)
+    /// of this node's subtree in pre-order depth-first order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// let a = root.append_value("a", &mut arena);
+    /// let b = a.append_value("b", &mut arena);
+    /// let c = root.append_value("c", &mut arena);
+    ///
+    /// let leaves: Vec<_> = root.leaves(&arena).collect();
+    /// assert_eq!(leaves, vec![b, c]);
+    /// ```
+    pub fn leaves<T>(self, arena: &Arena<T>) -> Leaves<'_, T> {
+        Leaves::new(arena, self)
+    }
+
+    /// Returns an iterator that yields nodes in breadth-first (level-order)
+    /// order, starting from this node.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node(1);
+    /// let a = root.append_value(2, &mut arena);
+    /// let b = root.append_value(3, &mut arena);
+    /// let c = a.append_value(4, &mut arena);
+    ///
+    /// let bfs: Vec<_> = root.breadth_first(&arena)
+    ///     .map(|id| *arena[id].get())
+    ///     .collect();
+    /// assert_eq!(bfs, vec![1, 2, 3, 4]);
+    /// ```
+    pub fn breadth_first<T>(self, arena: &Arena<T>) -> BreadthFirstTraversal<'_, T> {
+        BreadthFirstTraversal::new(arena, self)
+    }
+
+    /// Returns the number of descendants of this node, including itself.
+    ///
+    /// This is O(n) in the size of the subtree.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// let a = root.append_value("a", &mut arena);
+    /// a.append_value("b", &mut arena);
+    /// root.append_value("c", &mut arena);
+    ///
+    /// assert_eq!(root.descendant_count(&arena), 4);
+    /// assert_eq!(a.descendant_count(&arena), 2);
+    /// ```
+    pub fn descendant_count<T>(self, arena: &Arena<T>) -> usize {
+        self.descendants(arena).count()
+    }
+
     /// An iterator of the "sides" of a node visited during a depth-first pre-order traversal,
     /// where node sides are visited start to end and children are visited in insertion order.
     ///
@@ -812,6 +885,31 @@ impl NodeId {
     /// ```
     pub fn reverse_traverse<T>(self, arena: &Arena<T>) -> ReverseTraverse<'_, T> {
         ReverseTraverse::new(arena, self)
+    }
+
+    /// Detaches a node from its parent and siblings. Children are not affected.
+    ///
+    /// # Failures
+    ///
+    /// Returns [`NodeError::Removed`] if the node has been removed or the
+    /// ID is stale.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// let child = root.append_value("child", &mut arena);
+    /// assert!(child.checked_detach(&mut arena).is_ok());
+    /// assert!(child.parent(&arena).is_none());
+    /// ```
+    pub fn checked_detach<T>(self, arena: &mut Arena<T>) -> Result<(), NodeError> {
+        if self.is_removed(arena) {
+            return Err(NodeError::Removed);
+        }
+        self.detach(arena);
+        Ok(())
     }
 
     /// Detaches a node from its parent and siblings. Children are not affected.
@@ -952,7 +1050,7 @@ impl NodeId {
         if new_child == self {
             return Err(NodeError::AppendSelf);
         }
-        if arena[self].is_removed() || arena[new_child].is_removed() {
+        if self.is_removed(arena) || new_child.is_removed(arena) {
             return Err(NodeError::Removed);
         }
         if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
@@ -1143,7 +1241,7 @@ impl NodeId {
         if new_child == self {
             return Err(NodeError::PrependSelf);
         }
-        if arena[self].is_removed() || arena[new_child].is_removed() {
+        if self.is_removed(arena) || new_child.is_removed(arena) {
             return Err(NodeError::Removed);
         }
         if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
@@ -1281,7 +1379,7 @@ impl NodeId {
         if new_sibling == self {
             return Err(NodeError::InsertAfterSelf);
         }
-        if arena[self].is_removed() || arena[new_sibling].is_removed() {
+        if self.is_removed(arena) || new_sibling.is_removed(arena) {
             return Err(NodeError::Removed);
         }
         new_sibling.detach(arena);
@@ -1421,7 +1519,7 @@ impl NodeId {
         if new_sibling == self {
             return Err(NodeError::InsertBeforeSelf);
         }
-        if arena[self].is_removed() || arena[new_sibling].is_removed() {
+        if self.is_removed(arena) || new_sibling.is_removed(arena) {
             return Err(NodeError::Removed);
         }
         new_sibling.detach(arena);
@@ -1432,6 +1530,33 @@ impl NodeId {
         insert_with_neighbors(arena, new_sibling, parent, previous_sibling, Some(self))
             .expect("Should never fail: `new_sibling` is not `self` and they are not removed");
 
+        Ok(())
+    }
+
+    /// Removes a node from the arena, returning an error on failure.
+    ///
+    /// Children of the removed node will be inserted in place of the
+    /// removed node.
+    ///
+    /// # Failures
+    ///
+    /// Returns [`NodeError::Removed`] if the node has been removed or the
+    /// ID is stale.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeError};
+    /// let mut arena = Arena::new();
+    /// let n = arena.new_node("x");
+    /// assert!(n.checked_remove(&mut arena).is_ok());
+    /// assert!(matches!(n.checked_remove(&mut arena), Err(NodeError::Removed)));
+    /// ```
+    pub fn checked_remove<T>(self, arena: &mut Arena<T>) -> Result<(), NodeError> {
+        if self.is_removed(arena) {
+            return Err(NodeError::Removed);
+        }
+        self.remove(arena);
         Ok(())
     }
 
@@ -1529,6 +1654,32 @@ impl NodeId {
         debug_assert!(arena[self].is_detached());
     }
 
+    /// Removes a node and its descendants from the arena, returning an
+    /// error on failure.
+    ///
+    /// # Failures
+    ///
+    /// Returns [`NodeError::Removed`] if the node has been removed or the
+    /// ID is stale.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::{Arena, NodeError};
+    /// let mut arena = Arena::new();
+    /// let n = arena.new_node("x");
+    /// n.append_value("child", &mut arena);
+    /// assert!(n.checked_remove_subtree(&mut arena).is_ok());
+    /// assert!(matches!(n.checked_remove_subtree(&mut arena), Err(NodeError::Removed)));
+    /// ```
+    pub fn checked_remove_subtree<T>(self, arena: &mut Arena<T>) -> Result<(), NodeError> {
+        if self.is_removed(arena) {
+            return Err(NodeError::Removed);
+        }
+        self.remove_subtree(arena);
+        Ok(())
+    }
+
     /// Removes a node and its descendants from the arena.
     /// # Examples
     ///
@@ -1574,21 +1725,48 @@ impl NodeId {
 
         let mut cursor = Some(self);
         while let Some(id) = cursor {
-            let first_child = arena[id].first_child;
-            let next_sibling = arena[id].next_sibling;
-            let parent = arena[id].parent;
+            let node = &arena[id];
+            let first_child = node.first_child;
+            let next_sibling = node.next_sibling;
+            let parent = node.parent;
             arena.free_node(id);
             cursor = first_child.or(next_sibling).or_else(|| {
                 let mut ancestor = parent;
                 while let Some(a) = ancestor {
-                    if let Some(sib) = arena[a].next_sibling {
+                    let ancestor_node = &arena[a];
+                    if let Some(sib) = ancestor_node.next_sibling {
                         return Some(sib);
                     }
-                    ancestor = arena[a].parent;
+                    ancestor = ancestor_node.parent;
                 }
                 None
             });
         }
+    }
+
+    /// Detaches all children of this node, returning an error on failure.
+    ///
+    /// # Failures
+    ///
+    /// Returns [`NodeError::Removed`] if the node has been removed or the
+    /// ID is stale.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// root.append_value("c1", &mut arena);
+    /// assert!(root.checked_detach_children(&mut arena).is_ok());
+    /// assert_eq!(root.children(&arena).count(), 0);
+    /// ```
+    pub fn checked_detach_children<T>(self, arena: &mut Arena<T>) -> Result<(), NodeError> {
+        if self.is_removed(arena) {
+            return Err(NodeError::Removed);
+        }
+        self.detach_children(arena);
+        Ok(())
     }
 
     /// Detaches all children of this node, leaving them as independent
@@ -1647,6 +1825,32 @@ impl NodeId {
         }
     }
 
+    /// Removes all children of this node from the arena, returning an
+    /// error on failure.
+    ///
+    /// # Failures
+    ///
+    /// Returns [`NodeError::Removed`] if the node has been removed or the
+    /// ID is stale.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node("root");
+    /// root.append_value("c1", &mut arena);
+    /// assert!(root.checked_remove_children(&mut arena).is_ok());
+    /// assert_eq!(root.children(&arena).count(), 0);
+    /// ```
+    pub fn checked_remove_children<T>(self, arena: &mut Arena<T>) -> Result<(), NodeError> {
+        if self.is_removed(arena) {
+            return Err(NodeError::Removed);
+        }
+        self.remove_children(arena);
+        Ok(())
+    }
+
     /// Removes all children of this node from the arena, keeping the
     /// node itself in its current position.
     ///
@@ -1693,9 +1897,10 @@ impl NodeId {
 
         let mut cursor = first;
         while let Some(id) = cursor {
-            let first_child = arena[id].first_child;
-            let next_sibling = arena[id].next_sibling;
-            let parent = arena[id].parent;
+            let node = &arena[id];
+            let first_child = node.first_child;
+            let next_sibling = node.next_sibling;
+            let parent = node.parent;
             arena.free_node(id);
             cursor = first_child.or(next_sibling).or_else(|| {
                 let mut ancestor = parent;
@@ -1703,14 +1908,43 @@ impl NodeId {
                     if a == self {
                         return None;
                     }
-                    if let Some(sib) = arena[a].next_sibling {
+                    let ancestor_node = &arena[a];
+                    if let Some(sib) = ancestor_node.next_sibling {
                         return Some(sib);
                     }
-                    ancestor = arena[a].parent;
+                    ancestor = ancestor_node.parent;
                 }
                 None
             });
         }
+    }
+
+    /// Moves this node (and its subtree) to become the last child of
+    /// `new_parent`, returning an error on failure.
+    ///
+    /// # Failures
+    ///
+    /// Returns the same errors as [`checked_append`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let a = arena.new_node("a");
+    /// let b = a.append_value("b", &mut arena);
+    /// let c = arena.new_node("c");
+    /// assert!(b.checked_reparent(c, &mut arena).is_ok());
+    /// assert_eq!(b.parent(&arena), Some(c));
+    /// ```
+    ///
+    /// [`checked_append`]: NodeId::checked_append
+    pub fn checked_reparent<T>(
+        self,
+        new_parent: NodeId,
+        arena: &mut Arena<T>,
+    ) -> Result<(), NodeError> {
+        new_parent.checked_append(self, arena)
     }
 
     /// Moves this node (and its subtree) to become the last child of
@@ -1744,6 +1978,54 @@ impl NodeId {
     /// [`append`]: NodeId::append
     pub fn reparent<T>(self, new_parent: NodeId, arena: &mut Arena<T>) {
         new_parent.append(self, arena);
+    }
+
+    /// Returns `true` if the subtree rooted at this node is structurally
+    /// equal to the subtree rooted at `other`, comparing node data with
+    /// `PartialEq`.
+    ///
+    /// Two subtrees are equal if they have the same shape and the same
+    /// data at every corresponding position.
+    ///
+    /// The two nodes may be in the same or different arenas.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut a1 = Arena::new();
+    /// let r1 = a1.new_node(1);
+    /// r1.append_value(2, &mut a1);
+    /// r1.append_value(3, &mut a1);
+    ///
+    /// let mut a2 = Arena::new();
+    /// let r2 = a2.new_node(1);
+    /// r2.append_value(2, &mut a2);
+    /// r2.append_value(3, &mut a2);
+    ///
+    /// assert!(r1.subtree_eq(r2, &a1, &a2));
+    /// ```
+    pub fn subtree_eq<T: PartialEq>(
+        self,
+        other: NodeId,
+        arena_self: &Arena<T>,
+        arena_other: &Arena<T>,
+    ) -> bool {
+        use crate::NodeEdge;
+        let mut iter_a = self.traverse(arena_self);
+        let mut iter_b = other.traverse(arena_other);
+        loop {
+            match (iter_a.next(), iter_b.next()) {
+                (None, None) => return true,
+                (Some(NodeEdge::Start(a)), Some(NodeEdge::Start(b))) => {
+                    if arena_self[a].get() != arena_other[b].get() {
+                        return false;
+                    }
+                }
+                (Some(NodeEdge::End(_)), Some(NodeEdge::End(_))) => {}
+                _ => return false,
+            }
+        }
     }
 
     /// Returns the pretty-printable proxy object to the node and descendants.

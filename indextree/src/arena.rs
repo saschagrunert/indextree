@@ -163,6 +163,10 @@ impl<T> Arena<T> {
 
     /// Creates a new node from its associated data.
     ///
+    /// Freed slots are reused when available. If a slot's internal stamp has
+    /// been exhausted (after ~32K remove/reuse cycles), it is skipped and a
+    /// fresh slot is appended instead.
+    ///
     /// # Panics
     ///
     /// Panics if the arena already has `usize::max_value()` nodes.
@@ -322,6 +326,50 @@ impl<T> Arena<T> {
             .filter(|node| node.stamp == stamp)
     }
 
+    /// Returns a reference to the data of the node with the given id.
+    ///
+    /// Returns `None` if the id is out of bounds, the stamp doesn't match,
+    /// or the node has been removed.
+    ///
+    /// This is a shorthand for `arena.get(id).map(|n| n.get())`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// assert_eq!(arena.get_data(foo), Some(&"foo"));
+    ///
+    /// foo.remove(&mut arena);
+    /// assert_eq!(arena.get_data(foo), None);
+    /// ```
+    #[inline]
+    pub fn get_data(&self, id: NodeId) -> Option<&T> {
+        self.get(id).map(|n| n.get())
+    }
+
+    /// Returns a mutable reference to the data of the node with the given id.
+    ///
+    /// Returns `None` if the id is out of bounds, the stamp doesn't match,
+    /// or the node has been removed.
+    ///
+    /// This is a shorthand for `arena.get_mut(id).map(|n| n.get_mut())`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let foo = arena.new_node("foo");
+    /// *arena.get_data_mut(foo).unwrap() = "bar";
+    /// assert_eq!(arena.get_data(foo), Some(&"bar"));
+    /// ```
+    #[inline]
+    pub fn get_data_mut(&mut self, id: NodeId) -> Option<&mut T> {
+        self.get_mut(id).map(|n| n.get_mut())
+    }
+
     /// Returns an iterator of all nodes in the arena in storage-order.
     ///
     /// Note that this iterator returns also removed elements, which can be
@@ -441,6 +489,49 @@ impl<T> Arena<T> {
             .filter(|&id| self[id].parent().is_none())
     }
 
+    /// Creates a new arena by applying a function to the data of every
+    /// live node, preserving the tree structure.
+    ///
+    /// Removed nodes remain as removed slots in the new arena to keep
+    /// node indices consistent.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node(1);
+    /// let child = root.append_value(2, &mut arena);
+    ///
+    /// let mapped: Arena<String> = arena.map(|x| x.to_string());
+    /// assert_eq!(mapped.get_data(root), Some(&"1".to_string()));
+    /// assert_eq!(mapped.get_data(child), Some(&"2".to_string()));
+    /// assert_eq!(mapped[child].parent(), Some(root));
+    /// ```
+    pub fn map<U>(&self, mut f: impl FnMut(&T) -> U) -> Arena<U> {
+        let nodes = self
+            .nodes
+            .iter()
+            .map(|node| Node {
+                parent: node.parent,
+                previous_sibling: node.previous_sibling,
+                next_sibling: node.next_sibling,
+                first_child: node.first_child,
+                last_child: node.last_child,
+                stamp: node.stamp,
+                data: match &node.data {
+                    NodeData::Data(data) => NodeData::Data(f(data)),
+                    NodeData::NextFree(next) => NodeData::NextFree(*next),
+                },
+            })
+            .collect();
+        Arena {
+            nodes,
+            first_free_slot: self.first_free_slot,
+            last_free_slot: self.last_free_slot,
+        }
+    }
+
     /// Shrinks the internal storage to fit the current number of nodes.
     ///
     /// Calls [`Vec::shrink_to_fit`] on the underlying node storage.
@@ -514,6 +605,125 @@ impl<T> Arena<T> {
     /// ```
     pub fn as_slice(&self) -> &[Node<T>] {
         self.nodes.as_slice()
+    }
+
+    /// Validates the internal consistency of the arena's tree structure.
+    ///
+    /// Returns `true` if all parent-child and sibling pointers are
+    /// consistent, the free list is valid, and no cycles exist in
+    /// sibling chains. This is primarily useful after deserialization
+    /// to detect corrupted data.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use indextree::Arena;
+    /// let mut arena = Arena::new();
+    /// let root = arena.new_node(1);
+    /// root.append_value(2, &mut arena);
+    /// assert!(arena.validate());
+    /// ```
+    pub fn validate(&self) -> bool {
+        let len = self.nodes.len();
+
+        for (i, node) in self.nodes.iter().enumerate() {
+            if node.is_removed() {
+                continue;
+            }
+
+            let check_id =
+                |id: NodeId| -> bool { id.index0() < len && !self.nodes[id.index0()].is_removed() };
+
+            if let Some(parent) = node.parent {
+                if !check_id(parent) {
+                    return false;
+                }
+                let p = &self.nodes[parent.index0()];
+                let mut found = false;
+                let mut child = p.first_child;
+                let mut steps = 0;
+                while let Some(c) = child {
+                    if c.index0() >= len {
+                        return false;
+                    }
+                    if c.index0() == i {
+                        found = true;
+                        break;
+                    }
+                    child = self.nodes[c.index0()].next_sibling;
+                    steps += 1;
+                    if steps > len {
+                        return false;
+                    }
+                }
+                if !found {
+                    return false;
+                }
+            }
+
+            if let Some(prev) = node.previous_sibling {
+                if !check_id(prev)
+                    || self.nodes[prev.index0()].next_sibling.map(|n| n.index0()) != Some(i)
+                {
+                    return false;
+                }
+            }
+            if let Some(next) = node.next_sibling {
+                if !check_id(next)
+                    || self.nodes[next.index0()]
+                        .previous_sibling
+                        .map(|n| n.index0())
+                        != Some(i)
+                {
+                    return false;
+                }
+            }
+            if let Some(first) = node.first_child {
+                if !check_id(first)
+                    || self.nodes[first.index0()].parent.map(|n| n.index0()) != Some(i)
+                {
+                    return false;
+                }
+            }
+            if let Some(last) = node.last_child {
+                if !check_id(last)
+                    || self.nodes[last.index0()].parent.map(|n| n.index0()) != Some(i)
+                {
+                    return false;
+                }
+            }
+            if node.first_child.is_some() != node.last_child.is_some() {
+                return false;
+            }
+        }
+
+        // Validate free list
+        if self.first_free_slot.is_some() != self.last_free_slot.is_some() {
+            return false;
+        }
+        let mut free_count = 0;
+        let mut last_visited = None;
+        let mut slot = self.first_free_slot;
+        while let Some(idx) = slot {
+            if idx >= len {
+                return false;
+            }
+            let node = &self.nodes[idx];
+            if !node.is_removed() {
+                return false;
+            }
+            match node.data {
+                NodeData::NextFree(next) => slot = next,
+                _ => return false,
+            }
+            last_visited = Some(idx);
+            free_count += 1;
+            if free_count > len {
+                return false;
+            }
+        }
+
+        self.last_free_slot == last_visited
     }
 
     pub(crate) fn free_node(&mut self, id: NodeId) {
@@ -680,6 +890,12 @@ impl<T> Default for Arena<T> {
 /// Unlike [`Arena::get`], this does **not** validate the node's stamp,
 /// so it may silently return data from a reused slot if the `NodeId`
 /// is stale. For safe access, prefer [`Arena::get`] or [`Arena::get_mut`].
+///
+/// # Panics
+///
+/// Panics if `node` is out of bounds. Note that indexing does not validate
+/// that the `NodeId` originated from this arena. Using an ID from a
+/// different arena may silently access the wrong node or panic.
 impl<T> Index<NodeId> for Arena<T> {
     type Output = Node<T>;
 

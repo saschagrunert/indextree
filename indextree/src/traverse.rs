@@ -1,9 +1,16 @@
 //! Tree traversal iterators.
 //!
 //! Provides iterators for walking the tree in various orders: ancestors,
-//! predecessors, siblings, children, descendants, and depth-first traversal.
+//! predecessors, siblings, children, descendants, depth-first traversal,
+//! breadth-first traversal, and leaf iteration.
 //! All iterators are lazy, implement [`FusedIterator`](core::iter::FusedIterator),
 //! and provide [`size_hint`](Iterator::size_hint) bounds.
+
+#[cfg(not(feature = "std"))]
+use alloc::collections::VecDeque;
+
+#[cfg(feature = "std")]
+use std::collections::VecDeque;
 
 use crate::{Arena, Node, NodeId};
 
@@ -597,3 +604,74 @@ impl<T> Iterator for ReverseTraverse<'_, T> {
 }
 
 impl<T> core::iter::FusedIterator for ReverseTraverse<'_, T> {}
+
+/// An iterator that yields only the leaf nodes (nodes with no children)
+/// of a subtree in pre-order depth-first order.
+#[derive(Clone)]
+pub struct Leaves<'a, T> {
+    inner: Descendants<'a, T>,
+}
+
+impl<'a, T> Leaves<'a, T> {
+    pub(crate) fn new(arena: &'a Arena<T>, root: NodeId) -> Self {
+        Self {
+            inner: Descendants::new(arena, root),
+        }
+    }
+}
+
+impl<T> Iterator for Leaves<'_, T> {
+    type Item = NodeId;
+
+    fn next(&mut self) -> Option<NodeId> {
+        loop {
+            let id = self.inner.next()?;
+            if self.inner.arena[id].first_child.is_none() {
+                return Some(id);
+            }
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (_, upper) = self.inner.size_hint();
+        (0, upper)
+    }
+}
+
+impl<T> core::iter::FusedIterator for Leaves<'_, T> {}
+
+/// An iterator that yields nodes in breadth-first (level-order) order.
+#[derive(Clone)]
+pub struct BreadthFirstTraversal<'a, T> {
+    arena: &'a Arena<T>,
+    queue: VecDeque<NodeId>,
+}
+
+impl<'a, T> BreadthFirstTraversal<'a, T> {
+    pub(crate) fn new(arena: &'a Arena<T>, root: NodeId) -> Self {
+        let mut queue = VecDeque::new();
+        queue.push_back(root);
+        Self { arena, queue }
+    }
+}
+
+impl<T> Iterator for BreadthFirstTraversal<'_, T> {
+    type Item = NodeId;
+
+    fn next(&mut self) -> Option<NodeId> {
+        let current = self.queue.pop_front()?;
+        let mut child = self.arena[current].first_child;
+        while let Some(c) = child {
+            self.queue.push_back(c);
+            child = self.arena[c].next_sibling;
+        }
+        Some(current)
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.queue.len();
+        (len, if len == 0 { Some(0) } else { None })
+    }
+}
+
+impl<T> core::iter::FusedIterator for BreadthFirstTraversal<'_, T> {}

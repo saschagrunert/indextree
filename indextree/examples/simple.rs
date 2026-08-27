@@ -1,6 +1,6 @@
 use indextree::Arena;
 
-pub fn main() {
+fn main() {
     // Create a new arena
     let arena = &mut Arena::new();
 

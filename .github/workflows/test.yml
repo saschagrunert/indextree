@@ -125,6 +125,16 @@ jobs:
           restore-keys: rust-test-platform-${{ matrix.os }}-
       - run: cargo test --all-features
 
+  no-std-target:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772
+        with:
+          toolchain: stable
+          targets: thumbv7em-none-eabihf
+      - run: cargo check -p indextree --target thumbv7em-none-eabihf --no-default-features
+
   nightly:
     runs-on: ubuntu-latest
     continue-on-error: true

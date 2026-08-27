@@ -124,6 +124,7 @@ impl NodeId {
     }
 
     /// Creates a new `NodeId` from the given one-based index.
+    #[inline]
     pub(crate) fn from_non_zero_usize(index1: NonZeroUsize, stamp: NodeStamp) -> Self {
         NodeId { index1, stamp }
     }
@@ -770,6 +771,7 @@ impl NodeId {
     /// assert_eq!(root.descendant_count(&arena), 4);
     /// assert_eq!(a.descendant_count(&arena), 2);
     /// ```
+    #[must_use]
     pub fn descendant_count<T>(self, arena: &Arena<T>) -> usize {
         self.descendants(arena).count()
     }
@@ -913,6 +915,11 @@ impl NodeId {
     }
 
     /// Detaches a node from its parent and siblings. Children are not affected.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the node ID is out of bounds (e.g. after
+    /// [`Arena::clear`]).
     ///
     /// # Examples
     ///
@@ -1247,6 +1254,7 @@ impl NodeId {
         if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
             return Err(NodeError::PrependAncestor);
         }
+        new_child.detach(arena);
         insert_with_neighbors(arena, new_child, Some(self), None, arena[self].first_child)
             .expect("Should never fail: `new_child` is not `self` and they are not removed");
 
@@ -1571,6 +1579,10 @@ impl NodeId {
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
+    /// # Panics
+    ///
+    /// Panics if the node ID is out of bounds.
+    ///
     /// # Examples
     ///
     /// ```
@@ -1681,6 +1693,11 @@ impl NodeId {
     }
 
     /// Removes a node and its descendants from the arena.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the node ID is out of bounds.
+    ///
     /// # Examples
     ///
     /// ```
@@ -1775,6 +1792,10 @@ impl NodeId {
     /// The children retain their own subtrees and sibling relationships
     /// with each other are removed.
     ///
+    /// # Panics
+    ///
+    /// Panics if the node ID is out of bounds.
+    ///
     /// # Examples
     ///
     /// ```
@@ -1855,6 +1876,10 @@ impl NodeId {
     /// node itself in its current position.
     ///
     /// This is equivalent to calling [`remove_subtree`] on each child.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the node ID is out of bounds.
     ///
     /// # Examples
     ///
@@ -2005,6 +2030,7 @@ impl NodeId {
     ///
     /// assert!(r1.subtree_eq(r2, &a1, &a2));
     /// ```
+    #[must_use]
     pub fn subtree_eq<T: PartialEq>(
         self,
         other: NodeId,

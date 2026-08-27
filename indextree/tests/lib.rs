@@ -1556,3 +1556,103 @@ fn remove_children_deep_tree() {
         assert!(id.is_removed(&arena));
     }
 }
+
+#[test]
+fn checked_prepend_already_first_child() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let c1 = root.append_value("c1", &mut arena);
+    let c2 = root.append_value("c2", &mut arena);
+
+    // Prepending the existing first child should succeed (detach + re-insert).
+    assert!(root.checked_prepend(c1, &mut arena).is_ok());
+    let children: Vec<_> = root.children(&arena).collect();
+    assert_eq!(children, vec![c1, c2]);
+}
+
+#[test]
+fn checked_prepend_moves_child_from_another_parent() {
+    let mut arena = Arena::new();
+    let a = arena.new_node("a");
+    let b = arena.new_node("b");
+    let c = a.append_value("c", &mut arena);
+
+    // c is currently a child of a; prepending it to b should detach it first.
+    assert!(b.checked_prepend(c, &mut arena).is_ok());
+    assert_eq!(a.children(&arena).count(), 0);
+    assert_eq!(b.first_child(&arena), Some(c));
+}
+
+#[test]
+fn checked_detach_children_on_removed_node() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    root.append_value("child", &mut arena);
+    root.remove_subtree(&mut arena);
+
+    let result = root.checked_detach_children(&mut arena);
+    assert!(matches!(result, Err(NodeError::Removed)));
+}
+
+#[test]
+fn checked_remove_children_on_removed_node() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    root.append_value("child", &mut arena);
+    root.remove_subtree(&mut arena);
+
+    let result = root.checked_remove_children(&mut arena);
+    assert!(matches!(result, Err(NodeError::Removed)));
+}
+
+#[test]
+fn checked_reparent_to_self_returns_error() {
+    let mut arena = Arena::new();
+    let node = arena.new_node("node");
+
+    let result = node.checked_reparent(node, &mut arena);
+    assert!(matches!(result, Err(NodeError::AppendSelf)));
+}
+
+#[test]
+fn checked_reparent_to_descendant_returns_error() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let child = root.append_value("child", &mut arena);
+
+    let result = root.checked_reparent(child, &mut arena);
+    assert!(matches!(result, Err(NodeError::AppendAncestor)));
+}
+
+#[test]
+fn into_data_on_freed_node() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(42);
+    root.remove_subtree(&mut arena);
+
+    let result = arena.into_iter().next().unwrap().into_data();
+    assert!(result.is_none());
+}
+
+#[test]
+fn map_preserves_removed_nodes() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(1);
+    root.append_value(2, &mut arena);
+    let c = root.append_value(3, &mut arena);
+    c.remove_subtree(&mut arena);
+
+    let mapped = arena.map(|val| val * 10);
+    assert!(mapped.validate());
+
+    let root2 = mapped.iter().next().unwrap();
+    assert_eq!(*root2.get(), 10);
+}
+
+#[test]
+fn extend_reserves_capacity() {
+    let mut arena: Arena<i32> = Arena::new();
+    arena.extend(0..100);
+    assert!(arena.capacity() >= 100);
+    assert_eq!(arena.len(), 100);
+}

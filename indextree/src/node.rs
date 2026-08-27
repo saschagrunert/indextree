@@ -156,6 +156,7 @@ impl<T> Node<T> {
     }
 
     /// Creates a new `Node` with the default state and the given data.
+    #[inline]
     pub(crate) fn new(data: T) -> Self {
         Self {
             parent: None,
@@ -169,6 +170,7 @@ impl<T> Node<T> {
     }
 
     /// Convert a removed `Node` to normal with default state and given data.
+    #[inline]
     pub(crate) fn reuse(&mut self, data: T) {
         debug_assert!(matches!(self.data, NodeData::NextFree(_)));
         debug_assert!(self.stamp.is_removed());

@@ -17,7 +17,7 @@
 //!   [`Arena`], [`Node`], and [`NodeId`]. (The legacy name `deser` is
 //!   still accepted as an alias.)
 //! * `par_iter` - Enable parallel iteration via `Arena::par_iter()` using
-//!   [rayon](https://docs.rs/rayon).
+//!   [rayon](https://docs.rs/rayon). Requires `std`.
 //!
 //! # Node removal and reuse
 //!

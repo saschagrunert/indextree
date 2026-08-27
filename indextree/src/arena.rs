@@ -5,7 +5,10 @@
 //! Removed nodes are recycled through an internal free list.
 
 #[cfg(not(feature = "std"))]
-use alloc::vec::{self, Vec};
+use alloc::{
+    vec,
+    vec::{IntoIter, Vec},
+};
 
 #[cfg(not(feature = "std"))]
 use core::{
@@ -26,7 +29,8 @@ use std::{
     mem,
     num::NonZeroUsize,
     ops::{Index, IndexMut},
-    slice, vec,
+    slice,
+    vec::IntoIter,
 };
 
 use crate::{Node, NodeId, node::NodeData};
@@ -626,50 +630,33 @@ impl<T> Arena<T> {
     pub fn validate(&self) -> bool {
         let len = self.nodes.len();
 
+        let is_valid = |id: NodeId| -> bool {
+            let idx = id.index0();
+            idx < len && self.nodes[idx].stamp == id.stamp() && !self.nodes[idx].is_removed()
+        };
+
+        let mut in_child_chain = vec![false; len];
+
         for (i, node) in self.nodes.iter().enumerate() {
             if node.is_removed() {
                 continue;
             }
 
-            let check_id =
-                |id: NodeId| -> bool { id.index0() < len && !self.nodes[id.index0()].is_removed() };
-
             if let Some(parent) = node.parent {
-                if !check_id(parent) {
-                    return false;
-                }
-                let p = &self.nodes[parent.index0()];
-                let mut found = false;
-                let mut child = p.first_child;
-                let mut steps = 0;
-                while let Some(c) = child {
-                    if c.index0() >= len {
-                        return false;
-                    }
-                    if c.index0() == i {
-                        found = true;
-                        break;
-                    }
-                    child = self.nodes[c.index0()].next_sibling;
-                    steps += 1;
-                    if steps > len {
-                        return false;
-                    }
-                }
-                if !found {
+                if !is_valid(parent) {
                     return false;
                 }
             }
 
             if let Some(prev) = node.previous_sibling {
-                if !check_id(prev)
+                if !is_valid(prev)
                     || self.nodes[prev.index0()].next_sibling.map(|n| n.index0()) != Some(i)
                 {
                     return false;
                 }
             }
             if let Some(next) = node.next_sibling {
-                if !check_id(next)
+                if !is_valid(next)
                     || self.nodes[next.index0()]
                         .previous_sibling
                         .map(|n| n.index0())
@@ -678,21 +665,43 @@ impl<T> Arena<T> {
                     return false;
                 }
             }
-            if let Some(first) = node.first_child {
-                if !check_id(first)
-                    || self.nodes[first.index0()].parent.map(|n| n.index0()) != Some(i)
-                {
-                    return false;
-                }
-            }
-            if let Some(last) = node.last_child {
-                if !check_id(last)
-                    || self.nodes[last.index0()].parent.map(|n| n.index0()) != Some(i)
-                {
-                    return false;
-                }
-            }
+
             if node.first_child.is_some() != node.last_child.is_some() {
+                return false;
+            }
+
+            if let Some(first) = node.first_child {
+                if !is_valid(first) {
+                    return false;
+                }
+                let mut child = Some(first);
+                let mut last_seen = first;
+                let mut steps = 0;
+                while let Some(c) = child {
+                    let idx = c.index0();
+                    if idx >= len {
+                        return false;
+                    }
+                    let child_node = &self.nodes[idx];
+                    if child_node.parent.map(|n| n.index0()) != Some(i) {
+                        return false;
+                    }
+                    in_child_chain[idx] = true;
+                    last_seen = c;
+                    child = child_node.next_sibling;
+                    steps += 1;
+                    if steps > len {
+                        return false;
+                    }
+                }
+                if node.last_child.map(|n| n.index0()) != Some(last_seen.index0()) {
+                    return false;
+                }
+            }
+        }
+
+        for (i, node) in self.nodes.iter().enumerate() {
+            if !node.is_removed() && node.parent.is_some() && !in_child_chain[i] {
                 return false;
             }
         }
@@ -868,7 +877,7 @@ impl<T> core::iter::FromIterator<T> for Arena<T> {
 /// Consumes the arena, returning an iterator over all nodes (including removed ones).
 impl<T> IntoIterator for Arena<T> {
     type Item = Node<T>;
-    type IntoIter = vec::IntoIter<Node<T>>;
+    type IntoIter = IntoIter<Node<T>>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.nodes.into_iter()

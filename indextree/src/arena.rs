@@ -613,10 +613,25 @@ impl<T> Arena<T> {
 
     /// Validates the internal consistency of the arena's tree structure.
     ///
-    /// Returns `true` if all parent-child and sibling pointers are
-    /// consistent, the free list is valid, and no cycles exist in
-    /// sibling chains. This is primarily useful after deserialization
-    /// to detect corrupted data.
+    /// Returns `true` if the arena passes all of the following checks:
+    ///
+    /// - Every live node contains actual data (not a free-list entry).
+    /// - Parent, previous/next sibling, and first/last child pointers
+    ///   all refer to valid, non-removed nodes with matching stamps.
+    /// - `first_child` and `last_child` are both set or both unset.
+    /// - Sibling back-pointers are reciprocal (prev's next == self,
+    ///   next's prev == self).
+    /// - Every child in a parent's child chain points back to that
+    ///   parent, and the chain ends at `last_child`.
+    /// - Every node claiming a parent appears in that parent's child
+    ///   chain.
+    /// - No cycles exist in sibling chains (bounded by arena length).
+    /// - The free list is well-formed: consistent first/last pointers,
+    ///   all entries are removed nodes with `NextFree` data, and no
+    ///   cycles.
+    ///
+    /// This is primarily useful after deserialization to detect
+    /// corrupted data.
     ///
     /// # Examples
     ///
@@ -627,6 +642,7 @@ impl<T> Arena<T> {
     /// root.append_value(2, &mut arena);
     /// assert!(arena.validate());
     /// ```
+    #[must_use]
     pub fn validate(&self) -> bool {
         let len = self.nodes.len();
 
@@ -640,6 +656,10 @@ impl<T> Arena<T> {
         for (i, node) in self.nodes.iter().enumerate() {
             if node.is_removed() {
                 continue;
+            }
+
+            if !matches!(node.data, NodeData::Data(_)) {
+                return false;
             }
 
             if let Some(parent) = node.parent {
@@ -860,6 +880,9 @@ impl<'a, T> IntoIterator for &'a mut Arena<T> {
 
 impl<T> Extend<T> for Arena<T> {
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        let iter = iter.into_iter();
+        let (lower, _) = iter.size_hint();
+        self.reserve(lower);
         for item in iter {
             self.new_node(item);
         }
@@ -914,6 +937,14 @@ impl<T> Index<NodeId> for Arena<T> {
     }
 }
 
+/// Mutable index by [`NodeId`].
+///
+/// Like [`Index<NodeId>`], this does **not** validate the node's stamp.
+/// For safe access, prefer [`Arena::get_mut`].
+///
+/// # Panics
+///
+/// Panics if `node` is out of bounds.
 impl<T> IndexMut<NodeId> for Arena<T> {
     #[inline]
     fn index_mut(&mut self, node: NodeId) -> &mut Node<T> {

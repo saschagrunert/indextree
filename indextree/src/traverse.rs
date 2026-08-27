@@ -75,6 +75,7 @@ macro_rules! new_iterator {
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
+            #[inline]
             fn next(&mut self) -> Option<NodeId> {
                 let next: fn(&Node<T>) -> Option<NodeId> = $next;
 
@@ -102,6 +103,7 @@ macro_rules! new_iterator {
         impl<'a, T> Iterator for $name<'a, T> {
             type Item = NodeId;
 
+            #[inline]
             fn next(&mut self) -> Option<NodeId> {
                 match (self.0.head, self.0.tail) {
                     (Some(head), Some(tail)) if head == tail => {
@@ -241,6 +243,7 @@ impl<'a, T> Descendants<'a, T> {
 impl<T> Iterator for Descendants<'_, T> {
     type Item = NodeId;
 
+    #[inline]
     fn next(&mut self) -> Option<NodeId> {
         let current = self.next.take()?;
         let node = &self.arena[current];
@@ -539,6 +542,7 @@ impl<'a, T> Traverse<'a, T> {
 impl<T> Iterator for Traverse<'_, T> {
     type Item = NodeEdge;
 
+    #[inline]
     fn next(&mut self) -> Option<NodeEdge> {
         let next = self.next.take()?;
         self.next = self.next_of_next(next);

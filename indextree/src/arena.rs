@@ -952,57 +952,62 @@ impl<T> IndexMut<NodeId> for Arena<T> {
     }
 }
 
-#[test]
-fn reuse_node() {
-    let mut arena = Arena::new();
-    let n1_id = arena.new_node("1");
-    let n2_id = arena.new_node("2");
-    let n3_id = arena.new_node("3");
-    n1_id.remove(&mut arena);
-    n2_id.remove(&mut arena);
-    n3_id.remove(&mut arena);
-    let n1_id = arena.new_node("1");
-    let n2_id = arena.new_node("2");
-    let n3_id = arena.new_node("3");
-    assert_eq!(n1_id.index0(), 0);
-    assert_eq!(n2_id.index0(), 1);
-    assert_eq!(n3_id.index0(), 2);
-    assert_eq!(arena.nodes.len(), 3);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn conserve_capacity() {
-    let mut arena = Arena::with_capacity(5);
-    let cap = arena.capacity();
-    assert!(cap >= 5);
-    for i in 0..cap {
-        arena.new_node(i);
+    #[test]
+    fn reuse_node() {
+        let mut arena = Arena::new();
+        let n1_id = arena.new_node("1");
+        let n2_id = arena.new_node("2");
+        let n3_id = arena.new_node("3");
+        n1_id.remove(&mut arena);
+        n2_id.remove(&mut arena);
+        n3_id.remove(&mut arena);
+        let n1_id = arena.new_node("1");
+        let n2_id = arena.new_node("2");
+        let n3_id = arena.new_node("3");
+        assert_eq!(n1_id.index0(), 0);
+        assert_eq!(n2_id.index0(), 1);
+        assert_eq!(n3_id.index0(), 2);
+        assert_eq!(arena.nodes.len(), 3);
     }
-    arena.clear();
-    assert!(arena.is_empty());
-    let n1_id = arena.new_node(1);
-    let n2_id = arena.new_node(2);
-    let n3_id = arena.new_node(3);
-    assert_eq!(n1_id.index0(), 0);
-    assert_eq!(n2_id.index0(), 1);
-    assert_eq!(n3_id.index0(), 2);
-    assert_eq!(arena.len(), 3);
-    assert_eq!(arena.capacity(), cap);
-}
 
-#[test]
-fn stamp_no_cycle() {
-    // Regression test for issue #95: stamps should never cycle back to
-    // a previously used value after many reuse rounds.
-    let mut arena = Arena::new();
-    for _ in 0..=i16::MAX as u32 + 1 {
-        let id = arena.new_node(42);
-        assert!(!id.is_removed(&arena));
-        id.remove(&mut arena);
-        assert!(id.is_removed(&arena));
-        let new_id = arena.new_node(42);
-        assert!(!new_id.is_removed(&arena));
-        assert!(id.is_removed(&arena));
-        new_id.remove(&mut arena);
+    #[test]
+    fn conserve_capacity() {
+        let mut arena = Arena::with_capacity(5);
+        let cap = arena.capacity();
+        assert!(cap >= 5);
+        for i in 0..cap {
+            arena.new_node(i);
+        }
+        arena.clear();
+        assert!(arena.is_empty());
+        let n1_id = arena.new_node(1);
+        let n2_id = arena.new_node(2);
+        let n3_id = arena.new_node(3);
+        assert_eq!(n1_id.index0(), 0);
+        assert_eq!(n2_id.index0(), 1);
+        assert_eq!(n3_id.index0(), 2);
+        assert_eq!(arena.len(), 3);
+        assert_eq!(arena.capacity(), cap);
+    }
+
+    #[test]
+    fn stamp_no_cycle() {
+        // Regression test for issue #95: stamps should never cycle back to
+        // a previously used value after many reuse rounds.
+        let mut arena = Arena::new();
+        for _ in 0..=i16::MAX as u32 + 1 {
+            let id = arena.new_node(42);
+            assert!(!id.is_removed(&arena));
+            id.remove(&mut arena);
+            assert!(id.is_removed(&arena));
+            let new_id = arena.new_node(42);
+            assert!(!new_id.is_removed(&arena));
+            assert!(id.is_removed(&arena));
+            new_id.remove(&mut arena);
+        }
     }
 }

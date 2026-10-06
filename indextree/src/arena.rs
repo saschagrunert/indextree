@@ -784,6 +784,11 @@ impl<T> Arena<T> {
         }
         node.data = NodeData::NextFree(None);
         node.stamp.mark_removed();
+        node.parent = None;
+        node.previous_sibling = None;
+        node.next_sibling = None;
+        node.first_child = None;
+        node.last_child = None;
         let stamp = node.stamp;
         if stamp.reuseable() {
             if let Some(index) = self.last_free_slot {

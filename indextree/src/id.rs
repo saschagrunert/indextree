@@ -149,6 +149,30 @@ impl NodeId {
         }
     }
 
+    /// Returns `true` if `self` is `other` or one of its ancestors.
+    ///
+    /// A node without children can only be an ancestor of itself, which
+    /// avoids walking the ancestors of `other` in the common case of
+    /// inserting a leaf, e.g. a newly created node.
+    fn is_ancestor_or_self_of<T>(self, other: NodeId, arena: &Arena<T>) -> bool {
+        if arena[self].first_child.is_none() {
+            return self == other;
+        }
+        other.ancestors(arena).any(|ancestor| ancestor == self)
+    }
+
+    /// Panics if the node was removed, before creating a node that would
+    /// otherwise get attached to a freed slot.
+    #[track_caller]
+    fn assert_not_removed<T>(self, arena: &Arena<T>) {
+        if self.is_removed(arena) {
+            panic!(
+                "Preconditions not met: invalid argument: {:?}",
+                NodeError::Removed
+            );
+        }
+    }
+
     /// Returns the ID of the parent node, unless this node is the root of the
     /// tree.
     ///
@@ -916,10 +940,9 @@ impl NodeId {
 
     /// Detaches a node from its parent and siblings. Children are not affected.
     ///
-    /// # Panics
-    ///
-    /// Panics if the node ID is out of bounds (e.g. after
-    /// [`Arena::clear`]).
+    /// Does nothing if the node was already removed, which includes stale IDs
+    /// whose slot has been reused by a new node, and IDs that are out of
+    /// bounds (e.g. after [`Arena::clear`]).
     ///
     /// # Examples
     ///
@@ -966,6 +989,9 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     pub fn detach<T>(self, arena: &mut Arena<T>) {
+        if self.is_removed(arena) {
+            return;
+        }
         let range = SiblingsRange::new(self, self).detach_from_siblings(arena);
         range
             .rewrite_parents(arena, None)
@@ -1018,6 +1044,7 @@ impl NodeId {
     /// ```
     ///
     /// [`remove`]: NodeId::remove
+    #[track_caller]
     pub fn append<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
         self.checked_append(new_child, arena)
             .expect("Preconditions not met: invalid argument");
@@ -1060,7 +1087,7 @@ impl NodeId {
         if self.is_removed(arena) || new_child.is_removed(arena) {
             return Err(NodeError::Removed);
         }
-        if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
+        if new_child.is_ancestor_or_self_of(self, arena) {
             return Err(NodeError::AppendAncestor);
         }
         new_child.detach(arena);
@@ -1075,7 +1102,10 @@ impl NodeId {
     ///
     /// # Panics
     ///
-    /// Panics if the arena already has `usize::max_value()` nodes.
+    /// Panics if:
+    ///
+    /// * the arena already has `usize::max_value()` nodes, or
+    /// * `self` was already [`remove`]d.
     ///
     /// # Examples
     ///
@@ -1101,7 +1131,10 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     /// [`append`]: NodeId::append
+    /// [`remove`]: NodeId::remove
+    #[track_caller]
     pub fn append_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+        self.assert_not_removed(arena);
         let new_child = arena.new_node(value);
         self.append_new_node_unchecked(new_child, arena);
 
@@ -1137,7 +1170,10 @@ impl NodeId {
     ///
     /// # Panics
     ///
-    /// Panics if the arena already has `usize::max_value()` nodes.
+    /// Panics if:
+    ///
+    /// * the arena already has `usize::max_value()` nodes, or
+    /// * `self` was already [`remove`]d.
     ///
     /// # Examples
     ///
@@ -1163,7 +1199,10 @@ impl NodeId {
     /// assert_eq!(iter.next(), None);
     /// ```
     /// [`prepend`]: NodeId::prepend
+    /// [`remove`]: NodeId::remove
+    #[track_caller]
     pub fn prepend_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+        self.assert_not_removed(arena);
         let new_child = arena.new_node(value);
         insert_first_unchecked(arena, new_child, self);
         new_child
@@ -1209,6 +1248,7 @@ impl NodeId {
     /// ```
     ///
     /// [`remove`]: NodeId::remove
+    #[track_caller]
     pub fn prepend<T>(self, new_child: NodeId, arena: &mut Arena<T>) {
         self.checked_prepend(new_child, arena)
             .expect("Preconditions not met: invalid argument");
@@ -1251,7 +1291,7 @@ impl NodeId {
         if self.is_removed(arena) || new_child.is_removed(arena) {
             return Err(NodeError::Removed);
         }
-        if self.ancestors(arena).any(|ancestor| new_child == ancestor) {
+        if new_child.is_ancestor_or_self_of(self, arena) {
             return Err(NodeError::PrependAncestor);
         }
         new_child.detach(arena);
@@ -1267,8 +1307,9 @@ impl NodeId {
     ///
     /// Panics if:
     ///
-    /// * the given new sibling is `self`, or
-    /// * the current node or the given new sibling was already [`remove`]d.
+    /// * the given new sibling is `self`,
+    /// * the current node or the given new sibling was already [`remove`]d, or
+    /// * the given new sibling is an ancestor of `self`.
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
@@ -1306,6 +1347,7 @@ impl NodeId {
     /// ```
     ///
     /// [`remove`]: NodeId::remove
+    #[track_caller]
     pub fn insert_after<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         self.checked_insert_after(new_sibling, arena)
             .expect("Preconditions not met: invalid argument");
@@ -1349,9 +1391,16 @@ impl NodeId {
     /// ```
     ///
     /// [`insert_after`]: NodeId::insert_after
+    #[track_caller]
     pub fn insert_after_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+        self.assert_not_removed(arena);
         let new_sibling = arena.new_node(value);
-        self.insert_after(new_sibling, arena);
+        let (next_sibling, parent) = {
+            let current = &arena[self];
+            (current.next_sibling, current.parent)
+        };
+        insert_with_neighbors(arena, new_sibling, parent, Some(self), next_sibling)
+            .expect("Should never fail: `new_sibling` is a new detached node");
         new_sibling
     }
 
@@ -1363,6 +1412,8 @@ impl NodeId {
     ///   is `self`.
     /// * Returns [`NodeError::Removed`] error if the given new sibling or
     ///   `self` is [`remove`]d.
+    /// * Returns [`NodeError::AppendAncestor`] error if the given new
+    ///   sibling is an ancestor of `self`.
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
@@ -1390,6 +1441,9 @@ impl NodeId {
         if self.is_removed(arena) || new_sibling.is_removed(arena) {
             return Err(NodeError::Removed);
         }
+        if new_sibling.is_ancestor_or_self_of(self, arena) {
+            return Err(NodeError::AppendAncestor);
+        }
         new_sibling.detach(arena);
         let (next_sibling, parent) = {
             let current = &arena[self];
@@ -1407,8 +1461,9 @@ impl NodeId {
     ///
     /// Panics if:
     ///
-    /// * the given new sibling is `self`, or
-    /// * the current node or the given new sibling was already [`remove`]d.
+    /// * the given new sibling is `self`,
+    /// * the current node or the given new sibling was already [`remove`]d, or
+    /// * the given new sibling is an ancestor of `self`.
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
@@ -1446,6 +1501,7 @@ impl NodeId {
     /// ```
     ///
     /// [`remove`]: NodeId::remove
+    #[track_caller]
     pub fn insert_before<T>(self, new_sibling: NodeId, arena: &mut Arena<T>) {
         self.checked_insert_before(new_sibling, arena)
             .expect("Preconditions not met: invalid argument");
@@ -1489,9 +1545,16 @@ impl NodeId {
     /// ```
     ///
     /// [`insert_before`]: NodeId::insert_before
+    #[track_caller]
     pub fn insert_before_value<T>(self, value: T, arena: &mut Arena<T>) -> NodeId {
+        self.assert_not_removed(arena);
         let new_sibling = arena.new_node(value);
-        self.insert_before(new_sibling, arena);
+        let (previous_sibling, parent) = {
+            let current = &arena[self];
+            (current.previous_sibling, current.parent)
+        };
+        insert_with_neighbors(arena, new_sibling, parent, previous_sibling, Some(self))
+            .expect("Should never fail: `new_sibling` is a new detached node");
         new_sibling
     }
 
@@ -1503,6 +1566,8 @@ impl NodeId {
     ///   is `self`.
     /// * Returns [`NodeError::Removed`] error if the given new sibling or
     ///   `self` is [`remove`]d.
+    /// * Returns [`NodeError::PrependAncestor`] error if the given new
+    ///   sibling is an ancestor of `self`.
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
@@ -1529,6 +1594,9 @@ impl NodeId {
         }
         if self.is_removed(arena) || new_sibling.is_removed(arena) {
             return Err(NodeError::Removed);
+        }
+        if new_sibling.is_ancestor_or_self_of(self, arena) {
+            return Err(NodeError::PrependAncestor);
         }
         new_sibling.detach(arena);
         let (previous_sibling, parent) = {
@@ -1579,9 +1647,9 @@ impl NodeId {
     ///
     /// To check if the node is removed or not, use [`Node::is_removed()`](crate::Node::is_removed).
     ///
-    /// # Panics
-    ///
-    /// Panics if the node ID is out of bounds.
+    /// Does nothing if the node was already removed, which includes stale IDs
+    /// whose slot has been reused by a new node, and IDs that are out of
+    /// bounds (e.g. after [`Arena::clear`]).
     ///
     /// # Examples
     ///
@@ -1627,6 +1695,9 @@ impl NodeId {
     /// ```
     ///
     pub fn remove<T>(self, arena: &mut Arena<T>) {
+        if self.is_removed(arena) {
+            return;
+        }
         debug_assert_triangle_nodes!(
             arena,
             arena[self].parent,
@@ -1694,9 +1765,9 @@ impl NodeId {
 
     /// Removes a node and its descendants from the arena.
     ///
-    /// # Panics
-    ///
-    /// Panics if the node ID is out of bounds.
+    /// Does nothing if the node was already removed, which includes stale IDs
+    /// whose slot has been reused by a new node, and IDs that are out of
+    /// bounds (e.g. after [`Arena::clear`]).
     ///
     /// # Examples
     ///
@@ -1738,26 +1809,41 @@ impl NodeId {
     /// ```
     ///
     pub fn remove_subtree<T>(self, arena: &mut Arena<T>) {
+        if self.is_removed(arena) {
+            return;
+        }
         self.detach(arena);
+        self.remove_descendants(arena);
+        arena.free_node(self);
+    }
 
-        let mut cursor = Some(self);
-        while let Some(id) = cursor {
-            let node = &arena[id];
-            let first_child = node.first_child;
+    /// Removes all descendants of this node from the arena.
+    ///
+    /// Nodes are freed in post-order, unlinking each one from its parent
+    /// before it is freed, so that no freed node is visited again and the
+    /// traversal needs no extra memory.
+    fn remove_descendants<T>(self, arena: &mut Arena<T>) {
+        let mut cursor = self;
+        loop {
+            if let Some(first_child) = arena[cursor].first_child {
+                cursor = first_child;
+                continue;
+            }
+            if cursor == self {
+                return;
+            }
+            let node = &arena[cursor];
             let next_sibling = node.next_sibling;
-            let parent = node.parent;
-            arena.free_node(id);
-            cursor = first_child.or(next_sibling).or_else(|| {
-                let mut ancestor = parent;
-                while let Some(a) = ancestor {
-                    let ancestor_node = &arena[a];
-                    if let Some(sib) = ancestor_node.next_sibling {
-                        return Some(sib);
-                    }
-                    ancestor = ancestor_node.parent;
-                }
-                None
-            });
+            let parent = node
+                .parent
+                .expect("Should never fail: a descendant always has a parent");
+            let parent_node = &mut arena[parent];
+            parent_node.first_child = next_sibling;
+            if next_sibling.is_none() {
+                parent_node.last_child = None;
+            }
+            arena.free_node(cursor);
+            cursor = next_sibling.unwrap_or(parent);
         }
     }
 
@@ -1792,9 +1878,9 @@ impl NodeId {
     /// The children retain their own subtrees and sibling relationships
     /// with each other are removed.
     ///
-    /// # Panics
-    ///
-    /// Panics if the node ID is out of bounds.
+    /// Does nothing if the node was already removed, which includes stale IDs
+    /// whose slot has been reused by a new node, and IDs that are out of
+    /// bounds (e.g. after [`Arena::clear`]).
     ///
     /// # Examples
     ///
@@ -1834,6 +1920,9 @@ impl NodeId {
     /// assert_eq!(arena[n1_2_1].parent(), Some(n1_2));
     /// ```
     pub fn detach_children<T>(self, arena: &mut Arena<T>) {
+        if self.is_removed(arena) {
+            return;
+        }
         let first = arena[self].first_child.take();
         arena[self].last_child = None;
 
@@ -1877,9 +1966,9 @@ impl NodeId {
     ///
     /// This is equivalent to calling [`remove_subtree`] on each child.
     ///
-    /// # Panics
-    ///
-    /// Panics if the node ID is out of bounds.
+    /// Does nothing if the node was already removed, which includes stale IDs
+    /// whose slot has been reused by a new node, and IDs that are out of
+    /// bounds (e.g. after [`Arena::clear`]).
     ///
     /// # Examples
     ///
@@ -1917,31 +2006,10 @@ impl NodeId {
     ///
     /// [`remove_subtree`]: NodeId::remove_subtree
     pub fn remove_children<T>(self, arena: &mut Arena<T>) {
-        let first = arena[self].first_child.take();
-        arena[self].last_child = None;
-
-        let mut cursor = first;
-        while let Some(id) = cursor {
-            let node = &arena[id];
-            let first_child = node.first_child;
-            let next_sibling = node.next_sibling;
-            let parent = node.parent;
-            arena.free_node(id);
-            cursor = first_child.or(next_sibling).or_else(|| {
-                let mut ancestor = parent;
-                while let Some(a) = ancestor {
-                    if a == self {
-                        return None;
-                    }
-                    let ancestor_node = &arena[a];
-                    if let Some(sib) = ancestor_node.next_sibling {
-                        return Some(sib);
-                    }
-                    ancestor = ancestor_node.parent;
-                }
-                None
-            });
+        if self.is_removed(arena) {
+            return;
         }
+        self.remove_descendants(arena);
     }
 
     /// Moves this node (and its subtree) to become the last child of
@@ -2001,6 +2069,7 @@ impl NodeId {
     ///
     /// [`detach`]: NodeId::detach
     /// [`append`]: NodeId::append
+    #[track_caller]
     pub fn reparent<T>(self, new_parent: NodeId, arena: &mut Arena<T>) {
         new_parent.append(self, arena);
     }

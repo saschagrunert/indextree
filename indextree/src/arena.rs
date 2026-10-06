@@ -35,13 +35,20 @@ use std::{
 
 use crate::{Node, NodeId, node::NodeData};
 
-#[derive(PartialEq, Eq, Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+#[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize))]
 /// An `Arena` structure containing certain [`Node`]s.
+///
+/// With the `serde` feature, deserialization fails if the arena does not
+/// pass [`Arena::validate`].
 pub struct Arena<T> {
     nodes: Vec<Node<T>>,
     first_free_slot: Option<usize>,
     last_free_slot: Option<usize>,
+    /// Number of live (non-removed) nodes. Derived from `nodes`, so it is not
+    /// serialized.
+    #[cfg_attr(feature = "serde", serde(skip))]
+    live: usize,
 }
 
 impl<T> Arena<T> {
@@ -52,6 +59,7 @@ impl<T> Arena<T> {
             nodes: Vec::new(),
             first_free_slot: None,
             last_free_slot: None,
+            live: 0,
         }
     }
 
@@ -70,6 +78,7 @@ impl<T> Arena<T> {
             nodes: Vec::with_capacity(n),
             first_free_slot: None,
             last_free_slot: None,
+            live: 0,
         }
     }
 
@@ -108,6 +117,8 @@ impl<T> Arena<T> {
 
     /// Retrieves the `NodeId` corresponding to a `Node` in the `Arena`.
     ///
+    /// Returns `None` if the node is not stored in this arena or was removed.
+    ///
     /// # Examples
     ///
     /// ```
@@ -129,11 +140,12 @@ impl<T> Arena<T> {
 
         let node_index = (p as usize - nodes_range.start as usize) / mem::size_of::<Node<T>>();
         let node_id = NonZeroUsize::new(node_index.wrapping_add(1))?;
+        let stamp = self.nodes[node_index].stamp;
+        if stamp.is_removed() {
+            return None;
+        }
 
-        Some(NodeId::from_non_zero_usize(
-            node_id,
-            self.nodes[node_index].stamp,
-        ))
+        Some(NodeId::from_non_zero_usize(node_id, stamp))
     }
 
     /// Retrieves the `NodeId` corresponding to the `Node` at `index` in the `Arena`, if it exists.
@@ -196,6 +208,7 @@ impl<T> Arena<T> {
             self.nodes.push(node);
             (index, stamp)
         };
+        self.live += 1;
         let next_index1 =
             NonZeroUsize::new(index.wrapping_add(1)).expect("Too many nodes in the arena");
         NodeId::from_non_zero_usize(next_index1, stamp)
@@ -204,11 +217,8 @@ impl<T> Arena<T> {
     /// Returns the number of slots in the arena, including removed nodes.
     ///
     /// Removed nodes are still counted because they remain in the
-    /// internal storage. Use [`iter()`] with [`Node::is_removed()`]
-    /// to count only live nodes.
-    ///
-    /// [`iter()`]: Arena::iter
-    /// [`Node::is_removed()`]: crate::Node::is_removed
+    /// internal storage. Use [`live_count()`](Arena::live_count) to count
+    /// only live nodes.
     ///
     /// # Examples
     ///
@@ -233,11 +243,8 @@ impl<T> Arena<T> {
     /// Returns the number of slots in the arena, including removed nodes.
     ///
     /// Removed nodes are still counted because they remain in the
-    /// internal storage. Use [`iter()`] with [`Node::is_removed()`]
-    /// to count only live nodes.
-    ///
-    /// [`iter()`]: Arena::iter
-    /// [`Node::is_removed()`]: crate::Node::is_removed
+    /// internal storage. Use [`live_count()`](Arena::live_count) to count
+    /// only live nodes.
     ///
     /// # Examples
     ///
@@ -256,7 +263,11 @@ impl<T> Arena<T> {
         self.nodes.len()
     }
 
-    /// Returns `true` if arena has no nodes, `false` otherwise.
+    /// Returns `true` if arena has no slots, `false` otherwise.
+    ///
+    /// Like [`len()`](Arena::len), this takes removed nodes into account, so
+    /// an arena whose nodes have all been removed is not empty. Check
+    /// [`live_count()`](Arena::live_count) for zero to test for live nodes.
     ///
     /// # Examples
     ///
@@ -533,6 +544,7 @@ impl<T> Arena<T> {
             nodes,
             first_free_slot: self.first_free_slot,
             last_free_slot: self.last_free_slot,
+            live: self.live,
         }
     }
 
@@ -545,7 +557,10 @@ impl<T> Arena<T> {
 
     /// Returns the number of live (non-removed) nodes in the arena.
     ///
-    /// This is O(n) as it scans all slots. For the total slot count
+    /// This is O(1). The count is maintained by the arena, so it can be off
+    /// after replacing whole nodes through [`IndexMut`], [`Arena::iter_mut`]
+    /// or `par_iter_mut`, e.g. by swapping nodes between arenas. For the
+    /// total slot count
     /// (including removed nodes), use [`len()`](Arena::len).
     ///
     /// # Examples
@@ -562,18 +577,22 @@ impl<T> Arena<T> {
     /// assert_eq!(arena.len(), 2);
     /// ```
     pub fn live_count(&self) -> usize {
-        self.nodes.iter().filter(|n| !n.is_removed()).count()
+        self.live
     }
 
     /// Clears all the nodes in the arena, but retains its allocated capacity.
     ///
     /// Note that this does not mark all nodes as removed, but completely
-    /// removes them from the arena storage, thus invalidating all the node
-    /// IDs that were previously created.
+    /// removes them from the arena storage, so all previously created node
+    /// IDs must no longer be used.
     ///
     /// After clearing, [`NodeId::is_removed`] returns `true` for any
     /// previously created ID (without panicking), and [`Arena::get`]
-    /// returns `None`.
+    /// returns `None`, until new nodes are created. Since the slots and
+    /// their stamps are discarded, new nodes reuse the indices and initial
+    /// stamps of the cleared ones, so an old ID may then refer to a new node.
+    /// Discard all IDs of the cleared arena, or remove the nodes with
+    /// [`NodeId::remove_subtree`] instead to keep stale IDs detectable.
     ///
     /// # Examples
     ///
@@ -589,6 +608,7 @@ impl<T> Arena<T> {
         self.nodes.clear();
         self.first_free_slot = None;
         self.last_free_slot = None;
+        self.live = 0;
     }
 
     /// Returns a slice of the inner nodes collection.
@@ -629,8 +649,9 @@ impl<T> Arena<T> {
     ///   all entries are removed nodes with `NextFree` data, and no
     ///   cycles.
     ///
-    /// This is primarily useful after deserialization to detect
-    /// corrupted data.
+    /// Deserialization (with the `serde` feature) already runs this check.
+    /// It is useful to verify an arena after modifying nodes directly, e.g.
+    /// through [`IndexMut`] or [`Arena::iter_mut`].
     ///
     /// # Examples
     ///
@@ -778,10 +799,13 @@ impl<T> Arena<T> {
     }
 
     pub(crate) fn free_node(&mut self, id: NodeId) {
-        let node = &mut self[id];
+        let node = &mut self.nodes[id.index0()];
         if node.is_removed() {
             return;
         }
+        // Saturating, because nodes can be swapped between arenas through
+        // `IndexMut`, which this count cannot track.
+        self.live = self.live.saturating_sub(1);
         node.data = NodeData::NextFree(None);
         node.stamp.mark_removed();
         node.parent = None;
@@ -802,6 +826,34 @@ impl<T> Arena<T> {
                 self.last_free_slot = Some(id.index0());
             }
         }
+    }
+
+    /// Removes slots that can no longer be reused from the free list.
+    ///
+    /// Older versions kept slots in the free list one generation longer than
+    /// [`NodeStamp::reuseable`](crate::id::NodeStamp) allows, so such slots
+    /// can appear in deserialized arenas. Must only be called on an arena
+    /// that passed [`Arena::validate`].
+    #[cfg(feature = "serde")]
+    fn unlink_exhausted_free_slots(&mut self) {
+        let mut previous: Option<usize> = None;
+        let mut slot = self.first_free_slot;
+        while let Some(index) = slot {
+            let NodeData::NextFree(next) = self.nodes[index].data else {
+                unreachable!("validated free list entries are free nodes");
+            };
+            if self.nodes[index].stamp.reuseable() {
+                previous = Some(index);
+            } else {
+                match previous {
+                    Some(previous) => self.nodes[previous].data = NodeData::NextFree(next),
+                    None => self.first_free_slot = next,
+                }
+                self.nodes[index].data = NodeData::NextFree(None);
+            }
+            slot = next;
+        }
+        self.last_free_slot = previous;
     }
 
     fn pop_front_free_node(&mut self) -> Option<usize> {
@@ -936,11 +988,58 @@ impl<T> IntoIterator for Arena<T> {
 
 impl<T> Default for Arena<T> {
     fn default() -> Self {
-        Self {
-            nodes: Vec::new(),
-            first_free_slot: None,
-            last_free_slot: None,
+        Self::new()
+    }
+}
+
+// The live count is derived from the nodes, so it is not compared.
+impl<T: PartialEq> PartialEq for Arena<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.nodes == other.nodes
+            && self.first_free_slot == other.first_free_slot
+            && self.last_free_slot == other.last_free_slot
+    }
+}
+
+impl<T: Eq> Eq for Arena<T> {}
+
+impl<T: core::fmt::Debug> core::fmt::Debug for Arena<T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        // The live count is derived from the nodes, so leave it out.
+        f.debug_struct("Arena")
+            .field("nodes", &self.nodes)
+            .field("first_free_slot", &self.first_free_slot)
+            .field("last_free_slot", &self.last_free_slot)
+            .finish()
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, T: Deserialize<'de>> Deserialize<'de> for Arena<T> {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        /// Same layout as the serialized `Arena`.
+        #[derive(Deserialize)]
+        #[serde(rename = "Arena")]
+        struct ArenaData<T> {
+            nodes: Vec<Node<T>>,
+            first_free_slot: Option<usize>,
+            last_free_slot: Option<usize>,
         }
+
+        let data = ArenaData::deserialize(deserializer)?;
+        let mut arena = Arena {
+            live: data.nodes.iter().filter(|n| !n.is_removed()).count(),
+            nodes: data.nodes,
+            first_free_slot: data.first_free_slot,
+            last_free_slot: data.last_free_slot,
+        };
+        if !arena.validate() {
+            return Err(serde::de::Error::custom(
+                "invalid arena: inconsistent node links or free list",
+            ));
+        }
+        arena.unlink_exhausted_free_slots();
+        Ok(arena)
     }
 }
 

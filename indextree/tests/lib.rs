@@ -1771,3 +1771,42 @@ fn extend_reserves_capacity() {
     assert!(arena.capacity() >= 100);
     assert_eq!(arena.len(), 100);
 }
+
+#[test]
+fn get_node_id_of_removed_node() {
+    let mut arena = Arena::new();
+    let n1 = arena.new_node("1");
+    let n2 = arena.new_node("2");
+    n1.remove(&mut arena);
+    assert_eq!(arena.get_node_id(&arena.as_slice()[0]), None);
+    assert_eq!(arena.get_node_id(&arena.as_slice()[1]), Some(n2));
+}
+
+#[test]
+fn live_count_tracks_all_operations() {
+    let mut arena = Arena::new();
+    let root = arena.new_node(0);
+    let a = root.append_value(1, &mut arena);
+    let b = a.append_value(2, &mut arena);
+    b.append_value(3, &mut arena);
+    root.append_value(4, &mut arena);
+    assert_eq!(arena.live_count(), 5);
+
+    a.remove_subtree(&mut arena);
+    assert_eq!(arena.live_count(), 2);
+    root.remove_children(&mut arena);
+    assert_eq!(arena.live_count(), 1);
+
+    // Reused slots are counted again.
+    root.append_value(5, &mut arena);
+    assert_eq!(arena.live_count(), 2);
+
+    let mapped = arena.map(|v| v * 2);
+    assert_eq!(mapped.live_count(), 2);
+
+    arena.clear();
+    assert_eq!(arena.live_count(), 0);
+
+    let collected: Arena<_> = (0..3).collect();
+    assert_eq!(collected.live_count(), 3);
+}

@@ -10,14 +10,16 @@
 //! # Features
 //!
 //! * `std` (default) - Enable standard library support. Disable for `no_std`
-//!   environments (requires `alloc`).
+//!   environments (requires `alloc`). All types, including the
+//!   [`core::error::Error`] implementation of [`NodeError`], are available
+//!   without it.
 //! * `macros` (default) - Enable the `tree!` macro for declarative tree
 //!   construction.
 //! * `serde` - Enable `serde` serialization and deserialization for
 //!   [`Arena`], [`Node`], and [`NodeId`]. (The legacy name `deser` is
 //!   still accepted as an alias.)
 //! * `par_iter` - Enable parallel iteration via `Arena::par_iter()` using
-//!   [rayon](https://docs.rs/rayon). Requires `std`.
+//!   [rayon](https://docs.rs/rayon). Implies `std`.
 //!
 //! # Node removal and reuse
 //!
@@ -67,7 +69,6 @@
 #![warn(missing_docs)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(not(feature = "std"))]
 extern crate alloc;
 
 pub use crate::{
@@ -85,13 +86,16 @@ pub use crate::{
 #[cfg(feature = "macros")]
 pub use indextree_macros as macros;
 
-// Compile-time assertions that Arena and NodeId are Send + Sync.
+// Compile-time assertions that Arena and NodeId are Send + Sync, and that
+// NodeError implements Error (also without the `std` feature).
 #[allow(dead_code)]
 const _: () = {
     fn assert_send_sync<T: Send + Sync>() {}
+    fn assert_error<T: core::error::Error>() {}
     fn assertions() {
         assert_send_sync::<Arena<u32>>();
         assert_send_sync::<NodeId>();
+        assert_error::<NodeError>();
     }
 };
 

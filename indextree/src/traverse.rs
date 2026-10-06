@@ -6,11 +6,7 @@
 //! All iterators are lazy, implement [`FusedIterator`](core::iter::FusedIterator),
 //! and provide [`size_hint`](Iterator::size_hint) bounds.
 
-#[cfg(not(feature = "std"))]
 use alloc::collections::VecDeque;
-
-#[cfg(feature = "std")]
-use std::collections::VecDeque;
 
 use crate::{Arena, Node, NodeId};
 

@@ -3,11 +3,7 @@
 //! [`NodeError`] is returned by the checked variants of tree mutation methods
 //! (e.g. [`NodeId::checked_append`](crate::NodeId::checked_append)).
 
-#[cfg(not(feature = "std"))]
-use core::fmt;
-
-#[cfg(feature = "std")]
-use std::{error, fmt};
+use core::{error, fmt};
 
 /// Errors returned by checked tree mutation methods.
 ///
@@ -77,7 +73,6 @@ impl fmt::Display for NodeError {
     }
 }
 
-#[cfg(feature = "std")]
 impl error::Error for NodeError {}
 
 /// An error type that represents the given structure or argument is
@@ -100,5 +95,4 @@ impl fmt::Display for ConsistencyError {
     }
 }
 
-#[cfg(feature = "std")]
 impl error::Error for ConsistencyError {}

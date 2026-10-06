@@ -4,14 +4,10 @@
 //! within an [`Arena`](crate::Arena). Most tree operations (append, remove,
 //! traverse) are methods on `NodeId` that take an `&Arena` or `&mut Arena`.
 
-#[cfg(not(feature = "std"))]
 use core::{fmt, num::NonZeroUsize};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "std")]
-use std::{fmt, num::NonZeroUsize};
 
 use crate::{
     Ancestors, Arena, BreadthFirstTraversal, Children, Descendants, FollowingSiblings, Leaves,
@@ -2228,6 +2224,8 @@ impl NodeId {
 
 #[cfg(test)]
 mod tests {
+    use alloc::string::ToString;
+
     use super::*;
 
     #[test]

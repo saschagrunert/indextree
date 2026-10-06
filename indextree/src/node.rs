@@ -4,14 +4,10 @@
 //! and siblings. Nodes are not accessed directly; instead, use
 //! [`NodeId`](crate::NodeId) to index into an [`Arena`](crate::Arena).
 
-#[cfg(not(feature = "std"))]
 use core::{fmt, hash};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "std")]
-use std::{fmt, hash};
 
 use crate::{NodeId, id::NodeStamp};
 

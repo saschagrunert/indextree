@@ -122,3 +122,27 @@ fn single_leaf_node() {
     assert_eq!(*arena[leaf].get(), "lonely");
     assert_eq!(leaf.children(&arena).count(), 0);
 }
+
+#[test]
+fn owned_root_data_is_dropped_once() {
+    use std::{cell::Cell, rc::Rc};
+
+    struct DropCounter(Rc<Cell<usize>>);
+
+    impl Drop for DropCounter {
+        fn drop(&mut self) {
+            self.0.set(self.0.get() + 1);
+        }
+    }
+
+    let drops = Rc::new(Cell::new(0));
+    let mut arena = Arena::new();
+    let root = tree!(&mut arena, DropCounter(drops.clone()) => {
+        DropCounter(drops.clone()),
+    });
+    assert_eq!(root.descendants(&arena).count(), 2);
+    // The root value is moved into the arena, not dropped or leaked.
+    assert_eq!(drops.get(), 0);
+    drop(arena);
+    assert_eq!(drops.get(), 2);
+}

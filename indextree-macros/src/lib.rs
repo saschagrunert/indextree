@@ -280,8 +280,7 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     quote! {{
         let mut __arena: &mut ::indextree::Arena<_> = #arena;
 
-        #[repr(transparent)]
-        struct __Wrapping<__T>(::core::mem::ManuallyDrop<__T>);
+        struct __Wrapping<__T>(::core::option::Option<__T>);
 
         trait __ToNodeId<__T> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId;
@@ -293,22 +292,19 @@ pub fn tree(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
         impl<__T> __NodeIdToNodeId<__T> for __Wrapping<::indextree::NodeId> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
-                // SAFETY: `take` is called exactly once per macro invocation;
-                // the `ManuallyDrop` wrapper is never read again afterwards.
-                unsafe { ::core::mem::ManuallyDrop::take(&mut self.0) }
+                ::core::option::Option::unwrap(::core::option::Option::take(&mut self.0))
             }
         }
 
         impl<__T> __ToNodeId<__T> for &mut __Wrapping<__T> {
             fn __to_node_id(&mut self, __arena: &mut ::indextree::Arena<__T>) -> ::indextree::NodeId {
-                // SAFETY: `take` is called exactly once per macro invocation;
-                // the `ManuallyDrop` wrapper is never read again afterwards.
-                ::indextree::Arena::new_node(__arena, unsafe { ::core::mem::ManuallyDrop::take(&mut self.0) })
+                let __data = ::core::option::Option::unwrap(::core::option::Option::take(&mut self.0));
+                ::indextree::Arena::new_node(__arena, __data)
             }
         }
 
         let __root_node: ::indextree::NodeId = {
-            let mut __root_node = __Wrapping(::core::mem::ManuallyDrop::new(#root_node));
+            let mut __root_node = __Wrapping(::core::option::Option::Some(#root_node));
             (&mut __root_node).__to_node_id(__arena)
         };
         let mut __node: ::indextree::NodeId = __root_node;

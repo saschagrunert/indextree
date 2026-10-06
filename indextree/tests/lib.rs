@@ -742,6 +742,115 @@ fn preceding_siblings_reverse() {
 }
 
 #[test]
+fn parentless_siblings_reverse() {
+    let mut arena = Arena::new();
+    let r1 = arena.new_node("r1");
+    let r2 = r1.insert_after_value("r2", &mut arena);
+    let r3 = r2.insert_after_value("r3", &mut arena);
+
+    let following: Vec<_> = r2.following_siblings(&arena).collect();
+    assert_eq!(following, vec![r2, r3]);
+    let following: Vec<_> = r2.following_siblings(&arena).rev().collect();
+    assert_eq!(following, vec![r3, r2]);
+
+    let preceding: Vec<_> = r2.preceding_siblings(&arena).collect();
+    assert_eq!(preceding, vec![r2, r1]);
+    let preceding: Vec<_> = r2.preceding_siblings(&arena).rev().collect();
+    assert_eq!(preceding, vec![r1, r2]);
+
+    // Meeting in the middle from both ends.
+    let mut iter = r1.following_siblings(&arena);
+    assert_eq!(iter.next(), Some(r1));
+    assert_eq!(iter.next_back(), Some(r3));
+    assert_eq!(iter.next(), Some(r2));
+    assert_eq!(iter.next_back(), None);
+    assert_eq!(iter.next(), None);
+
+    // Meeting in the middle, starting from the back.
+    let mut iter = r3.preceding_siblings(&arena);
+    assert_eq!(iter.next_back(), Some(r1));
+    assert_eq!(iter.next(), Some(r3));
+    assert_eq!(iter.next_back(), Some(r2));
+    assert_eq!(iter.next(), None);
+    assert_eq!(iter.next_back(), None);
+
+    // A single parentless node.
+    let lone = arena.new_node("lone");
+    assert_eq!(
+        lone.following_siblings(&arena).rev().collect::<Vec<_>>(),
+        vec![lone]
+    );
+    assert_eq!(
+        lone.preceding_siblings(&arena).rev().collect::<Vec<_>>(),
+        vec![lone]
+    );
+}
+
+#[test]
+fn siblings_reverse_matches_forward() {
+    let mut arena = Arena::new();
+    let root = arena.new_node("root");
+    let p = root.append_value("p", &mut arena);
+    let c1 = p.append_value("c1", &mut arena);
+    let c2 = p.append_value("c2", &mut arena);
+    let c3 = p.append_value("c3", &mut arena);
+    let r2 = root.insert_after_value("r2", &mut arena);
+    let r3 = r2.insert_after_value("r3", &mut arena);
+
+    for id in [root, p, c1, c2, c3, r2, r3] {
+        let mut forward: Vec<_> = id.following_siblings(&arena).collect();
+        forward.reverse();
+        assert_eq!(
+            id.following_siblings(&arena).rev().collect::<Vec<_>>(),
+            forward
+        );
+
+        let mut forward: Vec<_> = id.preceding_siblings(&arena).collect();
+        forward.reverse();
+        assert_eq!(
+            id.preceding_siblings(&arena).rev().collect::<Vec<_>>(),
+            forward
+        );
+    }
+}
+
+#[test]
+fn siblings_of_removed_nodes_terminate() {
+    // Removed IDs can have broken sibling links, e.g. pointing to slots that
+    // got reused. Iterating their siblings must still terminate.
+    fn assert_terminates(arena: &Arena<&str>, ids: &[indextree::NodeId]) {
+        let bound = arena.len() + 1;
+        for &id in ids {
+            assert!(id.following_siblings(arena).take(bound).count() < bound);
+            assert!(id.following_siblings(arena).rev().take(bound).count() < bound);
+            assert!(id.preceding_siblings(arena).take(bound).count() < bound);
+            assert!(id.preceding_siblings(arena).rev().take(bound).count() < bound);
+        }
+    }
+
+    // Removed children, one of whose slots is reused by a new child.
+    let mut arena = Arena::new();
+    let p = arena.new_node("p");
+    let c1 = p.append_value("c1", &mut arena);
+    let c2 = p.append_value("c2", &mut arena);
+    let c3 = p.append_value("c3", &mut arena);
+    p.remove_children(&mut arena);
+    p.append_value("new", &mut arena);
+    assert_terminates(&arena, &[c1, c2, c3]);
+
+    // Removed subtree, whose slots are reused by new roots.
+    let mut arena = Arena::new();
+    let p = arena.new_node("p");
+    let c1 = p.append_value("c1", &mut arena);
+    let c2 = p.append_value("c2", &mut arena);
+    let c3 = p.append_value("c3", &mut arena);
+    p.remove_subtree(&mut arena);
+    arena.new_node("new1");
+    arena.new_node("new2");
+    assert_terminates(&arena, &[p, c1, c2, c3]);
+}
+
+#[test]
 fn node_error_display_all_variants() {
     let err = NodeError::PrependSelf;
     assert_eq!(format!("{err}"), "Can not prepend a node to itself");

@@ -112,13 +112,19 @@ macro_rules! new_iterator {
                         self.0.tail = None;
                         Some(result)
                     }
-                    (Some(head), None) | (Some(head), Some(_)) => {
+                    (Some(head), _) => {
                         let next: fn(&Node<T>) -> Option<NodeId> = $next;
 
                         self.0.head = next(&self.0.arena[head]);
+                        if self.0.head.is_none() {
+                            // The chain ended without meeting the tail, which
+                            // only happens for broken links (e.g. removed
+                            // nodes). Stop in both directions.
+                            self.0.tail = None;
+                        }
                         Some(head)
                     }
-                    (None, Some(_)) | (None, None) => None,
+                    (None, _) => None,
                 }
             }
 
@@ -130,6 +136,18 @@ macro_rules! new_iterator {
         #[allow(clippy::redundant_closure_call)]
         impl<'a, T> ::core::iter::DoubleEndedIterator for $name<'a, T> {
             fn next_back(&mut self) -> Option<Self::Item> {
+                if let (Some(head), None) = (self.0.head, self.0.tail) {
+                    // The tail is not known upfront, e.g. for the siblings of
+                    // a parentless node. Resolve it by walking from the head,
+                    // so that this is only paid for when iterating backwards.
+                    let next: fn(&Node<T>) -> Option<NodeId> = $next;
+
+                    let mut tail = head;
+                    while let Some(node) = next(&self.0.arena[tail]) {
+                        tail = node;
+                    }
+                    self.0.tail = Some(tail);
+                }
                 match (self.0.head, self.0.tail) {
                     (Some(head), Some(tail)) if head == tail => {
                         let result = head;
@@ -137,13 +155,20 @@ macro_rules! new_iterator {
                         self.0.tail = None;
                         Some(result)
                     }
-                    (None, Some(tail)) | (Some(_), Some(tail)) => {
+                    (Some(_), Some(tail)) => {
                         let next_back: fn(&Node<T>) -> Option<NodeId> = $next_back;
 
                         self.0.tail = next_back(&self.0.arena[tail]);
+                        if self.0.tail.is_none() {
+                            // The chain ended without meeting the head, which
+                            // only happens for broken links (e.g. removed
+                            // nodes). Stop in both directions instead of
+                            // resolving the tail again.
+                            self.0.head = None;
+                        }
                         Some(tail)
                     }
-                    (Some(_), None) | (None, None) => None,
+                    _ => None,
                 }
             }
         }

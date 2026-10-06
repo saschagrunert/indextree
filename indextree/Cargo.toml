@@ -2,7 +2,7 @@
 name = "indextree"
 version = "4.9.1"
 license = "MIT"
-readme = "../README.md"
+readme = "README.md"
 keywords = ["tree", "arena", "index", "indextree"]
 authors = ["Sascha Grunert <mail@saschagrunert.de>"]
 repository = "https://github.com/saschagrunert/indextree"

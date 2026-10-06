@@ -620,12 +620,11 @@ impl<T> Arena<T> {
     ///   all refer to valid, non-removed nodes with matching stamps.
     /// - `first_child` and `last_child` are both set or both unset.
     /// - Sibling back-pointers are reciprocal (prev's next == self,
-    ///   next's prev == self).
+    ///   next's prev == self), and siblings share the same parent.
     /// - Every child in a parent's child chain points back to that
     ///   parent, and the chain ends at `last_child`.
-    /// - Every node claiming a parent appears in that parent's child
-    ///   chain.
-    /// - No cycles exist in sibling chains (bounded by arena length).
+    /// - Every live node is reachable exactly once from a root sibling
+    ///   chain, which rules out cycles in parent and sibling links.
     /// - The free list is well-formed: consistent first/last pointers,
     ///   all entries are removed nodes with `NextFree` data, and no
     ///   cycles.
@@ -651,8 +650,6 @@ impl<T> Arena<T> {
             idx < len && self.nodes[idx].stamp == id.stamp() && !self.nodes[idx].is_removed()
         };
 
-        let mut in_child_chain = vec![false; len];
-
         for (i, node) in self.nodes.iter().enumerate() {
             if node.is_removed() {
                 continue;
@@ -676,11 +673,12 @@ impl<T> Arena<T> {
                 }
             }
             if let Some(next) = node.next_sibling {
-                if !is_valid(next)
-                    || self.nodes[next.index0()]
-                        .previous_sibling
-                        .map(|n| n.index0())
-                        != Some(i)
+                if !is_valid(next) {
+                    return false;
+                }
+                let next_node = &self.nodes[next.index0()];
+                if next_node.previous_sibling.map(|n| n.index0()) != Some(i)
+                    || next_node.parent.map(|n| n.index0()) != node.parent.map(|n| n.index0())
                 {
                     return false;
                 }
@@ -706,7 +704,6 @@ impl<T> Arena<T> {
                     if child_node.parent.map(|n| n.index0()) != Some(i) {
                         return false;
                     }
-                    in_child_chain[idx] = true;
                     last_seen = c;
                     child = child_node.next_sibling;
                     steps += 1;
@@ -714,16 +711,41 @@ impl<T> Arena<T> {
                         return false;
                     }
                 }
-                if node.last_child.map(|n| n.index0()) != Some(last_seen.index0()) {
+                if node.last_child != Some(last_seen) {
                     return false;
                 }
             }
         }
 
-        for (i, node) in self.nodes.iter().enumerate() {
-            if !node.is_removed() && node.parent.is_some() && !in_child_chain[i] {
+        // Every live node must be reachable from the first node of a root
+        // sibling chain by following `first_child` and `next_sibling` links,
+        // and no node may be reached twice. Otherwise a node is part of a
+        // cycle (e.g. two nodes being each other's parent) or is not linked
+        // from its parent's child chain.
+        let mut visited = vec![false; len];
+        let mut stack: Vec<usize> = self
+            .nodes
+            .iter()
+            .enumerate()
+            .filter(|(_, node)| {
+                !node.is_removed() && node.parent.is_none() && node.previous_sibling.is_none()
+            })
+            .map(|(i, _)| i)
+            .collect();
+        let mut reached = 0;
+        while let Some(i) = stack.pop() {
+            if mem::replace(&mut visited[i], true) {
                 return false;
             }
+            reached += 1;
+            let node = &self.nodes[i];
+            stack.extend(node.next_sibling.map(NodeId::index0));
+            stack.extend(node.first_child.map(NodeId::index0));
+        }
+        // Count the live nodes directly instead of trusting any bookkeeping,
+        // since this is used to check arenas that might be inconsistent.
+        if reached != self.nodes.iter().filter(|n| !n.is_removed()).count() {
+            return false;
         }
 
         // Validate free list
@@ -1009,5 +1031,94 @@ mod tests {
             assert!(id.is_removed(&arena));
             new_id.remove(&mut arena);
         }
+    }
+
+    #[test]
+    fn validate_detects_parent_cycle() {
+        // `a` and `b` are each other's parent and only child, detached from `root`.
+        let mut arena = Arena::new();
+        let root = arena.new_node("root");
+        let a = arena.new_node("a");
+        let b = arena.new_node("b");
+        root.append(a, &mut arena);
+        a.append(b, &mut arena);
+        assert!(arena.validate());
+
+        arena[root].first_child = None;
+        arena[root].last_child = None;
+        arena[a].parent = Some(b);
+        arena[b].first_child = Some(a);
+        arena[b].last_child = Some(a);
+        assert!(!arena.validate());
+    }
+
+    #[test]
+    fn validate_detects_root_sibling_cycle() {
+        let mut arena = Arena::new();
+        let a = arena.new_node("a");
+        let b = arena.new_node("b");
+        a.insert_after(b, &mut arena);
+        assert!(arena.validate());
+
+        arena[a].previous_sibling = Some(b);
+        arena[b].next_sibling = Some(a);
+        assert!(!arena.validate());
+    }
+
+    #[test]
+    fn validate_detects_parent_cycle_in_root_chain() {
+        // `a` and `b` are reachable through the root sibling chain, but are each
+        // other's parent.
+        let mut arena = Arena::new();
+        let r = arena.new_node("r");
+        let a = r.insert_after_value("a", &mut arena);
+        let b = a.insert_after_value("b", &mut arena);
+        assert!(arena.validate());
+
+        arena[a].parent = Some(b);
+        arena[b].parent = Some(a);
+        assert!(!arena.validate());
+    }
+
+    #[test]
+    fn validate_detects_self_parent_in_root_chain() {
+        let mut arena = Arena::new();
+        let a = arena.new_node("a");
+        let r = arena.new_node("r");
+        r.insert_after(a, &mut arena);
+        assert!(arena.validate());
+
+        arena[a].parent = Some(a);
+        assert!(!arena.validate());
+    }
+
+    #[test]
+    fn validate_detects_stale_last_child() {
+        let mut arena = Arena::new();
+        let root = arena.new_node("root");
+        let child = root.append_value("child", &mut arena);
+        assert!(arena.validate());
+
+        // Same index, but the stamp of a removed node.
+        let mut stamp = child.stamp();
+        stamp.mark_removed();
+        let stale = NodeId::from_non_zero_usize(child.into(), stamp);
+        arena[root].last_child = Some(stale);
+        assert!(!arena.validate());
+    }
+
+    #[test]
+    fn validate_detects_child_missing_from_child_list() {
+        // `b` claims `root` as parent, but is not linked from its child list.
+        let mut arena = Arena::new();
+        let root = arena.new_node("root");
+        let a = root.append_value("a", &mut arena);
+        let b = arena.new_node("b");
+        assert!(arena.validate());
+
+        arena[b].parent = Some(root);
+        assert!(!arena.validate());
+        arena[b].parent = Some(a);
+        assert!(!arena.validate());
     }
 }

@@ -753,10 +753,16 @@ fn node_error_display_all_variants() {
     assert_eq!(format!("{err}"), "Can not insert a node after itself");
 
     let err = NodeError::AppendAncestor;
-    assert_eq!(format!("{err}"), "Can not append a node to its descendant");
+    assert_eq!(
+        format!("{err}"),
+        "Can not append a node to, or insert it after, its descendant"
+    );
 
     let err = NodeError::PrependAncestor;
-    assert_eq!(format!("{err}"), "Can not prepend a node to its descendant");
+    assert_eq!(
+        format!("{err}"),
+        "Can not prepend a node to, or insert it before, its descendant"
+    );
 }
 
 #[test]

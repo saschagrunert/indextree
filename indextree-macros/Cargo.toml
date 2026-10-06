@@ -1,6 +1,6 @@
 [package]
 name = "indextree-macros"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 rust-version = "1.85.0"
 license = "MIT"

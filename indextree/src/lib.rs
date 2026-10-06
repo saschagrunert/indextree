@@ -105,3 +105,9 @@ mod id;
 mod node;
 pub(crate) mod siblings_range;
 mod traverse;
+
+// Compile and run the README examples as doctests. One of them uses the
+// `tree!` macro, so they need the `macros` feature.
+#[cfg(all(doctest, feature = "macros"))]
+#[doc = include_str!("../README.md")]
+struct ReadmeDoctests;

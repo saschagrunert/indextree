@@ -4,13 +4,11 @@
 //! contiguously in a single `Vec` and referenced by [`NodeId`](crate::NodeId).
 //! Removed nodes are recycled through an internal free list.
 
-#[cfg(not(feature = "std"))]
 use alloc::{
     vec,
     vec::{IntoIter, Vec},
 };
 
-#[cfg(not(feature = "std"))]
 use core::{
     mem,
     num::NonZeroUsize,
@@ -23,15 +21,6 @@ use rayon::prelude::*;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-#[cfg(feature = "std")]
-use std::{
-    mem,
-    num::NonZeroUsize,
-    ops::{Index, IndexMut},
-    slice,
-    vec::IntoIter,
-};
 
 use crate::{Node, NodeId, node::NodeData};
 

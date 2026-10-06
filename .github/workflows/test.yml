@@ -103,7 +103,7 @@ jobs:
             ~/.cargo/registry
           key: rust-test-no-std-${{ matrix.features }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-test-no-std-${{ matrix.features }}-
-      - run: cargo test --no-default-features ${{ matrix.features && format('--features {0}', matrix.features) }}
+      - run: cargo test -p indextree --no-default-features ${{ matrix.features && format('--features {0}', matrix.features) }}
 
   test-platform:
     strategy:
@@ -142,6 +142,7 @@ jobs:
           key: rust-no-std-target-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-no-std-target-
       - run: cargo check -p indextree --target thumbv7em-none-eabihf --no-default-features
+      - run: cargo check -p indextree --target thumbv7em-none-eabihf --no-default-features --features serde,macros
 
   nightly:
     runs-on: ubuntu-latest

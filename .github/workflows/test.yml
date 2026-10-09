@@ -183,7 +183,7 @@ jobs:
           key: rust-coverage-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-coverage-
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@861a07ce7084f55488e375df125cdc99bba60eb7 # v2.87.23
+        uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-llvm-cov
       - name: Generate code coverage
@@ -203,7 +203,7 @@ jobs:
         with:
           toolchain: stable
       - run: cargo generate-lockfile
-      - uses: taiki-e/install-action@861a07ce7084f55488e375df125cdc99bba60eb7 # v2.87.23
+      - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-deny
       - run: cargo deny check
@@ -223,7 +223,7 @@ jobs:
             ~/.cargo/registry
           key: rust-semver-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-semver-
-      - uses: taiki-e/install-action@861a07ce7084f55488e375df125cdc99bba60eb7 # v2.87.23
+      - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-semver-checks
       - run: cargo semver-checks

@@ -183,7 +183,7 @@ jobs:
           key: rust-coverage-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-coverage-
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
+        uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8 # v2.87.28
         with:
           tool: cargo-llvm-cov
       - name: Generate code coverage
@@ -203,7 +203,7 @@ jobs:
         with:
           toolchain: stable
       - run: cargo generate-lockfile
-      - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
+      - uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8 # v2.87.28
         with:
           tool: cargo-deny
       - run: cargo deny check
@@ -223,7 +223,7 @@ jobs:
             ~/.cargo/registry
           key: rust-semver-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: rust-semver-
-      - uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
+      - uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8 # v2.87.28
         with:
           tool: cargo-semver-checks
       - run: cargo semver-checks
@@ -251,7 +251,7 @@ jobs:
         run: cargo doc --no-deps --no-default-features
         env:
           RUSTDOCFLAGS: -D warnings
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: docs
           path: target/doc
@@ -265,7 +265,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: docs
           path: target/doc
